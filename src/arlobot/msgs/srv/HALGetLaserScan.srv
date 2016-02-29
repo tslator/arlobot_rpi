@@ -1,0 +1,4 @@
+---
+float32[] ranges
+float32[] intensities
+float32 time_increment

@@ -1,0 +1,22 @@
+hal_service_timeout_rate: 1
+
+base_node_loop_rate=1
+
+drive_node_drive_type="ArlobotDifferential"
+drive_node_loop_rate=10
+sensors_node_loop_rate=10
+
+# Arlobot base mechanicals
+track_width=0.4030 # meter
+tick_per_revoution=72
+wheel_diameter=0.1524 # meter
+
+
+# Speed constraints
+max_linear_speed=1.0 # meter/sec
+max_angular_speed=1.0 # rad/sec
+
+
+# Drive Control
+drive_node_gains={"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}
+diff_drive_loop_rate=10
