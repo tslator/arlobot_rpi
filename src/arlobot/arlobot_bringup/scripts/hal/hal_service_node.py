@@ -240,29 +240,6 @@ class HALServiceNode:
         rospy.loginfo("HALGetTemp EXIT")
         return HALGetTwoValuesResponse(value_1=imu_temp['c'], value_2=pp_temp['c'])
 
-    def _hal_power_on_base_node(self, request):
-        rospy.loginfo("HALPowerOnBaseNode ENTER")
-        success = False
-        message = ""
-        try:
-            self._hal.PowerOnBaseNode()
-            success = True
-        except HardwareAbstractionLayerError:
-            raise HALServiceNodeError("Failure calling HAL::PowerOnBaseNode")
-        rospy.loginfo("HALPowerOnBaseNode EXIT")
-        return TriggerResponse(success=success, message=message)
-
-    def _hal_power_off_base_node(self, request):
-        rospy.loginfo("HALPowerOffBaseNode ENTER")
-        success = False
-        try:
-            self._hal.PowerOffBaseNode()
-            success = True
-        except HardwareAbstractionLayerError:
-            raise HALServiceNodeError("Failure calling HAL::PowerOffBaseNode")
-        rospy.loginfo("HALPowerOffBaseNode EXIT")
-        return TriggerResponse(success=success, message="")
-
     def Start(self):
         rospy.loginfo("HAL Service Node starting ...")
         if not self._startup():
@@ -285,8 +262,6 @@ class HALServiceNode:
         self._services['HALGetBattVoltage'] = rospy.Service('HALGetBattVoltage', HALGetOneValue, self._hal_get_batt_voltage)
         self._services['HALGetBattCurrent'] = rospy.Service('HALGetBattCurrent', HALGetOneValue, self._hal_get_batt_current)
         self._services['HALGetTemp'] = rospy.Service('HALGetTemp', HALGetTwoValues, self._hal_get_temp)
-        self._services['HALPowerOnBaseNode'] = rospy.Service('HALPowerOnBaseNode', Trigger, self._hal_power_on_base_node)
-        self._services['HALPowerOffBaseNode'] = rospy.Service('HALPowerOffBaseNode', Trigger, self._hal_power_off_base_node)
 
         rospy.spin()
         rospy.logwarn("HAL Service Node: shutdown invoked, exiting")

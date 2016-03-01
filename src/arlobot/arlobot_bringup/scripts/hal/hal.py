@@ -30,22 +30,22 @@ class HardwareAbstractionLayer(object):
         self._simulated = simulated
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_INITIAL
 
-        i2c_device = rospy.get_param("~baseconfig/rpiI2CDevice", I2CBus.DEV_I2C_1)
+        i2c_device = rospy.get_param("I2C Device", I2CBus.DEV_I2C_1)
 
-        left_psoc4_addr = rospy.get_param("~baseconfig/leftboardI2CAddress", Psoc4Hw.LEFT_PSOC4_ADDR)
-        right_psoc4_addr = rospy.get_param("~baseconfig/rightboardI2CAddress", Psoc4Hw.RIGHT_PSOC4_ADDR)
+        left_psoc4_addr = rospy.get_param("Left Psoc4 I2C Address", Psoc4Hw.LEFT_PSOC4_ADDR)
+        right_psoc4_addr = rospy.get_param("Right Psoc4 I2C Address", Psoc4Hw.RIGHT_PSOC4_ADDR)
 
-        imu_mag_addr = rospy.get_param("~baseconfig/imuI2CMagAddress", ImuHw.MAG_ADDR)
-        imu_acc_addr = rospy.get_param("~baseconfig/imuI2CAccAddress", ImuHw.ACC_ADDR)
-        powerpi_avr_addr = rospy.get_param("~baseconfig/powerI2CAVR", PowerPiHw.AVR_ADDR)
-        powerpi_ina219_addr = rospy.get_param("~baseconfig/powerI2CINA219", PowerPiHw.INC219_ADDR)
-        xv11_port = rospy.get_param("~baseconfig/xv11Port", Xv11Hw.PORT)
-        xv11_baud = rospy.get_param("~baseconfig/xv11Baud", Xv11Hw.BAUD)
+        imu_mag_addr = rospy.get_param("IMU Mag I2C Address", ImuHw.MAG_ADDR)
+        imu_acc_addr = rospy.get_param("IMU Acc I2C Address", ImuHw.ACC_ADDR)
+        powerpi_avr_addr = rospy.get_param("Power Pi AVR I2C Address", PowerPiHw.AVR_ADDR)
+        powerpi_ina219_addr = rospy.get_param("Power Pi INA219 I2C Address", PowerPiHw.INC219_ADDR)
+        xv11_port = rospy.get_param("XV11 Port", Xv11Hw.PORT)
+        xv11_baud = rospy.get_param("XV11 Baud", Xv11Hw.BAUD)
 
         if self._simulated:
-            self._diameter = 0.1524
+            self._diameter = rospy.get_param("Wheel Diameter")
             self._circumference = math.pi * self._diameter
-            self._tick_per_revolution = 72
+            self._tick_per_revolution = rospy.get_param("Tick Per Revolution")
             self._meter_per_revolution = self._circumference
             self._tick_per_meter = self._tick_per_revolution / self._meter_per_revolution
             self._lock = RLock()
@@ -166,6 +166,8 @@ class HardwareAbstractionLayer(object):
         rospy.loginfo("HAL is stopped")
 
         # Is there anything we need to do here?  What about sending a command to the Psoc4 to powerdown the HB25's
+        self._left_psoc4.SetControl(self._left_psoc4.MOTOR_CONTROLLER_OFF)
+        self._right_psoc4.SetControl(self._right_psoc4.MOTOR_CONTROLLER_OFF)
 
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_SHUTDOWN
 
@@ -177,7 +179,7 @@ class HardwareAbstractionLayer(object):
                 self._left_speed = left
                 self._right_speed = right
 
-            #rospy.loginfo("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
+            #rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
         else:
             self._left_psoc4.SetSpeed(left)
             self._right_psoc4.SetSpeed(right)
@@ -195,7 +197,7 @@ class HardwareAbstractionLayer(object):
                 # Note: This is a simulation of the encoder counts so quantize them to integer values
                 left = self._left_count
                 right = self._right_count
-            #rospy.loginfo("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
+            #rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
         else:
             left = self._left_psoc4.GetCount()
             right = self._right_psoc4.GetCount()
@@ -226,6 +228,7 @@ class HardwareAbstractionLayer(object):
             front = []
             back = []
         else:
+            # Note: There are no left/right infrared sensors, but there are front and back
             front = self._left_psoc4.GetUlrasonicDistances()
             back = self._right_psoc4.GetUlrasonicDistances()
 
@@ -288,23 +291,6 @@ class HardwareAbstractionLayer(object):
             pp_temp = self._powerpi.GetTemp()
         return {"imu" : imu_temp, "pp" : pp_temp}
 
-    def PowerOnBaseNode(self):
-        if self._simulated:
-            pass
-        else:
-            self._usb2go.SetOutput(self.__RASPBERRY_PI_POWER, True)
-
-        # Note, some additional checking can be done on the PowerPi.  Maybe we should stay here until the PowerPi
-        # sends a good status wrt to power and then return
-
-    def PowerOffBaseNode(self):
-        if self._simulated:
-            pass
-        else:
-            self._usb2go.SetOutput(self.__RASPBERRY_PI_POWER, False)
-
-        # Note, some additional functionality is provided via the PowerPi which would allow the Raspberry Pi to be
-        # shutdown cleanly.
 
 if __name__ == "__main__":
     hal = HardwareAbstractionLayer()

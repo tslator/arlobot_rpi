@@ -109,18 +109,3 @@ class HALProxy:
         response = get_temp()
         return {"imu" : response.value_1, "pp" : response.value_2}
 
-    def PowerOnBaseNode(self):
-        power_on_base_node = rospy.ServiceProxy('HALPowerOnBaseNode', Trigger)
-        response = power_on_base_node()
-        return response.success
-
-        # Note, some additional checking can be done on the PowerPi.  Maybe we should stay here until the PowerPi
-        # sends a good status wrt to power and then return
-            
-    def PowerOffBaseNode(self):
-        power_off_base_node = rospy.ServiceProxy('HALPowerOffBaseNode', Trigger)
-        response = power_off_base_node()
-        return response.success
-
-        # Note, some additional checking can be done on the PowerPi.  Maybe we should stay here until the PowerPi
-        # sends a good status wrt to power and then return

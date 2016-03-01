@@ -33,7 +33,7 @@ class ArlobotSensorsNode:
             rospy.init_node('arlobot_sensors_node')
         rospy.on_shutdown(self.Shutdown)
 
-        loop_rate = rospy.get_param("sensors_node_loop_rate", 10)
+        loop_rate = rospy.get_param("Sensors Node Loop Rate")
         self._loop_rate = rospy.Rate(loop_rate)
 
         # Initialization

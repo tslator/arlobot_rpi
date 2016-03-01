@@ -14,7 +14,6 @@ from msgs.msg import DriveSpeed, DriveStatus
 class ArlobotDriveNodeError(ArlobotError):
     pass
 
-
 class ArlobotDriveNode:
     def __init__(self):
         enable_debug = rospy.get_param('debug', False)
@@ -26,17 +25,17 @@ class ArlobotDriveNode:
 
         self._OdometryTransformBroadcaster = tf.TransformBroadcaster()
 
-        track_width = rospy.get_param("track_width", 0.4030)
-        ticks_per_rev = rospy.get_param("tick_per_revoution", 72)
-        wheel_diameter = rospy.get_param("wheel_diameter", 0.1524)
-        max_linear_speed = rospy.get_param("max_linear_speed", 1.0)
-        max_angular_speed = rospy.get_param("max_angular_speed", 1.0)
-        gains = rospy.get_param("drive_node_gains", {"kp" : 1.0, "ki" : 0.1, "kd" : 0.01})
-        loop_rate = rospy.get_param("drive_node_loop_rate", 5)
-        diff_drive_loop_rate = rospy.get_param("diff_drive_loop_rate", 20)
+        track_width = rospy.get_param("Track Width")
+        ticks_per_rev = rospy.get_param("Tick Per Revolution")
+        wheel_diameter = rospy.get_param("Wheel Diameter")
+        max_linear_speed = rospy.get_param("Max Linear Speed")
+        max_angular_speed = rospy.get_param("Max Angular Speed")
+        gains = rospy.get_param("Drive Node Gains")
+        loop_rate = rospy.get_param("Drive Node Loop Rate")
+        diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
 
         meter_per_tick = (math.pi * wheel_diameter) / ticks_per_rev
-        drive_type = rospy.get_param("drive_node_drive_type", "ArlobotDifferential")
+        drive_type = rospy.get_param("Drive Node Drive Type", "ArlobotDifferential")
 
         if drive_type.lower() == "ArlobotDifferential".lower():
             try:

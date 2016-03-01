@@ -1,22 +1,35 @@
-hal_service_timeout_rate: 1
-
-base_node_loop_rate=1
-
-drive_node_drive_type="ArlobotDifferential"
-drive_node_loop_rate=10
-sensors_node_loop_rate=10
-
-# Arlobot base mechanicals
-track_width=0.4030 # meter
-tick_per_revoution=72
-wheel_diameter=0.1524 # meter
-
+# Robot drive and mechanical parameters
+Drive Type: "ArlobotDifferential"
+Track Width: 0.4030 # meter
+Tick Per Revolution: 72
+Wheel Diameter: 0.1524 # meter
 
 # Speed constraints
-max_linear_speed=1.0 # meter/sec
-max_angular_speed=1.0 # rad/sec
+Max Linear Speed: 1.0 # meter/sec
+Max Angular Speed: 1.0 # rad/sec
 
+# Node parameters
+Base Node Loop Rate: 1
+Drive Node Loop Rate: 10
+Sensors Node Loop Rate: 10
+Diff Drive Loop Rate: 10
+
+# HAL parameters
+HAL Service Timeout Rate: 1
+HAL Simulate: True
+I2C Device: 1
+Left Psoc4 I2C Address: 0x08
+Right Psoc4 I2C Address: 0x09
+IMU Mag I2C Address: 0x1e
+IMU Acc I2C Address: 0x1d
+Power Pi AVR I2C Address: 0x21
+Power Pi INA219 I2C Address: 0x40
+XV11 Port: "/dev/ttyUSB0"
+XV11 Baud: 115200
 
 # Drive Control
-drive_node_gains={"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}
-diff_drive_loop_rate=10
+Drive Node Gains: {"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}
+
+# Sensors Parameters
+# I was thinking about either an enable/disable for each sensor type or maybe just control over publishing.  There is no
+# specific need here at the moment.
