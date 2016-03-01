@@ -53,14 +53,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hal_service_node.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="hal_service_node.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.6601796">
+            <state vertical-scroll-proportion="0.0">
               <caret line="74" column="17" selection-start-line="74" selection-start-column="17" selection-end-line="74" selection-end-column="17" />
               <folding>
                 <element signature="e#23#35#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot_stack.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot_stack.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0931677">
+              <caret line="4" column="130" selection-start-line="4" selection-start-column="130" selection-end-line="4" selection-end-column="130" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -77,7 +87,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/arlobot/msgs/srv/HALSetTwoValues.srv" />
         <option value="$PROJECT_DIR$/src/arlobot/msgs/srv/HALGetTwoValues.srv" />
         <option value="$PROJECT_DIR$/src/arlobot/msgs/srv/HALGetFloatArray.srv" />
         <option value="$PROJECT_DIR$/src/arlobot/msgs/srv/HALGetOneValue.srv" />
@@ -124,10 +133,11 @@
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_teleop/launch/keyboard_teleop.launch" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_drive_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_diff_drive.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/common.urdf.xacro" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/common.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/kinect.urdf.xacro" />
       </list>
     </option>
   </component>
@@ -170,6 +180,16 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="arlobot_rpi" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -1109,34 +1129,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot_stack.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.5">
-          <caret line="4" column="130" selection-start-line="4" selection-start-column="130" selection-end-line="4" selection-end-column="130" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/turtlebot_properties.urdf.xacro">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.83386075">
-          <caret line="461" column="108" selection-start-line="461" selection-start-column="108" selection-end-line="461" selection-end-column="108" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/common.urdf.xacro">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6754658">
-          <caret line="29" column="17" selection-start-line="29" selection-start-column="17" selection-end-line="29" selection-end-column="17" />
           <folding />
         </state>
       </provider>
@@ -1185,11 +1181,43 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.6601796">
+        <state vertical-scroll-proportion="0.0">
           <caret line="74" column="17" selection-start-line="74" selection-start-column="17" selection-end-line="74" selection-end-column="17" />
           <folding>
             <element signature="e#23#35#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/kinect.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-15.625">
+          <caret line="25" column="83" selection-start-line="25" selection-start-column="83" selection-end-line="25" selection-end-column="83" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-205.625">
+          <caret line="329" column="32" selection-start-line="329" selection-start-column="32" selection-end-line="329" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/common.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.0">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot_stack.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0931677">
+          <caret line="4" column="130" selection-start-line="4" selection-start-column="130" selection-end-line="4" selection-end-column="130" />
+          <folding />
         </state>
       </provider>
     </entry>

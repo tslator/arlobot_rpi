@@ -16,17 +16,24 @@
     http://www.ros.org/reps/rep-0119.html
    -->
   <!-- This is where the Xtion location is set. I do not think it has any other function. -->
-  <xacro:include filename="$(find arlobot_description)/urdf/turtlebot_properties.urdf.xacro"/>
+  <!-- <xacro:include filename="$(find arlobot_description)/urdf/turtlebot_properties.urdf.xacro"/> -->
+  <!-- <property name="cam_px" value="-0.087" /> -->
+  <!--    <property name="cam_py" value="-0.0125" /> Y varies for different configurations. get sets in sensors_urdf -->
+  <!-- <property name="cam_pz" value="0.2870" /> -->
 
   <!-- ArloBot -->
   <!-- There is no actual ArloBot model, I never made one. -->
   <xacro:include filename="$(find arlobot_description)/urdf/arlo.urdf.xacro"/>
 
   <!-- 3D Sensor -->
-  <xacro:include filename="$(find arlobot_description)/urdf/asus_xtion_pro.urdf.xacro"/>
+  <!-- <xacro:include filename="$(find arlobot_description)/urdf/asus_xtion_pro.urdf.xacro"/> -->
+  <xacro:include filename="$(find arlobot_description)/urdf/kinect.urdf.xacro"/>
 
   <create/>
-  <stack_circles parent="base_link"/>
-  <stack_circles1 parent="base_link"/>
-  <sensor_asus_xtion_pro  parent="base_link"/>
+  <!-- <stack_circles parent="base_link"/> -->
+  <!-- <stack_circles1 parent="base_link"/> -->
+  <arlobot_circle_0 parent="base_link" />
+  <arlobot_circle_1 parent="base_link" />
+  <!-- <sensor_asus_xtion_pro  parent="base_link"/> -->
+  <sensor_kinect parent="base_link"/>
 </robot>
