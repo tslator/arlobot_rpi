@@ -1,4 +1,0 @@
-uint8 left_speed
-uint8 right_speed
-uint32 delta_left_count
-uint32 delta_right_count

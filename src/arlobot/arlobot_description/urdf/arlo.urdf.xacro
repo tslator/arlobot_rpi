@@ -278,7 +278,31 @@
       <axis xyz="0 1 0"/>
     </joint>
 
+    <!--<range_sensor parent="base_link" sensor_type="ultrasonic" number="0" x_loc="0.2" y_loc="0" z_loc="0.3695" l="0.0174" w="0.06" h="0.0644"/>-->
+    <!--
+    <joint name="ultrasonic_array_0_joint" type="fixed">
+      <origin xyz="0.2 0 0.03695" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="ultrasonic_array_0" />
+    </joint>
+
+    <link name="ultrasonic_array_0">
+      <visual>
+        <geometry>
+          <box size="0.0174 0.06 0.0644" />
+        </geometry>
+      </visual>
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
+          iyy="0.0001" iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+    </link>
+    -->
     <!-- This pretends to be in the center in order to aid in calculating degrees from multiple sensors on one fake laser scan -->
+    <!--
     <joint name="ping_array_joint" type="fixed">
       <origin xyz="0 0 0.03695" rpy="0 0 0" />
       <parent link="base_link" />
@@ -320,7 +344,7 @@
           izz="0.0001" />
       </inertial>
     </link>
-
+    -->
   <!-- XV11 Neato Laser scanner. Hopefully it is exactly in the center. :) -->
   <joint name="neato_laser_joint" type="fixed">
     <!-- Minor adjustments based on ligning up XV11 output with 3D Sensor output -->
@@ -418,7 +442,7 @@
 
   <!-- This is the first platter above the base with standoffs -->
   <xacro:macro name="arlobot_circle_0" params="parent">
-     <turtlebot_platter parent="${parent}" number="0" z_loc="0.1365" length="0.0095" radius="0.2245"/>
+      <turtlebot_platter parent="${parent}" number="0" z_loc="0.1365" length="0.0095" radius="0.2245"/>
       <turtlebot_standoff_5in parent="${parent}" number="0" x_loc="0.0676402" y_loc="0.1314196" z_loc="0.06825"/>
       <turtlebot_standoff_5in parent="${parent}" number="1" x_loc="0.0676402" y_loc="-0.1314196" z_loc="0.06825"/>
       <turtlebot_standoff_5in parent="${parent}" number="2" x_loc="-0.052832" y_loc="-0.1314196" z_loc="0.06825"/>
@@ -434,5 +458,130 @@
       <turtlebot_standoff_5in parent="${parent}" number="7" x_loc="-0.052832" y_loc="0.1314196" z_loc="0.20475"/>
   </xacro:macro>
 
+
+    <!--<xacro:macro name="range_sensor" params="parent sensor_type number x_loc y_loc z_loc l w h">-->
+
+
+    <xacro:macro name="range_sensor" params="parent sensor_type location number p_angle y_angle x_loc y_loc z_loc l w h">
+        <joint name="${sensor_type}_array_${location}_${number}_joint" type="fixed">
+          <origin xyz="${x_loc} ${y_loc} ${z_loc}" rpy="0 ${p_angle} ${y_angle}" />
+          <parent link="${parent}" />
+          <child link="${sensor_type}_array_${location}_${number}" />
+        </joint>
+
+        <link name="${sensor_type}_array_${location}_${number}">
+          <visual>
+            <geometry>
+              <box size="${l} ${w} ${h}" />
+            </geometry>
+          </visual>
+          <inertial>
+            <mass value="0.001" />
+            <origin xyz="0 0 0" />
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
+              iyy="0.0001" iyz="0.0"
+              izz="0.0001" />
+          </inertial>
+        </link>
+    </xacro:macro>
+
+    <xacro:macro name="ultrasonic_array" params="parent">
+        <!--
+        x = cx + r * cos(a), where cx = 0
+        y = cy + r * sin(a), where cy = 0
+
+        Lower Platter - 5 sensors on front, 5 sensors on back, 2*pi/12 = 0.5242 distribution (no sensors on sides)
+
+                                      Angle                 Cos(Angle)       Sin(Angle)
+        US Sensor 0   2*pi - 2 * (2 * pi / 12) = 5.242        0.5052           -0.8630
+        US Sensor 1   2*pi - 1 * (2 * pi / 12) = 5.766        0.8692           -0.4944
+        US Sensor 2   2*pi - 0 * (2 * pi / 12) = 6.29         1                0
+        US Sensor 3   2*pi + 1 * (2 * pi / 12) = 6.814        0.8692           0.4944
+        US Sensor 4   2*pi + 2 * (2 * pi / 12) = 7.338        0.5052           0.8630
+
+
+        0*2Pi/12  0.0     1.0       0.0
+        1*2Pi/12  0.5236  0.8660    0.5
+        2*2Pi/12  1.0472  0.5       0.8660
+        NOT USED: 3*2Pi/12  1.5708  0         1.0
+        4*2Pi/12  2.0944 -0.5,      0.8660
+        5*2Pi/12  2.6180 -0.8660    0.5
+        6*2Pi/12  3.1416 -1.0       0.0
+        7*2Pi/12  3.6652 -0.8660   -0.5
+        8*2Pi/12  4.1888 -0.5      -0.8660
+        NOT USED: 9*2Pi/12  4.7124  0.0      -1.0
+        10*2Pi/12 5.2360  0.5      -0.8660
+        11*2Pi/12 5.7596  0.8660   -0.5
+
+        0.0     1.0     0.0
+        0.7854  0.7071  0.7071
+        NOT USED 1.5708  0.0     1.0
+        2.3562 -0.7071  0.7071
+        3.1416 -1.0     0.0
+        3.9270 -0.7071 -0.7071
+        NOT USED 4.7124  0.0    -1.0
+        5.4978  0.7071 -0.7071
+
+        -->
+
+        <!-- Front Ultrasonic Sensors -->
+
+        <!-- Lower level sensors -->
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="0" p_angle="0" y_angle="5.2360" x_loc="${(0.2245-0.0174) *  0.5000}" y_loc="${(0.2245-0.0174) * -0.8660}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="1" p_angle="0" y_angle="5.7596" x_loc="${(0.2245-0.0174) *  0.8660}" y_loc="${(0.2245-0.0174) * -0.5000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="2" p_angle="0" y_angle="0.0000" x_loc="${(0.2245-0.0174) *  1.0000}" y_loc="${(0.2245-0.0174) *  0.0000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="3" p_angle="0" y_angle="1.0472" x_loc="${(0.2245-0.0174) *  0.5000}" y_loc="${(0.2245-0.0174) *  0.8660}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="4" p_angle="0" y_angle="0.5236" x_loc="${(0.2245-0.0174) *  0.8660}" y_loc="${(0.2245-0.0174) *  0.5000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+
+        <!-- Middle level sensors -->
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="5" p_angle="0" y_angle="5.4978" x_loc="${(0.2245-0.0174) *  0.7071}" y_loc="${(0.2245-0.0174) * -0.7071}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="6" p_angle="0" y_angle="0.0000" x_loc="${(0.2245-0.0174) *  1.0000}" y_loc="${(0.2245-0.0174) *  0.0000}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="7" p_angle="0" y_angle="0.7854" x_loc="${(0.2245-0.0174) *  0.7071}" y_loc="${(0.2245-0.0174) *  0.7071}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+
+        <!-- Back Ultrasonic Sensors -->
+
+        <!-- Lower level sensors -->
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="0" p_angle="0" y_angle="4.1888" x_loc="${(0.2245-0.0174) * -0.5000}" y_loc="${(0.2245-0.0174) * -0.8660}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="1" p_angle="0" y_angle="3.6652" x_loc="${(0.2245-0.0174) * -0.8660}" y_loc="${(0.2245-0.0174) * -0.5000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="2" p_angle="0" y_angle="3.1416" x_loc="${(0.2245-0.0174) * -1.0000}" y_loc="${(0.2245-0.0174) *  0.0000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="3" p_angle="0" y_angle="2.6180" x_loc="${(0.2245-0.0174) * -0.8660}" y_loc="${(0.2245-0.0174) *  0.5000}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="4" p_angle="0" y_angle="2.0944" x_loc="${(0.2245-0.0174) * -0.5000}" y_loc="${(0.2245-0.0174) *  0.8660}" z_loc="0.03695" l="0.0174" w="0.06" h="0.0644"/>
+
+        <!-- Middle level sensors -->
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="5" p_angle="0" y_angle="3.9270" x_loc="${(0.2245-0.0174) * -0.7071}" y_loc="${(0.2245-0.0174) * -0.7071}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="6" p_angle="0" y_angle="3.1416" x_loc="${(0.2245-0.0174) * -1.0000}" y_loc="${(0.2245-0.0174) *  0.0000}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="7" p_angle="0" y_angle="2.3562" x_loc="${(0.2245-0.0174) * -0.7071}" y_loc="${(0.2245-0.0174) *  0.7071}" z_loc="0.16395" l="0.0174" w="0.06" h="0.0644"/>
+
+    </xacro:macro>
+
+
+    <xacro:macro name="infrared_array" params="parent">
+
+        <!-- Front Infrared Sensors -->
+        <!-- Lower level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="0.7854" y_angle="5.7596" x_loc="${(0.2245) *  0.8660}" y_loc="${(0.2245) * -0.5000}" z_loc="-0.0095" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="0.7854" y_angle="0.5236" x_loc="${(0.2245) *  0.8660}" y_loc="${(0.2245) *  0.5000}" z_loc="-0.0095" l="0.01" w="0.035" h="0.01"/>
+        <!-- Middle level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="2" p_angle="0" y_angle="5.4978" x_loc="${(0.2245-0.01) *  0.7071}" y_loc="${(0.2245-0.01) * -0.7071}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="3" p_angle="0" y_angle="6.0214" x_loc="${(0.2245-0.01) *  0.9659}" y_loc="${(0.2245-0.01) * -0.2588}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="4" p_angle="0" y_angle="0.2618" x_loc="${(0.2245-0.01) *  0.9659}" y_loc="${(0.2245-0.01) *  0.2588}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="5" p_angle="0" y_angle="0.7854" x_loc="${(0.2245-0.01) *  0.7071}" y_loc="${(0.2245-0.01) *  0.7071}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <!-- Upper level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="6" p_angle="0" y_angle="5.7596" x_loc="${(0.2245-0.0174) *  0.8660}" y_loc="${(0.2245-0.01) * -0.5000}" z_loc="0.2635" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="7" p_angle="0" y_angle="0.5236" x_loc="${(0.2245-0.0174) *  0.8660}" y_loc="${(0.2245-0.01) *  0.5000}" z_loc="0.2635" l="0.01" w="0.035" h="0.01"/>
+
+        <!-- Back Infrared Sensors -->
+        <!-- Lower level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="0" p_angle="0.7854" y_angle="2.6180" x_loc="${(0.2245) * -0.8660}" y_loc="${(0.2245) *  0.5000}" z_loc="-0.0095" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="1" p_angle="0.7854" y_angle="3.6652" x_loc="${(0.2245) * -0.8660}" y_loc="${(0.2245) * -0.5000}" z_loc="-0.0095" l="0.01" w="0.035" h="0.01"/>
+        <!-- Middle level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="2" p_angle="0" y_angle="2.3562" x_loc="${(0.2245-0.01) * -0.7071}" y_loc="${(0.2245-0.01) *  0.7071}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="3" p_angle="0" y_angle="2.8798" x_loc="${(0.2245-0.01) * -0.9659}" y_loc="${(0.2245-0.01) *  0.2588}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="4" p_angle="0" y_angle="3.4033" x_loc="${(0.2245-0.01) * -0.9659}" y_loc="${(0.2245-0.01) * -0.2588}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="5" p_angle="0" y_angle="3.9270" x_loc="${(0.2245-0.01) * -0.7071}" y_loc="${(0.2245-0.01) * -0.7071}" z_loc="0.127" l="0.01" w="0.035" h="0.01"/>
+        <!-- Upper level sensors -->
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="6" p_angle="0" y_angle="2.6180" x_loc="${(0.2245-0.0174) * -0.8660}" y_loc="${(0.2245-0.01) *  0.5000}" z_loc="0.2635" l="0.01" w="0.035" h="0.01"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="7" p_angle="0" y_angle="3.6652" x_loc="${(0.2245-0.0174) * -0.8660}" y_loc="${(0.2245-0.01) * -0.5000}" z_loc="0.2635" l="0.01" w="0.035" h="0.01"/>
+    </xacro:macro>
 
 </robot>

@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import rospy
-from msgs.msg import RangeArray
+from sensor_msgs.msg import Range
 
 
 class RangeArraySensorError(Exception):
@@ -9,7 +9,7 @@ class RangeArraySensorError(Exception):
 
 
 class RangeArraySensor:
-    def __init__(self, fov, min, max, type, frame_id):
+    def __init__(self, fov, min, max, type):
         """
 
         :rtype: object
@@ -18,7 +18,6 @@ class RangeArraySensor:
         self._min = min
         self._max = max
         self._type = type
-        self._frame_id = frame_id
 
     def Publish(self):
         '''
@@ -26,15 +25,15 @@ class RangeArraySensor:
         '''
         pass
 
-    def _msg(self, distances):
-        msg = RangeArray()
-        msg.header.frame_id = self._frame_id
+    def _msg(self, frame_id, distance):
+        msg = Range()
+        msg.header.frame_id = frame_id
         msg.header.stamp = rospy.Time.now()
         msg.radiation_type = self._type
         msg.field_of_view = self._fov
         msg.min_range = self._min
         msg.max_range = self._max
-        msg.ranges = [min(max(distance, msg.min_range), msg.max_range) for distance in distances]
+        msg.range = min(max(distance, msg.min_range), msg.max_range)
 
         return msg
 

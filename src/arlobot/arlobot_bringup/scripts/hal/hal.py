@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import time
 import math
+import random
 import rospy
 
 from hw.imuhw import ImuHw, ImuHwError
@@ -242,8 +243,8 @@ class HardwareAbstractionLayer(object):
 
     def GetInfrared(self):
         if self._simulated:
-            front = []
-            back = []
+            front = [float(random.randrange(10,81,1))/100 for _ in range (8)]
+            back = [float(random.randrange(10,81,1))/100 for _ in range (8)]
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
             front = self._left_psoc4.GetInfraredDistances()
@@ -252,8 +253,8 @@ class HardwareAbstractionLayer(object):
 
     def GetUltrasonic(self):
         if self._simulated:
-            front = []
-            back = []
+            front = [float(random.randrange(2,501,1))/100 for _ in range (8)]
+            back = [float(random.randrange(2,501,1))/100 for _ in range (8)]
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
             front = self._left_psoc4.GetUlrasonicDistances()

@@ -30,10 +30,11 @@
   <xacro:include filename="$(find arlobot_description)/urdf/kinect.urdf.xacro"/>
 
   <create/>
-  <!-- <stack_circles parent="base_link"/> -->
-  <!-- <stack_circles1 parent="base_link"/> -->
   <arlobot_circle_0 parent="base_link" />
   <arlobot_circle_1 parent="base_link" />
   <!-- <sensor_asus_xtion_pro  parent="base_link"/> -->
   <sensor_kinect parent="base_link"/>
+  <ultrasonic_array parent="base_link"/>
+  <infrared_array parent="base_link"/>
+
 </robot>

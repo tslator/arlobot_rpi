@@ -6,7 +6,6 @@ import tf
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
 from arlobot_diff_drive import ArlobotDifferentialDrive, ArlobotDifferentialDriveError
-from msgs.msg import DriveSpeed, DriveStatus
 
 
 

@@ -3,6 +3,7 @@
 import rospy
 from arlobot_base_status_pub import ArlobotBaseStatusPublisher
 from std_srvs.srv import Trigger, TriggerResponse
+from sensor_msgs.msg import Range
 
 
 class ArlobotBaseNodeError(Exception):
@@ -41,6 +42,8 @@ class ArlobotBaseNode:
 
         # Subscribes to battery status message received from ArlobotSafetyNode
         #rospy.Subscriber("battery_state", BatteryState, self._safety_callback)
+        rospy.Subscriber("ultrasonic_array", Range, self._distance_callback)
+        rospy.Subscriber("infrared_array", Range, self._distance_callback)
 
         # Publications
 
@@ -54,6 +57,10 @@ class ArlobotBaseNode:
         self._arlobot_base_status.Publish(self._operational_state)
 
     def _safety_callback(self, message):
+        pass
+
+    def _distance_callback(self, message):
+        #rospy.loginfo("Distance: " + str(message))
         pass
 
     def _service_status(self, request):
