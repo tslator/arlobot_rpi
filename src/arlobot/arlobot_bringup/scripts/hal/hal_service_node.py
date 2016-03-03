@@ -21,9 +21,9 @@ class HALServiceNode:
     due to shutdown being invoked)
     """
 
-    __NAME = "hal_server_node"
+    NAME = "hal_server_node"
+
     __DEFAULT_TIMEOUT = 5
-    __DEFAULT_TIMEOUT_RATE = 1
 
     def __init__(self):
         '''
@@ -33,14 +33,14 @@ class HALServiceNode:
         '''
         enable_debug = rospy.get_param('debug', False)
         if enable_debug:
-            rospy.init_node(HALServiceNode.__NAME, log_level=rospy.DEBUG)
+            rospy.init_node(HALServiceNode.NAME, log_level=rospy.DEBUG)
         else:
-            rospy.init_node(HALServiceNode.__NAME)
+            rospy.init_node(HALServiceNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
-        self._timeout_rate_value = rospy.get_param("hal_service_wait_rate", HALServiceNode.__DEFAULT_TIMEOUT_RATE)
-        HALServiceNode.__DEFAULT_TIMEOUT = rospy.get_param("hal_service_timeout", HALServiceNode.__DEFAULT_TIMEOUT)
-        simulated = rospy.get_param("hal_simulation", True)
+        self._timeout_rate_value = rospy.get_param("HAL Service Timeout Rate")
+        HALServiceNode.__DEFAULT_TIMEOUT = rospy.get_param("HAL Service Timeout")
+        simulated = rospy.get_param("HAL Simulate")
 
         self._wait_rate = rospy.Rate(self._timeout_rate_value)
         self._services = {}
@@ -242,7 +242,7 @@ class HALServiceNode:
 
     def Start(self):
         rospy.loginfo("HAL Service Node starting ...")
-        if not self._startup():
+        if not self._startup(5):
             raise HALServiceNodeError("Failed to start HAL")
         rospy.loginfo("HAL Service node started")
 

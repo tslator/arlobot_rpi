@@ -34,8 +34,6 @@ class I2CBus:
 
     def __init__(self, device):
         self._device = device
-        # Consider making the device selection a configuration parameter
-        # Q: I've only ever seen /dev/ic2-1 on my RPi, how to get the other device?
         try:
             self._smbus = SMBus(self._device)
         except RuntimeError:

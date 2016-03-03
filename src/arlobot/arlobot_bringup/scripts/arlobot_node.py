@@ -2,6 +2,8 @@
 
 import rospy
 from std_msgs.msg import String
+from std_srvs.srv import Trigger
+from arlobot_base_node import ArlobotBaseNodeStates
 
 
 class ArlobotNodeError(Exception):
@@ -9,17 +11,29 @@ class ArlobotNodeError(Exception):
 
 
 class ArlobotNode():
+
+    NAME = 'arlobot_node'
+
     def __init__(self):
         # Initialize the node
         enable_debug = rospy.get_param('debug', False)
         if enable_debug:
-            rospy.init_node('arlobot_node', log_level=rospy.DEBUG)
+            rospy.init_node(ArlobotNode.NAME, log_level=rospy.DEBUG)
         else:
-            rospy.init_node('arlobot_node')
+            rospy.init_node(ArlobotNode.NAME)
         rospy.on_shutdown(self.Shutdown)
-        
+
+        rospy.wait_for_service('ArlobotBaseStatus')
+        try:
+            arlobot_base_status = rospy.ServiceProxy('ArlobotBaseStatus', Trigger)
+            response = arlobot_base_status()
+            if not response.success:
+                raise ArlobotNodeError("Failed response from ArlobotBaseStatus")
+        except rospy.ServiceException, e:
+            raise ArlobotNodeError(e)
+
         # Initialization
-        self._last_arlobot_base_node_state = "UNKNOWN"
+        self._last_arlobot_base_node_state = ArlobotBaseNodeStates.STATE_UNKNOWN
         
         # Setup subscriptions
         self._arlobot_base_node_subscriber = rospy.Subscriber("base_status", String, self._arlobot_base_node_callback)
@@ -28,21 +42,21 @@ class ArlobotNode():
     def _arlobot_base_node_callback(self, msg):
         if msg.data != self._last_arlobot_base_node_state:
             self._last_arlobot_base_node_state = msg.data
-            rospy.loginfo("ArlobotNode received status {} from ArlobotBaseNode".format(str(msg.data)))
+            rospy.loginfo("Arlobot Node received status {} from ArlobotBaseNode".format(str(msg.data)))
             
-        if msg.data == "INITIAL":
+        if msg.data == ArlobotBaseNodeStates.STATE_INITIAL:
             # This is the first expected state
             pass
-        elif msg.data == "STARTED":
+        elif msg.data == ArlobotBaseNodeStates.STATE_STARTED:
             # This is good, it means ArlobotBaseNode has started.  Be patient ...
             pass
-        elif msg.data == "RUNNING":
+        elif msg.data == ArlobotBaseNodeStates.STATE_RUNNING:
             # This is awesome, let's rock 'n roll
             pass
-        elif msg.data == "TIMEOUT":
+        elif msg.data == ArlobotBaseNodeStates.STATE_TIMEOUT:
             # This is not good.  It means the ArlobotBaseNode has failed to connect to the hardware
             rospy.logwarn("{}: Check ArlobotBaseNode hardware connection.".format(msg.data))
-        elif msg.data == "SHUTDOWN":
+        elif msg.data == ArlobotBaseNodeStates.STATE_SHUTDOWN:
             # Either there is a problem in ArlobotBaseNode or ROS is shutting down
             rospy.logwarn("{}: ArlobotBaseNode is shutting down".format(str(msg.data)))
         else:

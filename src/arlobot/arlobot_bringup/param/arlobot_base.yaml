@@ -1,21 +1,22 @@
 # Robot drive and mechanical parameters
 Drive Type: "ArlobotDifferential"
-Track Width: 0.4030 # meter
-Tick Per Revolution: 72
-Wheel Diameter: 0.1524 # meter
+Track Width: 0.4030      # meter
+Tick Per Revolution: 72  # encoder tick or count
+Wheel Diameter: 0.1524   # meter
 
 # Speed constraints
-Max Linear Speed: 1.0 # meter/sec
+Max Linear Speed: 1.0  # meter/sec
 Max Angular Speed: 1.0 # rad/sec
 
 # Node parameters
-Base Node Loop Rate: 1
-Drive Node Loop Rate: 10
-Sensors Node Loop Rate: 10
-Diff Drive Loop Rate: 10
+Base Node Loop Rate: 1     # Hz
+Drive Node Loop Rate: 10   # Hz
+Sensors Node Loop Rate: 10 # Hz
+Diff Drive Loop Rate: 10   # Hz
 
 # HAL parameters
-HAL Service Timeout Rate: 1
+HAL Service Timeout Rate: 1 # Hz
+HAL Service Timeout: 5 # seconds
 HAL Simulate: True
 I2C Device: 1
 Left Psoc4 I2C Address: 0x08

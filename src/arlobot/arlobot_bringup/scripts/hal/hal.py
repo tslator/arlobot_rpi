@@ -42,14 +42,22 @@ class HardwareAbstractionLayer(object):
         xv11_port = rospy.get_param("XV11 Port", Xv11Hw.PORT)
         xv11_baud = rospy.get_param("XV11 Baud", Xv11Hw.BAUD)
 
+        # In the simulated mode, the HAL launches two threads (one for left and right wheels) that act independently
+        # like an actual robot would in that each wheel calculates and sends an encoder count.  Unlike the real robot,
+        # the count is derived from the commanded speed, but its reasonably effective and exercises the entire Arlobot
+        # stack all the way to the HAL.
         if self._simulated:
+            # Parameters need to calculate encoder counts
             self._diameter = rospy.get_param("Wheel Diameter")
             self._circumference = math.pi * self._diameter
             self._tick_per_revolution = rospy.get_param("Tick Per Revolution")
             self._meter_per_revolution = self._circumference
             self._tick_per_meter = self._tick_per_revolution / self._meter_per_revolution
+
+            # Muxtex lock for exchanging data between the HAL and the wheel threads
             self._lock = RLock()
 
+            # Variables for exchanging speed and count values
             self._left_speed = 0
             self._right_speed = 0
             self._left_count = 0
@@ -118,11 +126,16 @@ class HardwareAbstractionLayer(object):
     def __meter_to_millimeter(self, millimeter):
         return int(millimeter * 1000)
 
-    def _initialize(self):
-        # For doing any initialization that is subject to startup.  Can't think of anything right now.
-        pass
-
     def Startup(self):
+        '''
+        Calls to startup are ignore if the HAL is already running.
+        The HAL start life in the INITIAL state and can perform additional initialization outside of the class __init__
+        before transitioning to the STOPPED state
+        Once in the STOPPED state, the HAL can perform any work necessary prior to transitioning to the RUNNING state, e.g.,
+        in simulated mode, start the left/right wheel threads
+        Once the HAL transitions to the RUNNING state is can be used by clients
+        :return:
+        '''
         rospy.loginfo("HAL starting up ...")
 
         if self._hal_state is HardwareAbstractionLayer.__HAL_STATE_RUNNING:
@@ -131,7 +144,9 @@ class HardwareAbstractionLayer(object):
 
         # Handle case when state is INITIAL - the shared object state needs to be setup
         if self._hal_state is HardwareAbstractionLayer.__HAL_STATE_INITIAL:
-            self._initialize()
+
+            # For doing any initialization that is subject to startup.  Can't think of anything right now.
+
             rospy.loginfo("HAL initialized")
 
             self._hal_state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
@@ -150,12 +165,24 @@ class HardwareAbstractionLayer(object):
             rospy.loginfo("HAL is running")
 
     def Ready(self, startup_shutdown):
+        '''
+        Checks if the HAL has completed the associated startup or shutdown request
+        :param startup_shutdown: indicates whether the check is for startup or shutdown
+        :return:
+        '''
         if startup_shutdown:
             return self._hal_state == HardwareAbstractionLayer.__HAL_STATE_RUNNING
         else:
             return self._hal_state == HardwareAbstractionLayer.__HAL_STATE_SHUTDOWN
 
     def Shutdown(self):
+        '''
+        Allows the HAL to be shutdown.  There is presently no scenario envisioned where the HAL needs to be shutdown
+        while the robot continues to operate.  Generally speaking, the HAL's life cycle is tied to the robot's.  However,
+        for completeness it is here and it may serve a purpose at some point.  In the meantime, it functions to ensure
+        the hardware is kept in a consistent state while debugging.
+        :return:
+        '''
         rospy.loginfo("HAL shutting down ...")
 
         if self._simulated:
@@ -165,7 +192,7 @@ class HardwareAbstractionLayer(object):
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
         rospy.loginfo("HAL is stopped")
 
-        # Is there anything we need to do here?  What about sending a command to the Psoc4 to powerdown the HB25's
+        # Before shutting down, turn off the motor controllers
         self._left_psoc4.SetControl(self._left_psoc4.MOTOR_CONTROLLER_OFF)
         self._right_psoc4.SetControl(self._right_psoc4.MOTOR_CONTROLLER_OFF)
 

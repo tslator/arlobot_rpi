@@ -181,6 +181,8 @@ class ArlobotDifferentialDrive():
 
         with self._lock:
             self._heading += delta_heading
+            # I'm not sure why this is neccessary.  Ultimately, it prevents the robot from spinning in place beyond
+            # +/- PI.
             #self._heading = max(-math.pi, min(self._heading, math.pi))
             self._x_dist += delta_x_dist
             self._y_dist += delta_y_dist

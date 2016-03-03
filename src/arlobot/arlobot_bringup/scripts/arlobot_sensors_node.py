@@ -2,8 +2,6 @@
 
 import rospy
 
-from arlobot_exception import ArlobotError
-
 from hal.sensors.ultrasonic_range_sensor import UltrasonicRangeArraySensor, UltrasonicRangeArraySensorError
 from hal.sensors.infrared_range_sensor import InfraredRangeArraySensor, InfraredRangeArraySensorError
 from hal.sensors.laser_sensor import LaserScanSensor, LaserScanSensorError
@@ -24,13 +22,16 @@ class ArlobotSensorsNode:
     The purpose of this node is to have central place where all sensors in the system can be managed.  I'm not sure if
     that is practical or even a good approach
     '''
+
+    NAME = "arlobot_sensors_node"
+
     def __init__(self):
         # Initialize the node
         enable_debug = rospy.get_param('debug', False)
         if enable_debug:
-            rospy.init_node('arlobot_sensors_node', log_level=rospy.DEBUG)
+            rospy.init_node(ArlobotSensorsNode.NAME, log_level=rospy.DEBUG)
         else:
-            rospy.init_node('arlobot_sensors_node')
+            rospy.init_node(ArlobotSensorsNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
         loop_rate = rospy.get_param("Sensors Node Loop Rate")

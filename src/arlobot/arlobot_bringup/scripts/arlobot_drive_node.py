@@ -4,23 +4,25 @@ import math
 import rospy
 import tf
 from geometry_msgs.msg import Twist
-from arlobot_exception import ArlobotError
 from arlobot_odom_pub import ArlobotOdometryPublisher
 from arlobot_diff_drive import ArlobotDifferentialDrive, ArlobotDifferentialDriveError
 from msgs.msg import DriveSpeed, DriveStatus
 
 
 
-class ArlobotDriveNodeError(ArlobotError):
+class ArlobotDriveNodeError(Exception):
     pass
 
 class ArlobotDriveNode:
+
+    NAME = 'arlobot_drive_node'
+
     def __init__(self):
         enable_debug = rospy.get_param('debug', False)
         if enable_debug:
-            rospy.init_node('arlobot_drive_node', log_level=rospy.DEBUG)
+            rospy.init_node(ArlobotDriveNode.NAME, log_level=rospy.DEBUG)
         else:
-            rospy.init_node('arlobot_drive_node')
+            rospy.init_node(ArlobotDriveNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
         self._OdometryTransformBroadcaster = tf.TransformBroadcaster()

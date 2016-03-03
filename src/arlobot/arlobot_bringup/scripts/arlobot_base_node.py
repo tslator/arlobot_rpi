@@ -2,29 +2,39 @@
 
 import rospy
 from arlobot_base_status_pub import ArlobotBaseStatusPublisher
+from std_srvs.srv import Trigger, TriggerResponse
 
 
 class ArlobotBaseNodeError(Exception):
     pass
 
 
+class ArlobotBaseNodeStates:
+    STATE_UNKNOWN = "UNKNOWN"
+    STATE_INITIAL = "INITIAL"
+    STATE_STARTED = "STARTED"
+    STATE_RUNNING = "RUNNING"
+    STATE_TIMEOUT = "TIMEOUT"
+    STATE_SHUTDOWN = "SHUTDOWN"
+
+
 class ArlobotBaseNode:
 
-    __LOOP_RATE = 1
+    NAME = 'arlobot_base_node'
 
     def __init__(self):
         # Initialize the node
         enable_debug = rospy.get_param('debug', False)
         if enable_debug:
-            rospy.init_node('arlobot_base_node', log_level=rospy.DEBUG)
+            rospy.init_node(ArlobotBaseNode.NAME, log_level=rospy.DEBUG)
         else:
-            rospy.init_node('arlobot_base_node')
+            rospy.init_node(ArlobotBaseNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
         loop_rate_value = rospy.get_param("Base Node Loop Rate")
         
         # Initialization
-        self._operational_state =  "INITIAL"
+        self._operational_state =  ArlobotBaseNodeStates.STATE_INITIAL
         self._loop_rate = rospy.Rate(loop_rate_value)
 
         # Subscriptions
@@ -46,23 +56,40 @@ class ArlobotBaseNode:
     def _safety_callback(self, message):
         pass
 
+    def _service_status(self, request):
+        response = False
+
+        while self._operational_state != ArlobotBaseNodeStates.STATE_RUNNING:
+            rospy.loginfo("Waiting for Arlobot Base Node ...")
+            rospy.sleep(0.5)
+        else:
+            response = True
+            rospy.loginfo("Arlobot Base Node is running")
+        return TriggerResponse(success=response, message="")
+
+
     def Start(self):
         rospy.loginfo("Arlobot Base Node has started")
+
 
         # Note: a little bit of sleep seems to be necessary to ensure that the INITIAL message is received.
         # Not sure why, but there is no harm in delaying the start of this node.
         rospy.sleep(1)
 
-        self._update_state("INITIAL")
+        self._update_state(ArlobotBaseNodeStates.STATE_INITIAL)
         
         # In the future, there might be other things to do that depend on the HAL being up and running
 
-        self._update_state("RUNNING")
+        # Start the Arlobot Base Node service
+        self._service = rospy.Service('ArlobotBaseStatus', Trigger, self._service_status)
+
+        self._update_state(ArlobotBaseNodeStates.STATE_RUNNING)
 
         
     def Loop(self):
+        rospy.loginfo("Arlobot Base Node entering loop")
         while not rospy.is_shutdown():
-            self._update_state("RUNNING")
+            self._update_state(ArlobotBaseNodeStates.STATE_RUNNING)
             self._loop_rate.sleep()
         else:
             rospy.logwarn("Arlobot Base Node: shutdown invoked, exiting")
@@ -72,7 +99,7 @@ class ArlobotBaseNode:
         # message will be received.  However, services are guaranteed to complete before shutdown completes, so the
         # because there is a service call after this message is sent, the message should be received.
         # We're going to try anyway :-)
-        self._update_state("SHUTDOWN")
+        self._update_state(ArlobotBaseNodeStates.STATE_SHUTDOWN)
 
 
 if __name__ == "__main__":

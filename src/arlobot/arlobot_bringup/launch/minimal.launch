@@ -29,6 +29,7 @@
   </node>
 -->
 
-  <include file="$(find arlobot_bringup)/launch/arlobot_stack.xml" />
+  <include file="$(find arlobot_bringup)/launch/arlobot.xml" />
+  <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
 
 </launch>
