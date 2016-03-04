@@ -275,9 +275,9 @@ class HardwareAbstractionLayer(object):
 
     def GetLaserScan(self):
         if self._simulated:
-            ranges = []
-            intensities = []
-            time_offset = 0
+            ranges = [float(random.randrange(6,501,1))/100 for _ in range(360)]
+            intensities = [1.0 for _ in range(360)]
+            time_offset = 0.0
         else:
             ranges, intensities, time_offset = self._xv11.GetLaserScan()
         return ranges, intensities, time_offset

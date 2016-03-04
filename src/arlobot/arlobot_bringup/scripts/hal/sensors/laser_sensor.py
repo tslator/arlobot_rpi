@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from rospy import Publisher, Time
+from rospy import Publisher, Time, get_time
 from ..hal_proxy import HALProxy, HALProxyError
 from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from sensor_msgs.msg import LaserScan
@@ -38,11 +38,11 @@ class LaserScanSensor:
         msg.angle_max = self.__MAX_ANGLE
         msg.angle_min = self.__MIN_ANGLE
         msg.angle_increment = self.__ANGLE_INCREMENT
-        msg.time_increment = time_increment
-        msg.scan_time = scan_time
+        msg.time_increment = 0.01
+        msg.scan_time = 0.01
         msg.range_min = self.__MIN_RANGE
         msg.range_max = self.__MAX_RANGE
-        msg.ranges = ranges
+        msg.ranges = [min(max(range, msg.range_min), msg.range_max) for range in ranges]
         msg.intensities = intensities
 
         return msg
