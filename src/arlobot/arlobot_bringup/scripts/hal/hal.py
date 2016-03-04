@@ -193,9 +193,10 @@ class HardwareAbstractionLayer(object):
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
         rospy.loginfo("HAL is stopped")
 
-        # Before shutting down, turn off the motor controllers
-        self._left_psoc4.SetControl(self._left_psoc4.MOTOR_CONTROLLER_OFF)
-        self._right_psoc4.SetControl(self._right_psoc4.MOTOR_CONTROLLER_OFF)
+        if not self._simulated:
+            # Before shutting down, turn off the motor controllers
+            self._left_psoc4.SetControl(self._left_psoc4.MOTOR_CONTROLLER_OFF)
+            self._right_psoc4.SetControl(self._right_psoc4.MOTOR_CONTROLLER_OFF)
 
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_SHUTDOWN
 
