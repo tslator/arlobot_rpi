@@ -3,7 +3,7 @@
 
 import rospy
 
-from msgs.srv import HALTriggerWithTimeout, HALSetTwoValues, HALGetFloatArray, HALGetLaserScan, \
+from msgs.srv import HALSetTwoValues, HALGetFloatArray, HALGetLaserScan, \
                      HALGetImu, HALGetTwoValues, HALGetOneValue
 from std_srvs.srv import Trigger
 
