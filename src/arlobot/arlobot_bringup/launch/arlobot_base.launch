@@ -1,0 +1,3 @@
+<launch>
+  <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
+</launch>
