@@ -63,6 +63,7 @@ Panels:
         - /RobotModel1/Links1/ultrasonic_array_front_51
         - /RobotModel1/Links1/ultrasonic_array_front_61
         - /RobotModel1/Links1/ultrasonic_array_front_71
+        - /TF1
         - /Odometry1
       Splitter Ratio: 0.378947
     Tree Height: 649
@@ -84,7 +85,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -409,125 +410,125 @@ Visualization Manager:
       Frames:
         All Enabled: false
         base_footprint:
-          Value: false
+          Value: true
         base_link:
           Value: true
         battery_box:
-          Value: false
+          Value: true
         camera_depth_frame:
-          Value: false
+          Value: true
         camera_depth_optical_frame:
-          Value: false
+          Value: true
         camera_link:
-          Value: false
+          Value: true
         camera_rgb_frame:
-          Value: false
+          Value: true
         camera_rgb_optical_frame:
-          Value: false
+          Value: true
         front_caster:
-          Value: false
+          Value: true
         infrared_array_back_0:
-          Value: false
+          Value: true
         infrared_array_back_1:
-          Value: false
+          Value: true
         infrared_array_back_2:
-          Value: false
+          Value: true
         infrared_array_back_3:
-          Value: false
+          Value: true
         infrared_array_back_4:
-          Value: false
+          Value: true
         infrared_array_back_5:
-          Value: false
+          Value: true
         infrared_array_back_6:
-          Value: false
+          Value: true
         infrared_array_back_7:
-          Value: false
+          Value: true
         infrared_array_front_0:
-          Value: false
+          Value: true
         infrared_array_front_1:
-          Value: false
+          Value: true
         infrared_array_front_2:
-          Value: false
+          Value: true
         infrared_array_front_3:
-          Value: false
+          Value: true
         infrared_array_front_4:
-          Value: false
+          Value: true
         infrared_array_front_5:
-          Value: false
+          Value: true
         infrared_array_front_6:
-          Value: false
+          Value: true
         infrared_array_front_7:
-          Value: false
+          Value: true
         left_axle_link:
-          Value: false
+          Value: true
         left_wheel_link:
-          Value: false
+          Value: true
         neato_laser:
-          Value: false
+          Value: true
         odom:
-          Value: false
+          Value: true
         plate_0_link:
-          Value: false
+          Value: true
         plate_1_link:
-          Value: false
+          Value: true
         rear_caster:
-          Value: false
+          Value: true
         right_axle_link:
-          Value: false
+          Value: true
         right_wheel_link:
-          Value: false
+          Value: true
         standoff_5in_0_link:
-          Value: false
+          Value: true
         standoff_5in_1_link:
-          Value: false
+          Value: true
         standoff_5in_2_link:
-          Value: false
+          Value: true
         standoff_5in_3_link:
-          Value: false
+          Value: true
         standoff_5in_4_link:
-          Value: false
+          Value: true
         standoff_5in_5_link:
-          Value: false
+          Value: true
         standoff_5in_6_link:
-          Value: false
+          Value: true
         standoff_5in_7_link:
-          Value: false
+          Value: true
         ultrasonic_array_back_0:
-          Value: false
+          Value: true
         ultrasonic_array_back_1:
-          Value: false
+          Value: true
         ultrasonic_array_back_2:
-          Value: false
+          Value: true
         ultrasonic_array_back_3:
-          Value: false
+          Value: true
         ultrasonic_array_back_4:
-          Value: false
+          Value: true
         ultrasonic_array_back_5:
-          Value: false
+          Value: true
         ultrasonic_array_back_6:
-          Value: false
+          Value: true
         ultrasonic_array_back_7:
-          Value: false
+          Value: true
         ultrasonic_array_front_0:
-          Value: false
+          Value: true
         ultrasonic_array_front_1:
-          Value: false
+          Value: true
         ultrasonic_array_front_2:
-          Value: false
+          Value: true
         ultrasonic_array_front_3:
-          Value: false
+          Value: true
         ultrasonic_array_front_4:
-          Value: false
+          Value: true
         ultrasonic_array_front_5:
-          Value: false
+          Value: true
         ultrasonic_array_front_6:
-          Value: false
+          Value: true
         ultrasonic_array_front_7:
-          Value: false
+          Value: true
       Marker Scale: 1
       Name: TF
-      Show Arrows: true
-      Show Axes: true
+      Show Arrows: false
+      Show Axes: false
       Show Names: false
       Tree:
         odom:
@@ -900,10 +901,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.4704
+      Pitch: 0.370401
       Target Frame: <Fixed Frame>
       Value: XYOrbit (rviz)
-      Yaw: 0.730398
+      Yaw: 0.940398
     Saved: ~
 Window Geometry:
   Displays:
@@ -923,5 +924,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 65
-  Y: 24
+  X: 55
+  Y: 14

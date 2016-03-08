@@ -29,7 +29,10 @@
   </node>
 -->
 
+  <!-- This launch file starts only the ArlobotNode which runs on the mini-ITX PC.  It handles everything on Arlobot that
+       is not the base
+  -->
+
   <include file="$(find arlobot_bringup)/launch/arlobot.xml" />
-  <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
 
 </launch>
