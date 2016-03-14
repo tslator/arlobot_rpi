@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import rospy
-from ..hal_proxy import HALProxy, HALProxyError
+from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import Range
 from range_array_sensor import RangeArraySensor, RangeArraySensorError
 from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
@@ -12,14 +12,14 @@ class UltrasonicRangeArraySensorError(Exception):
 
 
 class UltrasonicRangeArraySensor(RangeArraySensor):
-    __FIELD_OF_VIEW = 0.523599
-    __MIN_RANGE = 0.02 # meters
-    __MAX_RANGE = 5.0  # meters
     __FRONT_FRAME_ID = "ultrasonic_array_front"
     __BACK_FRAME_ID = "ultrasonic_array_back"
 
     def __init__(self):
-        RangeArraySensor.__init__(self, self.__FIELD_OF_VIEW, self.__MIN_RANGE, self.__MAX_RANGE, Range.ULTRASOUND)
+        fov = rospy.get_param("Ultrasonic Field Of View")
+        min_range = rospy.get_param("Ultrasonic Min Range")
+        max_range = rospy.get_param("Ultrasonic Max Range")
+        RangeArraySensor.__init__(self, fov, min_range, max_range, Range.ULTRASOUND)
 
         self._num_front_sensors = rospy.get_param("Num Ultrasonic Front Sensors")
         self._num_back_sensors = rospy.get_param("Num Ultrasonic Back Sensors")
@@ -28,8 +28,8 @@ class UltrasonicRangeArraySensor(RangeArraySensor):
         self._back_publisher = rospy.Publisher("ultrasonic_array_back", Range, queue_size=16)
 
         try:
-            self._hal_proxy = HALProxy()
-        except HALProxyError:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
             raise UltrasonicRangeArraySensorError("Unable to create HAL")
 
     def Publish(self):

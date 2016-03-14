@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import rospy
-from ..hal_proxy import HALProxy, HALProxyError
+from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import Range
 from range_array_sensor import RangeArraySensor, RangeArraySensorError
 from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
@@ -19,7 +19,10 @@ class InfraredRangeArraySensor(RangeArraySensor):
     __BACK_FRAME_ID = "/infrared_array_back"
 
     def __init__(self):
-        RangeArraySensor.__init__(self, self.__FIELD_OF_VIEW, self.__MIN_RANGE, self.__MAX_RANGE, Range.INFRARED)
+        fov = rospy.get_param("Infrared Field Of View")
+        min_range = rospy.get_param("Infrared Min Range")
+        max_range = rospy.get_param("Infrared Max Range")
+        RangeArraySensor.__init__(self, fov, min_range, max_range, Range.INFRARED)
 
         self._num_front_sensors = rospy.get_param("Num Infrared Front Sensors")
         self._num_back_sensors = rospy.get_param("Num Infrared Back Sensors")
@@ -28,8 +31,8 @@ class InfraredRangeArraySensor(RangeArraySensor):
         self._back_publisher = rospy.Publisher("infrared_array_back", Range, queue_size=self._num_back_sensors)
 
         try:
-            self._hal_proxy = HALProxy()
-        except HALProxyError:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
             raise InfraredRangeArraySensorError("Unable to create HAL")
 
     def Publish(self):

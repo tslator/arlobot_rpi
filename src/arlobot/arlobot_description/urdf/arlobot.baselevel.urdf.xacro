@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+
+<robot name="baselevel" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.rangesensor.urdf.xacro" />
+
+
+    <!--
+        The baselevel includes:
+            - Platter with wheel cutout (arlobot_description/meshes/arlobot.platterwithcutout.dae)
+            - Two casters (front and back, arlobot_description/meshes/28971-Caster-Wheel-Kit-v1.0.stl)
+            - Five forward-facing ultrasonic sensors (arlobot.rangesensor.urdf.xacro)
+            - Two forward-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - Five back-facing ultrasonic sensors (arlobot.rangesensor.urdf.xacro)
+            - Two back-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - Power distribution and switches
+            - Two motor drivers
+            - Raspberry Pi / Psoc4 boards (controller)
+            - Relays
+    -->
+
+    <!-- The base level macro -->
+
+    <!-- The base level macro essentially defines the bottom platter of the Arlobot (this is the platter with the cutout
+    for the wheels and forms the base of the robot.  It is the minimum of an Arlobot.
+    -->
+    <macro name="baselevel" params="parent name color">
+        <joint name="${parent}_${name}_joint" type="fixed">
+            <origin xyz="${baselevel_offset_x} ${baselevel_offset_y} ${baselevel_offset_z}" rpy="0 0 0"></origin>
+            <parent link="${parent}_link"/>
+            <child link="${name}_link" />
+        </joint>
+        <link name="${name}_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+                <material name="${color}" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+            </collision>
+        </link>
+    </macro>
+
+    <!-- The caster macro -->
+
+    <!-- The caster macro defines provides a definition for the front and back casters.  The mesh for the caster came
+    from Chrisl8's implementation of Arlobot.
+    -->
+    <property name="caster_radius" value="0.18745"/>
+
+    <macro name="caster" params="suffix parent reflect color">
+        <joint name="${parent}_${suffix}_caster_joint" type="fixed">
+
+            <!-- <origin xyz="${reflect*0.18745} 0 -0.00475" rpy="0 0 0" /> -->
+            <origin xyz="${reflect*caster_radius} 0 ${-platter_height/2}" rpy="0 0 0" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_${suffix}_caster_link" />
+        </joint>
+        <link name="${parent}_${suffix}_caster_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="${-angle_90} 0 ${angle_90}" />
+                <geometry>
+                    <mesh filename="package://arlobot_description/meshes/28971-Caster-Wheel-Kit-v1.0.stl"/>
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!-- The power distribution macro -->
+
+    <!-- The power distribution macro defines the power distribution block on the Alrobot.  At present it, it is just
+    a box primitive.
+    -->
+    <property name="power_size_x" value="0.08255"/>
+    <property name="power_size_y" value="0.1397"/>
+    <property name="power_size_z" value="0.04445"/>
+
+    <property name="power_offset_x" value="0.1524"/>
+    <property name="power_offset_y" value="0"/>
+    <property name="power_offset_z" value="${baselevel_top_offset_z + power_size_z/2}"/>
+
+    <macro name="power" params="parent color">
+        <joint name="${parent}_power_joint" type="fixed">
+            <origin xyz="${power_offset_x} ${power_offset_y} ${power_offset_z}" rpy="0 0 0" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_power_link" />
+        </joint>
+        <link name="${parent}_power_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${power_size_x} ${power_size_y} ${power_size_z}" />
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!-- The HB25 motor driver macro -->
+
+    <!-- The HB25 motor driver macro defines the HB-25 motor drivers.  There are two motor drivers and they can be
+    mounted anywhere on Arlobot.  This implementation has them mounted on the back of Arlobot.  At present the
+    display is a box primitive.
+    -->
+    <property name="motor_driver_size_x" value="0.03175"/>
+    <property name="motor_driver_size_y" value="0.0381"/>
+    <property name="motor_driver_size_z" value="0.0508"/>
+
+    <property name="motor_driver_radius" value="0.1750"/>
+    <property name="motor_driver_offset_z" value="${baselevel_top_offset_z + motor_driver_size_z/2}"/>
+
+    <property name="left_motor_driver_offset_x" value="${motor_driver_radius * cos_angle_315}"/>
+    <property name="left_motor_driver_offset_y" value="${motor_driver_radius * sin_angle_315}"/>
+    <property name="left_motor_driver_offset_z" value="${motor_driver_offset_z}"/>
+
+    <property name="right_motor_driver_offset_x" value="${motor_driver_radius * cos_angle_45}"/>
+    <property name="right_motor_driver_offset_y" value="${motor_driver_radius * sin_angle_45}"/>
+    <property name="right_motor_driver_offset_z" value="${motor_driver_offset_z}"/>
+
+    <macro name="motor_driver" params="parent suffix color offset_x offset_y offset_z yaw">
+        <joint name="${parent}_${suffix}_motor_driver_joint" type="fixed">
+            <origin xyz="${offset_x} ${offset_y} ${offset_z}" rpy="0 0 ${yaw}" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_${suffix}_motor_driver_link" />
+        </joint>
+        <link name="${parent}_${suffix}_motor_driver_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${motor_driver_size_x} ${motor_driver_size_y} ${motor_driver_size_z}" />
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!-- The controller macro -->
+
+    <!-- The controller macro defines the Arlobot controller components.  Parallax's offering uses a Propeller Acitivity
+    board.  This implementation uses a Raspberry Pi and Two Psoc4M-044 development kits.  The display is a simple box
+    primitive
+    -->
+    <property name="controller_size_x" value="0.0635"/>
+    <property name="controller_size_y" value="0.1016"/>
+    <property name="controller_size_z" value="0.0762"/>
+
+    <property name="controller_offset_x" value="-0.1524"/>
+    <property name="controller_offset_y" value="0"/>
+    <property name="controller_offset_z" value="${baselevel_top_offset_z + controller_size_z/2}"/>
+
+    <macro name="controller" params="parent color">
+        <joint name="${parent}_controller_joint" type="fixed">
+            <origin xyz="${controller_offset_x} ${controller_offset_y} ${controller_offset_z}" rpy="0 0 0" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_controller_link" />
+        </joint>
+        <link name="${parent}_controller_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${controller_size_x} ${controller_size_y} ${controller_size_z}" />
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!-- The relay macro -->
+
+    <!-- The relay macro defines a relay bank (8 relays).  Two relays are used to control the HB-25 motor drivers.
+     The display is a simple box primitive
+     -->
+    <property name="relay_size_x" value="0.0254"/>
+    <property name="relay_size_y" value="0.127"/>
+    <property name="relay_size_z" value="0.0254"/>
+
+    <property name="relay_offset_x" value="0.07"/>
+    <property name="relay_offset_y" value="0"/>
+    <property name="relay_offset_z" value="${baselevel_top_offset_z + relay_size_z/2}"/>
+
+    <macro name="relay" params="parent color">
+        <joint name="${parent}_relay_joint" type="fixed">
+            <origin xyz="${relay_offset_x} ${relay_offset_y} ${relay_offset_z}" rpy="0 0 0" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_relay_link" />
+        </joint>
+        <link name="${parent}_relay_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${relay_size_x} ${relay_size_y} ${relay_size_z}" />
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!-- Note: The following macros are purely organizational in nature.  That is, they do not contribute to the
+               geometry of the model.  They only wrap the sensor macros so they are grouped by function and position
+    -->
+    <macro name="baselevel_front_ultrasonic_array" params="offset_z">
+        <link name="baselevel_front_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_front_ultrasonic_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_front_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_5_front parent="baselevel_front_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_back_ultrasonic_array" params="offset_z">
+        <link name="baselevel_back_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_back_ultrasonic_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_back_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_5_back parent="baselevel_back_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_front_infrared_array" params="offset_z">
+        <link name="baselevel_front_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_front_infrared_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_front_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_front_lower parent="baselevel_front_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_back_infrared_array" params="offset_z">
+        <link name="baselevel_back_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_back_infrared_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_back_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_back_lower parent="baselevel_back_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <!--
+
+    Build the Base Level
+
+    Below is the build-up of the baselevel component of the Arlobot
+
+    -->
+
+    <caster parent="baselevel" suffix="front" reflect="1" color="LightGrey"/>
+    <caster parent="baselevel" suffix="back" reflect="-1" color="LightGrey"/>
+
+    <!-- This calculation is needed to position the ultrasonic sensor on the top of the base level platter -->
+    <property name="baselevel_ultrasonic_offset_z" value="${baselevel_top_offset_z + ultrasonic_height/2}"/>
+
+    <baselevel_front_ultrasonic_array offset_z="${baselevel_ultrasonic_offset_z}"/>
+    <baselevel_back_ultrasonic_array offset_z="${baselevel_ultrasonic_offset_z}"/>
+
+    <!-- This calculation is needed to position the infrared sensor under the base level platter -->
+    <property name="baselevel_infrared_offset_z" value="${-platter_height - infrared_height/2}"/>
+
+    <baselevel_front_infrared_array offset_z="${baselevel_infrared_offset_z}"/>
+    <baselevel_back_infrared_array offset_z="${baselevel_infrared_offset_z}"/>
+
+    <power parent="baselevel" color="LightGrey"/>
+
+    <motor_driver parent="baselevel" suffix="left" color="Orange" offset_x="${left_motor_driver_offset_x}" offset_y="${left_motor_driver_offset_y}" offset_z="${left_motor_driver_offset_z}"  yaw="${angle_315}"/>
+    <motor_driver parent="baselevel" suffix="right" color="Orange" offset_x="${right_motor_driver_offset_x}" offset_y="${right_motor_driver_offset_y}" offset_z="${right_motor_driver_offset_z}"  yaw="${angle_45}"/>
+
+    <controller parent="baselevel" color="White"/>
+
+    <relay parent="baselevel" color="Blue"/>
+
+</robot>

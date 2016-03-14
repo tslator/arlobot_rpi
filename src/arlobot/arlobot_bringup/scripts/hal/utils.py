@@ -5,6 +5,12 @@ import time
 from threading import Thread, Event, Lock
 
 
+def millimeter_to_meter(millimeter):
+    return millimeter / 1000.0
+
+def meter_to_millimeter(millimeter):
+    return int(millimeter * 1000)
+
 class Worker (Thread):
     def __init__(self, name, work):
         Thread.__init__(self)

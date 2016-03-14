@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<robot name="arlobot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <!-- Include all component files -->
+    <xacro:include filename="$(find arlobot_description)/urdf/materials.urdf.xacro" />
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.global.urdf.xacro"/>
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.base.urdf.xacro" />
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.baselevel.urdf.xacro" />
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.midlevel.urdf.xacro" />
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.toplevel.urdf.xacro" />
+
+    <!-- Add each level of the robot -->
+    <base color="Black"/>
+    <baselevel parent="base" name="baselevel" color="Black"/>
+    <midlevel parent="baselevel" name="midlevel" color="Black"/>
+    <toplevel parent="midlevel" name="toplevel" color="Black"/>
+
+</robot>

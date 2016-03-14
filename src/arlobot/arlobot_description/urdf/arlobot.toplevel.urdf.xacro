@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+
+<robot name="toplevel" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <!--
+        The toplevel includes:
+            - Platter (arlobot_description/meshes/arlobot.platter.dae)
+            - Four 5 in standoffs/supports (arlobot.support.urdf.xacro)
+            - Two forward-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - Two back-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - One forward-facing Kinect (kinect.urdf.xacro)
+            - One forward-facing HD web camera (arlobot.webcamera.urdf.xacro)
+            - One speaker (arlobot.speaker.urdf.xacro)
+            - One LIDAR (arlobot.xv11lidar.urdf.xacro)
+    -->
+
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.standoff.urdf.xacro"/>
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.rangesensor.urdf.xacro" />
+    <!--<xacro:include filename="$(find arlobot_description)/urdf/laser.urdf.xacro" />-->
+
+    <!-- The top level macro -->
+
+    <!-- The top level macro essentially defines the top platter of the Arlobot.  There are four 5 in standoffs/supports
+    which mount on the midlevel platter.
+    -->
+    <macro name="toplevel" params="parent name color">
+        <joint name="${parent}_${name}_joint" type="fixed">
+            <origin xyz="${toplevel_offset_x} ${toplevel_offset_y} ${toplevel_offset_z}" rpy="0 0 0"/>
+            <parent link="${parent}_link"/>
+            <child link="${name}_link" />
+        </joint>
+        <link name="${name}_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+                <material name="${color}" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+            </collision>
+        </link>
+    </macro>
+
+
+    <!-- Note: The following macros are purely organizational in nature.  That is, they do not contribute to the
+               geometry of the model.  They only wrap the sensor macros so they are grouped by function and position
+    -->
+    <macro name="toplevel_front_infrared_array" params="offset_z">
+        <link name="toplevel_front_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="toplevel_front_infrared_array_joint" type="fixed">
+            <parent link="toplevel_link"/>
+            <child link="toplevel_front_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_front_upper parent="toplevel_front_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="toplevel_back_infrared_array" params="offset_z">
+        <link name="toplevel_back_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="toplevel_back_infrared_array_joint" type="fixed">
+            <parent link="toplevel_link"/>
+            <child link="toplevel_back_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_back_upper parent="toplevel_back_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <!--
+
+    Build the Top Level
+
+    -->
+
+    <!-- The standoffs belong to toplevel but they are placed below the platter.  The reasoning for this is that even
+    though the standoffs are attach to the midlevel, they serve no purpose unless there is a toplevel platter.  So, it
+    makes more sensor for the standoffs to be associated with the toplevel.  Now, because the standoffs are attached to
+    toplevel, their origin is on the toplevel platter, e.g., viewed at 0 z offset, half of the standoff will be above
+    and below the toplevel platter.  To move the standoff below, adjust the z offset by half the height of the standoff.
+    -->
+
+    <property name="toplevel_standoff_offset_z" value="${-standoff_height/2}"/>
+
+    <standoff_5in parent="toplevel" number="0" x_loc="0.0676402" y_loc="0.1314196" z_loc="${toplevel_standoff_offset_z}"/>
+    <standoff_5in parent="toplevel" number="1" x_loc="0.0676402" y_loc="-0.1314196" z_loc="${toplevel_standoff_offset_z}"/>
+    <standoff_5in parent="toplevel" number="2" x_loc="-0.052832" y_loc="-0.1314196" z_loc="${toplevel_standoff_offset_z}"/>
+    <standoff_5in parent="toplevel" number="3" x_loc="-0.052832" y_loc="0.1314196" z_loc="${toplevel_standoff_offset_z}"/>
+
+    <!-- This calculation is needed to position the infrared sensor under the top level platter -->
+    <property name="toplevel_infrared_offset_z" value="${-(infrared_height/2 + platter_height/2)}"/>
+
+    <toplevel_front_infrared_array offset_z="${toplevel_infrared_offset_z}"/>
+    <toplevel_back_infrared_array offset_z="${toplevel_infrared_offset_z}"/>
+
+    <property name="laser_offset_x" value=""/>
+    <property name="laser_offset_y" value=""/>
+    <property name="laser_offset_z" value="${toplevel_top_offset_z + laser_size_z/2"/>
+
+    <xv11_laser parent="toplevel" color="DarkGrey" offset_z="${laser_offset_z}"/>
+
+
+</robot>

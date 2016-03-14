@@ -27,8 +27,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('turtlebot_teleop')
 import rospy
 
 from geometry_msgs.msg import Twist
@@ -36,7 +34,7 @@ from geometry_msgs.msg import Twist
 import sys, select, termios, tty
 
 msg = """
-Control Your Turtlebot!
+Control Your Arlobot!
 ---------------------------
 Moving around:
    u    i    o
@@ -92,7 +90,7 @@ def vels(speed,turn):
 if __name__=="__main__":
     settings = termios.tcgetattr(sys.stdin)
 
-    rospy.init_node('turtlebot_teleop')
+    rospy.init_node('arlobot_teleop')
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
 
     x = 0

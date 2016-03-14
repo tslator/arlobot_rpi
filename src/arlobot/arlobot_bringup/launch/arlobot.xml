@@ -1,4 +1,5 @@
 <launch>
     <rosparam file="$(find arlobot_bringup)/param/arlobot.yaml" command="load" />
     <node name="arlobot_node" pkg="arlobot_bringup" type="arlobot_node.py" output="screen" />
+    <node name="pc_hal_service_node" pkg="arlobot_bringup" type="pc_hal_service_node.py" output="screen" respawn="true" />
 </launch>

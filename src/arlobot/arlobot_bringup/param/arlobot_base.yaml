@@ -1,42 +1,71 @@
 # Robot drive and mechanical parameters
 Drive Type: "ArlobotDifferential"
 Track Width: 0.4030      # meter
-Tick Per Revolution: 72  # encoder tick or count
+Tick Per Revolution: 144  # encoder tick or count
 Wheel Diameter: 0.1524   # meter
 
 # Speed constraints
+Max Motor RPM: 95 # rpm
 Max Linear Speed: 1.0  # meter/sec
 Max Angular Speed: 1.0 # rad/sec
+
+# Tracking PID Gains
+Linear Tracking Kp: 10.0
+Linear Tracking Ki: 0.0
+Linear Tracking Kd: 0.0
+
+Angular Tracking Kp: 10.0
+Angular Tracking Ki: 0.0
+Angluar Tracking Kd: 0.0
 
 # Node parameters
 Base Node Loop Rate: 1     # Hz
 Drive Node Loop Rate: 10   # Hz
-Sensors Node Loop Rate: 1 # Hz
-Diff Drive Loop Rate: 10   # Hz
+Sensors Node Loop Rate: 1  # Hz
 
-# Number of range sensors
+# Drive Node Velocity Profile parameters
+Drive Node Velocity Profile Linear Accel: 3
+Drive Node Velocity Profile Angular Accel: 0.1
+Drive Node Velocity Profile Time Slice: 0.01
+# Note: the rate is a throttle of twist messages which samples the twist messages at the give rate.  The resulting
+# sample time is maximum amount of time available to acheive the change in velocity.
+Drive Node Velocity Profile Rate: 10
+# Note: The Max Time must be less than the resulting sample time from "Drive Note Velocity Profile Rate".  The code will
+# raise an exception if this is not the case
+Drive Node Velocity Profile Max Time: 0.08
+
+# Ultrasonic range sensors
+Ultrasonic Field Of View:  0.523599
+Ultrasonic Min Range: 0.02 # meters
+Ultrasonic Max Range: 5.0  # meters
 Num Ultrasonic Front Sensors: 8
 Num Ultrasonic Back Sensors: 8
+
+# Infrared range sensors
+Infrared Field Of View:  0.174533
+Infrared Min Range: 0.10
+Infrared Max Range: 0.80
 Num Infrared Front Sensors: 8
 Num Infrared Back Sensors: 8
 
+# Laser range sensor
+Laser Min Range: 0.06
+Laser Max Range: 5.0
+
+# Scan Sensor enable
+# I have genericized the laser scan sensor into a scan sensor.  It uses the LaserScan message but will allow using
+# ultrasonic and infrared sensor data
+Laser Scan Enable: False
+Ultrasonic Scan Enable: True
+Infrared Scan Enable: True
+
 # HAL parameters
-HAL Service Timeout Rate: 1 # Hz
-HAL Service Timeout: 5 # seconds
-HAL Simulate: True
+Base HAL Service Timeout Rate: 1 # Hz
+Base HAL Service Timeout: 5 # seconds
+Base HAL Simulate: False
 I2C Device: 1
-Left Psoc4 I2C Address: 0x08
-Right Psoc4 I2C Address: 0x09
+Psoc I2C Address: 0x08
 IMU Mag I2C Address: 0x1e
 IMU Acc I2C Address: 0x1d
-Power Pi AVR I2C Address: 0x21
-Power Pi INA219 I2C Address: 0x40
-XV11 Port: "/dev/ttyUSB0"
+XV11 Port: "/dev/ttyACM0"
 XV11 Baud: 115200
-
-# Drive Control
-Drive Node Gains: {"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}
-
-# Sensors Parameters
-# I was thinking about either an enable/disable for each sensor type or maybe just control over publishing.  There is no
-# specific need here at the moment.

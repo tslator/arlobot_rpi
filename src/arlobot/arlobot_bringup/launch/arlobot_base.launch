@@ -1,4 +1,4 @@
 <launch>
-  <env name="ROS_MASTER_URI" value="http://arlobot:11311"/>
-  <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
+    <env name="ROS_MASTER_URI" value="http://arlobot:11311"/>
+    <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
 </launch>

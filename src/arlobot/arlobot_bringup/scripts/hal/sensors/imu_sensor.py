@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from ..hal_proxy import HALProxy, HALProxyError
+from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from std_msgs.msg import Header
 from sensor_msgs.msg import Imu
@@ -20,9 +20,9 @@ class ImuSensor:
         self._publisher = rospy.Publisher("imu", Imu, queue_size = 10)
 
         try:
-            self._hal_proxy = HALProxy()
-        except HALProxyError:
-            raise ArlobotDifferentialDriveError("Unable to create HAL")
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
+            raise ImuSensorError("Unable to create HAL")
 
     def Publish(self):
         imu_data = self._hal_proxy.GetImu()
