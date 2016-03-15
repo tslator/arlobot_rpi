@@ -10,18 +10,21 @@ if __name__ == "__main__":
     except I2CBusError:
         print("Error instantiating I2CBus")
 
-    print("speed: ", sys.argv[1])
-    start = i2c1.ReadUint32(0x08, 8)
-    i2c1.WriteUint16(0x08, 2, int(sys.argv[1]))
+    address = int(sys.argv[1])
+    speed = int(sys.argv[2])
+    run_time = int(sys.argv[3])
+
+    print("speed: ", speed)
+    start = i2c1.ReadUint32(address, 8)
+    i2c1.WriteUint16(address, 2, speed)
     start_time = time.time()
-    result = int(i2c1.ReadUint16(0x08, 2))
-    print("result: ", result)
 
-    time.sleep(float(sys.argv[2]))
+    time.sleep(float(sys.argv[3]))
 
-    i2c1.WriteUint16(0x08, 2, 0)
+    velocity = i2c1.ReadUint16(address, 12)
+    end = i2c1.ReadUint32(address, 8)
+    i2c1.WriteUint16(address, 2, 0)
     end_time = time.time()
-    end = i2c1.ReadUint32(0x08, 8)
-    print("delta count: ", end - start, "delta time: ", end_time - start_time)
+    print("delta count: ", end - start, " distance(m): ", ((end - start) / 144) * 0.4787, " velocity(m/s): ", velocity)
     
 
