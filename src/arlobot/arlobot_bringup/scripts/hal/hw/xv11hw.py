@@ -52,7 +52,7 @@ class Xv11Hw:
 
         '''
         Note: The Surreal LIDAR supports ASCII text commands which can control the LIDAR, e.g., motor on/off and speed
-        and the display of rpm, time, and scan information.
+        and the display of rpm, time, and scan information (http://www.getsurreal.com/product/xv-lidar-controller-v1-2)
 
             - RelayOff - not sure what this command does, but it is given on Surreals web page
             - ShowRPM - adds RPM and PWM data to the serial stream

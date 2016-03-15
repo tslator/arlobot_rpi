@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dcce5797-7828-46d2-9e6b-a433e4031a4c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/arlobot_rpi.iml" afterPath="$PROJECT_DIR$/.idea/arlobot_rpi.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/laser_sensor.py" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/laser_sensor.py" />
     </list>
     <ignored path="arlobot_rpi.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -46,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="xv11hw.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="xv11hw.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-21.48276">
-              <caret line="150" column="22" selection-start-line="150" selection-start-column="22" selection-end-line="150" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.54587686">
+              <caret line="54" column="119" selection-start-line="54" selection-start-column="119" selection-end-line="54" selection-end-column="119" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -88,10 +83,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hal.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="hal.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6179775">
+            <state vertical-scroll-proportion="0.0">
               <caret line="155" column="16" selection-start-line="155" selection-start-column="16" selection-end-line="155" selection-end-column="16" />
               <folding />
             </state>
@@ -194,8 +189,8 @@
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/param/arlobot_base.yaml" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/laser_sensor.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py" />
       </list>
     </option>
   </component>
@@ -1166,21 +1161,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py">
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-21.48276">
-          <caret line="150" column="22" selection-start-line="150" selection-start-column="22" selection-end-line="150" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0">
+          <caret line="155" column="16" selection-start-line="155" selection-start-column="16" selection-end-line="155" selection-end-column="16" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py">
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6179775">
-          <caret line="155" column="16" selection-start-line="155" selection-start-column="16" selection-end-line="155" selection-end-column="16" />
-          <folding />
+        <state vertical-scroll-proportion="0.54587686">
+          <caret line="54" column="119" selection-start-line="54" selection-start-column="119" selection-end-line="54" selection-end-column="119" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
