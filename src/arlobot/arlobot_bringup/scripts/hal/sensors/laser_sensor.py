@@ -22,24 +22,34 @@ class LaserScanSensor:
     def __init__(self):
         self._publisher = Publisher("scan", LaserScan, queue_size=10)
 
+        self._last_time = Time.now()
+
         try:
             self._hal_proxy = HALProxy()
         except HALProxyError:
             raise LaserScanSensorError("Unable to create HAL")
 
     def Publish(self):
-        ranges, intensities, time_increment  = self._hal_proxy.GetLaserScan()
-        self._publisher.publish(self._msg(ranges, intensities, time_increment, Time.now()))
+        ranges, intensities, scan_time  = self._hal_proxy.GetLaserScan()
+        self._publisher.publish(self._msg(ranges, intensities, scan_time, Time.now()))
 
-    def _msg(self, ranges, intensities, time_increment, scan_time):
+    def _msg(self, ranges, intensities, scan_time):
+        new_time = Time.now()
+        delta_time = new_time - self._last_time
+        self._last_time = new_time
+
         msg = LaserScan()
         msg.header.frame_id = self.__FRAME_ID
         msg.header.stamp = Time.now()
         msg.angle_max = self.__MAX_ANGLE
         msg.angle_min = self.__MIN_ANGLE
         msg.angle_increment = self.__ANGLE_INCREMENT
-        msg.time_increment = 0.01
-        msg.scan_time = 0.01
+        # Note: time_increment is the time between measurements, i.e. how often we read the scan and publish it (in
+        # seconds)
+        msg.time_increment = delta_time
+        # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  This
+        # comes from the XV11 itself (in seconds)
+        msg.scan_time = scan_time
         msg.range_min = self.__MIN_RANGE
         msg.range_max = self.__MAX_RANGE
         msg.ranges = [min(max(range, msg.range_min), msg.range_max) for range in ranges]

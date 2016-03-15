@@ -148,6 +148,13 @@ class HardwareAbstractionLayer(object):
 
             # For doing any initialization that is subject to startup.  Can't think of anything right now.
 
+            # The XV11 runs its own thread to read from the serial port - it needs to be started
+            if self._simulated:
+                pass
+
+            else:
+                self._xv11.Start()
+
             rospy.loginfo("HAL initialized")
 
             self._hal_state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
@@ -189,6 +196,9 @@ class HardwareAbstractionLayer(object):
         if self._simulated:
             self._left_worker.stop()
             self._right_worker.stop()
+
+        else:
+            self._xv11.Stop()
 
         self._hal_state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
         rospy.loginfo("HAL is stopped")
