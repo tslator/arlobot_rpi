@@ -100,7 +100,7 @@ class BaseHALProxy:
     def GetTemp(self):
         get_temp = rospy.ServiceProxy('BaseHALGetTemp', HALGetTwoValues)
         response = get_temp()
-        return {"imu" : response.value_1, "pp" : response.value_2}
+        return response.value
 
 
 class PCHALProxyError(Exception):

@@ -1,3 +1,7 @@
+#! /usr/bin/env python
+from __future__ import print_function
+
+
 class PowerPiHwError(Exception):
     pass
 
@@ -15,10 +19,9 @@ class PowerPiHw:
     INC219_ADDR = 0x40
 
     def __init__(self, i2cbus, avr_addr, ina219_addr):
+        self._i2c_bus = i2cbus
         self._avr_address = avr_addr
         self._ina219_address = ina219_addr
-
-        self._i2c_bus = i2cbus
 
     def GetVoltage(self):
         reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__BUS_REG)
@@ -27,6 +30,3 @@ class PowerPiHw:
     def GetCurrent(self):
         reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__SHUNT_REG)
         return float(reg_value/10)
-
-    def GetTemp(self):
-        return {'f' : 1.0, 'c' : 1.0}

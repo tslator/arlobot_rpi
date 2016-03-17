@@ -8,7 +8,7 @@ import rospy
 
 from hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from hw.imuhw import ImuHw, ImuHwError
-from hw.powerpihw import PowerPiHw
+from hw.powerpihw import PowerPiHw, PowerPiHwError
 from hw.psoc4hw import Psoc4Hw, Psoc4HwError
 from hw.xv11hw import Xv11Hw, Xv11HwError
 from hw.i2c import I2CBus
@@ -90,7 +90,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
             try:
                 self._powerpi = PowerPiHw(self._i2c_bus, powerpi_avr_addr, powerpi_ina219_addr)
-            except PowerPiHw:
+            except PowerPiHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate PowerPiHw")
 
             try:
@@ -228,19 +228,17 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
     def GetCurrent(self):
         if self._simulated:
-            voltage = 5.0
+            current = 2.1
         else:
-            voltage = self._powerpi.GetCurrent()
-        return voltage
+            current = self._powerpi.GetCurrent()
+        return current
 
     def GetTemp(self):
         if self._simulated:
-            imu_temp = {'f' : 0, 'c': 0}
-            pp_temp = {'f' : 0, 'c': 0}
+            temp = 0
         else:
-            imu_temp = self._imu.GetTemp()
-            pp_temp = self._powerpi.GetTemp()
-        return {"imu" : imu_temp, "pp" : pp_temp}
+            temp = self._imu.GetTemp()
+        return temp
 
 
 if __name__ == "__main__":

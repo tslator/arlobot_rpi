@@ -54,7 +54,7 @@ class BaseHALServiceNode(HALServiceNode):
         self._services['BaseHALGetLaserScan'] = rospy.Service('BaseHALGetLaserScan', HALGetLaserScan, self._hal_get_laser_scan)
         self._services['BaseHALGetVoltage'] = rospy.Service('BaseHALGetVoltage', HALGetOneValue, self._hal_get_voltage)
         self._services['BaseHALGetCurrent'] = rospy.Service('BaseHALGetCurrent', HALGetOneValue, self._hal_get_current)
-        self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetTwoValues, self._hal_get_temp)
+        self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetOneValue, self._hal_get_temp)
 
     def _hal_set_speed(self, request):
         success = False
@@ -157,16 +157,13 @@ class BaseHALServiceNode(HALServiceNode):
 
     def _hal_get_temp(self, request):
         rospy.loginfo("HALGetTemp ENTER")
-        imu_temp = {}
-        pp_temp = {}
+        temp = 0
         try:
             temp = self._hal.GetTemp()
-            imu_temp = temp['imu']
-            pp_temp = temp['pp']
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetTemp")
         rospy.loginfo("HALGetTemp EXIT")
-        return HALGetTwoValuesResponse(value_1=imu_temp['c'], value_2=pp_temp['c'])
+        return HALGetOneValueResponse(value = temp)
 
 
 if __name__ ==  "__main__":
