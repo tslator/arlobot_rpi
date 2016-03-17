@@ -42,6 +42,7 @@ class I2CBus:
 
 
 if __name__ == "__main__":
+    import sys
     '''
     Note: I2C device 0 is not supported on Raspberry Pi rev 2
     try:
@@ -56,18 +57,18 @@ if __name__ == "__main__":
     except I2CBusError as err:
         print("Failed to open I2C device 0")
 
-    i2c1.WriteUint16(0x08, 0x00, 0xff)
-    value = i2c1.ReadUint16(0x08, 0)
+    i2c1.WriteUint16(int(sys.argv[1]), 0x00, 0xff)
+    value = i2c1.ReadUint16(int(sys.argv[1]), 0)
     print("ReadUint16 returned: ", value)
     assert(value == 0xff)
 
-    i2c1.WriteUint16(0x08, 0x00, 0x7f)
-    value = i2c1.ReadUint16(0x08, 0)
+    i2c1.WriteUint16(int(sys.argv[1]), 0x00, 0x7f)
+    value = i2c1.ReadUint16(int(sys.argv[1]), 0)
     print("ReadUint16 returned: ", value)
     assert(value == 0x7f)
 
-    value = i2c1.ReadUint32(0x08, 6)
+    value = i2c1.ReadUint32(int(sys.argv[1]), 6)
     print("ReadUint32 returned:", value)
-    values = i2c1.ReadArray(0x08, 12)
+    values = i2c1.ReadArray(int(sys.argv[1]), 12)
     assert(len(values) == 8)
     print("ReadArray returned:", values)
