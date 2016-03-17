@@ -1,10 +1,14 @@
 #! /usr/bin/env python
+
 from __future__ import print_function
 
 import rospy
-from hal import PCHardwareAbstractionLayer, PCHardwareAbstractionLayerError
+
+
 from hal_service_node import HALServiceNode, HALServiceNodeError
+from pc_hal import PCHardwareAbstractionLayer, PCHardwareAbstractionLayerError
 from msgs.srv import *
+
 
 
 class PCHALServiceNodeError(HALServiceNodeError):
@@ -12,7 +16,6 @@ class PCHALServiceNodeError(HALServiceNodeError):
 
 
 class PCHALServiceNode(HALServiceNode):
-
     NAME = "pc_hal_server_node"
 
     __DEFAULT_TIMEOUT = 5
@@ -58,7 +61,7 @@ class PCHALServiceNode(HALServiceNode):
         return HALGetOneValueResponse(value=voltage)
 
 
-if __name__ ==  "__main__":
+if __name__ == "__main__":
     hal_service = PCHALServiceNode()
     hal_service.Start()
     hal_service.Run()

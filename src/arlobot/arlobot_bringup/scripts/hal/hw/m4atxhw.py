@@ -1,10 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
 
-import time
-from subprocess import Popen
-from ..utils import Worker
-
 # PyUSB requires:
 #  - At least one of the supported libraries (libusb 1.0, libusb 0.1 or OpenUSB)
 # Installation
@@ -16,6 +12,11 @@ from ..utils import Worker
 #     - sudo pip install pyusb --pre
 import usb.core
 import usb.util
+import time
+import sys
+sys.path.append("..")
+from utils import Worker
+
 
 
 class M4DeviceError(Exception):
