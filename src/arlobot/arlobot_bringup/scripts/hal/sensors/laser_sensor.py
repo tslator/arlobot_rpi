@@ -54,7 +54,7 @@ class LaserScanSensor:
 
     def Publish(self):
         ranges, intensities, scan_time  = self._hal_proxy.GetLaserScan()
-        self._publisher.publish(self._msg(ranges, intensities, scan_time, Time.now()))
+        self._publisher.publish(self._msg(ranges, intensities, scan_time))
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 import rospy
 from ..hal_proxy import BaseHALProxy, BaseHALProxyError, PCHALProxy, PCHALProxyError
 # Import some standard message for reporting power, battery etc
+from msgs.msg import BasePower
 
 
 class PowerSensorError(Exception):
@@ -31,7 +32,7 @@ class PowerSensor:
 
         # Create publishers for messages
         self._base_power_publisher = rospy.Publisher("BasePower", BasePower, queue_size=10)
-        self._pc_power_publisher = rospy.Publisher("PcPower", PcPower, queue_size=10)
+        #self._pc_power_publisher = rospy.Publisher("PcPower", PcPower, queue_size=10)
 
         try:
             self._base_hal_proxy = BaseHALProxy()
@@ -45,14 +46,13 @@ class PowerSensor:
 
 
 
-    def _base_power_msg(self, voltage, current, temperature):
+    def _base_power_msg(self, voltage, current):
         """
         Base supplies Voltage and Current values
         """
         msg = BasePower()
         msg.voltage = voltage
         msg.current = current
-        msg.temp = temperature
 
         return msg
 
@@ -60,17 +60,17 @@ class PowerSensor:
         """
         PC supplies a number of power related values
         """
-        msg = PcPower()
-        msg.data = [params['VIN'], params['IGN'], params['33V'], params['5V'], params['12V'], temp]
+        #msg = PcPower()
+        #msg.data = [params['VIN'], params['IGN'], params['33V'], params['5V'], params['12V'], temp]
 
         return msg
 
     def Publish(self):
         base_voltage = self._base_hal_proxy.GetVoltage()
         base_current = self._base_hal_proxy.GetCurrent()
-        base_temperature = self._base_hal_proxy.GetTemp()
-        self._base_power_publisher.publish(self._base_power_msg(base_voltage, base_current, base_temperature))
+        #base_temperature = self._base_hal_proxy.GetTemp()
+        self._base_power_publisher.publish(self._base_power_msg(base_voltage, base_current))
 
-        params = self._pc_hal_proxy.GetPowerParams()
-        temp = self._pc_hal_proxy.GetTemp()
-        self._pc_power_publisher.publish(self._pc_power_msg(params, temp))
+        #params = self._pc_hal_proxy.GetPowerParams()
+        #temp = self._pc_hal_proxy.GetTemp()
+        #self._pc_power_publisher.publish(self._pc_power_msg(params, temp))
