@@ -87,7 +87,6 @@ class ArlobotSensorsNode:
 
             self._loop_rate.sleep()
 
-
         else:
             rospy.logwarn("Arlobot Sensors Node: shutdown invoked, exiting")
 

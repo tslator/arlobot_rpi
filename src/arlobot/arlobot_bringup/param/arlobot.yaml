@@ -1,1 +1,6 @@
 # This file will contain configuration information for the Arlobot node
+
+# HAL parameters
+PC HAL Service Timeout Rate: 1 # Hz
+PC HAL Service Timeout: 5 # seconds
+PC HAL Simulate: True

@@ -5,7 +5,7 @@ import time
 from threading import RLock
 import rospy
 from arlobot_exception import ArlobotError
-from hal.hal_proxy import HALProxy, HALProxyError
+from hal.hal_proxy import BaseHALProxy, BaseHALProxyError
 from drive_pid import DrivePid, DrivePidError
 from hal.hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from hal.utils import Worker
@@ -56,8 +56,8 @@ class ArlobotDifferentialDrive():
 
 
         try:
-            self._hal_proxy = HALProxy()
-        except HALProxyError:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
             raise ArlobotDifferentialDriveError("Unable to create HAL")
 
         try:

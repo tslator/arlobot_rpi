@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 from rospy import Publisher, Time, get_time
-from ..hal_proxy import HALProxy, HALProxyError
-from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
+from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import LaserScan
 from math import pi
 
 
-class LaserScanSensorError(HardwareAbstractionLayerError):
+class LaserScanSensorError(Exception):
     pass
 
 
@@ -25,13 +24,9 @@ class LaserScanSensor:
         self._last_time = Time.now()
 
         try:
-            self._hal_proxy = HALProxy()
-        except HALProxyError:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
             raise LaserScanSensorError("Unable to create HAL")
-
-    def Publish(self):
-        ranges, intensities, scan_time  = self._hal_proxy.GetLaserScan()
-        self._publisher.publish(self._msg(ranges, intensities, scan_time, Time.now()))
 
     def _msg(self, ranges, intensities, scan_time):
         new_time = Time.now()
@@ -57,5 +52,14 @@ class LaserScanSensor:
 
         return msg
 
+    def Publish(self):
+        ranges, intensities, scan_time  = self._hal_proxy.GetLaserScan()
+        self._publisher.publish(self._msg(ranges, intensities, scan_time, Time.now()))
+
+
 if __name__ == "__main__":
-    pass
+    import sys
+    lss = LaserScanSensor()
+    iterations = sys.argv[1]
+    for i in range(iterations):
+        lss.Publish()
