@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import rospy
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from arlobot_base_node import ArlobotBaseNodeStates
+from hal.hal_proxy import PCHALProxy, PCHALProxyError
 
 
 class ArlobotNodeError(Exception):
@@ -23,6 +25,8 @@ class ArlobotNode():
             rospy.init_node(ArlobotNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
+
+        rospy.loginfo("Waiting for ArlobotBaseStatus service ...")
         rospy.wait_for_service('ArlobotBaseStatus')
         try:
             arlobot_base_status = rospy.ServiceProxy('ArlobotBaseStatus', Trigger)
@@ -31,6 +35,14 @@ class ArlobotNode():
                 raise ArlobotNodeError("Failed response from ArlobotBaseStatus")
         except rospy.ServiceException, e:
             raise ArlobotNodeError(e)
+        rospy.loginfo("Service is running")
+
+        rospy.loginfo("Waiting for PCHALService ...")
+        try:
+            self._hal_proxy = PCHALProxy()
+        except PCHALProxyError:
+            raise ArlobotNodeError("Unable to create HAL")
+        rospy.loginfo("Service is running")
 
         # Initialization
         self._last_arlobot_base_node_state = ArlobotBaseNodeStates.STATE_UNKNOWN
