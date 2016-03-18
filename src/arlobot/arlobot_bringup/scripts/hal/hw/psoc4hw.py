@@ -72,13 +72,13 @@ class Psoc4Hw:
         '''
         w aa r oo cc cc cc cc
         '''
-        return self._i2c_bus.ReadUint32(self._address, self.__REGISTER_MAP['MEASURED_COUNT'])
+        return self._i2c_bus.ReadInt32(self._address, self.__REGISTER_MAP['MEASURED_COUNT'])
 
     def GetSpeed(self):
         '''
         w aa r oo vv
         '''
-        return self._i2c_bus.ReadUint16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
+        return self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
 
     def GetInfraredDistances(self):
         '''

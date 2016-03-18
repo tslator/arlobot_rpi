@@ -32,9 +32,21 @@ class I2CBus:
         value = self._smbus.read_word_data(address, offset)
         return value
 
+    def WriteInt16(self, address, offset, value):
+        self._smbus.write_word_data(address, offset, value)
+
+    def ReadInt16(self, address, offset):
+        value = self._smbus.read_word_data(address, offset)
+        return value if value < (2**15 - 1) else value - 2**16
+
     def ReadUint32(self, address, offset):
         value = self._smbus.read_i2c_block_data(address, offset, 4)
         return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
+
+    def ReadInt32(self, address, offset):
+        value = self._smbus.read_i2c_block_data(address, offset, 4)
+        int_value = (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
+        return int_value if int_value < (2**31 - 1) else int_value - 2**32
 
     def ReadArray(self, address, offset, size = 8):
         values = self._smbus.read_i2c_block_data(address, offset, size)

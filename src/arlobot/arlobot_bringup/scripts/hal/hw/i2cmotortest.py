@@ -15,16 +15,17 @@ if __name__ == "__main__":
     run_time = int(sys.argv[3])
 
     print("speed: ", speed)
-    start = i2c1.ReadUint32(address, 8)
-    i2c1.WriteUint16(address, 2, speed)
+    start_count = i2c1.ReadInt32(address, 8)
+    i2c1.WriteInt16(address, 2, speed)
     start_time = time.time()
 
     time.sleep(float(sys.argv[3]))
 
-    velocity = i2c1.ReadUint16(address, 12)
-    end = i2c1.ReadUint32(address, 8)
-    i2c1.WriteUint16(address, 2, 0)
+    velocity = i2c1.ReadInt16(address, 12)
+    i2c1.WriteInt16(address, 2, 0)
+    end_count = i2c1.ReadInt32(address, 8)
     end_time = time.time()
-    print("delta count: ", end - start, " distance(m): ", ((end - start) / 144) * 0.4787, " velocity(m/s): ", velocity)
+    delta_count = abs(start_count - end_count)
+    print("start: ", start_count, " end: ", end_count, " delta count: ", delta_count, " distance(m): ", (float(delta_count) / 144) * 0.4787, " velocity(m/s): ", velocity)
     
 
