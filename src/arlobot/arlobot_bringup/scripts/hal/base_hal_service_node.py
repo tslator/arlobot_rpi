@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import rospy
-from base_hal import BaseHardwareAbstractionLayer, BaseHardwareAbstractionLayerError
 from hal_service_node import HALServiceNode, HALServiceNodeError
+from base_hal import BaseHardwareAbstractionLayer, BaseHardwareAbstractionLayerError
 from msgs.srv import *
 
 

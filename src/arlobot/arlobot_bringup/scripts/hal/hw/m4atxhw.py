@@ -129,8 +129,6 @@ class M4AtxHwError(Exception):
 
 class M4AtxHw:
 
-    PORT = "/dev/ttyUSB?"
-    BAUD = 115200
 
     def __init__(self):
         self._temp = 0
@@ -147,6 +145,8 @@ class M4AtxHw:
             raise M4AtxHwError("Unable to create M4 device")
 
         self._worker = Worker("m4 xtv", self._read_data)
+
+        print("working")
 
     def Start(self):
         print("Starting M4 ATX ...")
@@ -170,3 +170,12 @@ class M4AtxHw:
 
     def GetTemp(self):
         return {'c': self._temp}
+
+
+if __name__ == "__main__":
+    m4 = M4AtxHw()
+
+    m4.Start()
+    print(m4.GetVoltage())
+    print(m4.GetTemp())
+    m4.Stop()
