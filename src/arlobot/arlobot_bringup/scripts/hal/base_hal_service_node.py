@@ -136,33 +136,27 @@ class BaseHALServiceNode(HALServiceNode):
         return HALGetImuResponse(accel=accel, mag=mag, temp=temp)
 
     def _hal_get_voltage(self, request):
-        rospy.loginfo("HALGetVoltage ENTER")
         voltage = 0
         try:
             voltage = self._hal.GetVoltage()
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetVoltage")
-        rospy.loginfo("HALGetVoltage EXIT")
         return HALGetOneValueResponse(value=voltage)
 
     def _hal_get_current(self, request):
-        rospy.loginfo("HALGetCurrent ENTER")
         current = 0
         try:
             current = self._hal.GetCurrent()
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetCurrent")
-        rospy.loginfo("HALGetCurrent EXIT")
         return HALGetOneValueResponse(value=current)
 
     def _hal_get_temp(self, request):
-        rospy.loginfo("HALGetTemp ENTER")
         temp = 0
         try:
             temp = self._hal.GetTemp()
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetTemp")
-        rospy.loginfo("HALGetTemp EXIT")
         return HALGetOneValueResponse(value = temp)
 
 
