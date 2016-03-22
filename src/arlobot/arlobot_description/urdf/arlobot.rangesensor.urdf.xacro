@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+
+<robot name="ultrasonic" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Range Sensor Macro -->
+    <xacro:macro name="range_sensor" params="parent sensor_type location number p_angle y_angle x_loc y_loc z_loc l w h">
+        <joint name="${sensor_type}_array_${location}_${number}_joint" type="fixed">
+            <origin xyz="${x_loc} ${y_loc} ${z_loc}" rpy="0 ${p_angle} ${y_angle}" />
+            <parent link="${parent}_link" />
+            <child link="${sensor_type}_array_${location}_${number}_link" />
+        </joint>
+
+        <link name="${sensor_type}_array_${location}_${number}_link">
+            <visual>
+                <geometry>
+                    <!-- Use the block insert here to insert the display (dae file in the future) for ultrasonic vs infrared
+                    <xacro:insert_block name="image" />
+                     -->
+                    <box size="${l} ${w} ${h}" />
+                </geometry>
+            </visual>
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+        </link>
+    </xacro:macro> <!-- END MACRO RANGE_SENSOR -->
+
+
+    <!-- Ultrasonic Sensor Parameters -->
+    <property name="sensor_setback" value="0.0174"/> <!-- This is the distance that the sensor will be set back from the sensor radius -->
+    <property name="ultrasonic_sensor_radius" value="${platter_radius - sensor_setback}"/>
+
+    <!-- Ultrasonic Sensor Arrays -->
+
+    <!-- Note: The front arrays use contiguous numbers 0 .. 7 to match how they are actually used in stack, i.e., sensors
+         0 .. 7 give information about what is in front of the robot
+    -->
+    <macro name="ultrasonic_array_5_front" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="0" p_angle="0" y_angle="${angle_60}" x_loc="${ultrasonic_sensor_radius * cos_angle_60}" y_loc="${ultrasonic_sensor_radius * sin_angle_60}" z_loc="${offset_z}" l="0.0174" w="0.05" h="0.055"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="1" p_angle="0" y_angle="${angle_30}" x_loc="${ultrasonic_sensor_radius * cos_angle_30}" y_loc="${ultrasonic_sensor_radius *  sin_angle_30}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="2" p_angle="0" y_angle="${angle_0}" x_loc="${ultrasonic_sensor_radius * cos_angle_0}" y_loc="${ultrasonic_sensor_radius *  sin_angle_0}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="3" p_angle="0" y_angle="${angle_330}" x_loc="${ultrasonic_sensor_radius * cos_angle_330}" y_loc="${ultrasonic_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="4" p_angle="0" y_angle="${angle_300}" x_loc="${ultrasonic_sensor_radius * cos_angle_300}" y_loc="${ultrasonic_sensor_radius * sin_angle_300}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+    </macro>
+
+    <macro name="ultrasonic_array_3_front" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="5" p_angle="0" y_angle="${angle_45}" x_loc="${ultrasonic_sensor_radius * cos_angle_45}" y_loc="${ultrasonic_sensor_radius *  sin_angle_45}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="6" p_angle="0" y_angle="${angle_0}" x_loc="${ultrasonic_sensor_radius * cos_angle_0}" y_loc="${ultrasonic_sensor_radius *  sin_angle_0}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="7" p_angle="0" y_angle="${angle_315}" x_loc="${ultrasonic_sensor_radius * cos_angle_315}" y_loc="${ultrasonic_sensor_radius * sin_angle_315}" z_loc="${offset_z}" l="0.0174" w="0.05" h="0.055"/>
+    </macro>
+
+    <!-- Note: The back arrays use contiguous numbers 0 .. 7 to match how they are actually used in stack, i.e., sensors
+         0 .. 7 give information about what is in back of the robot
+    -->
+    <macro name="ultrasonic_array_5_back" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="0" p_angle="0" y_angle="${angle_240}" x_loc="${ultrasonic_sensor_radius * cos_angle_240}" y_loc="${ultrasonic_sensor_radius * sin_angle_240}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="1" p_angle="0" y_angle="${angle_210}" x_loc="${ultrasonic_sensor_radius * cos_angle_210}" y_loc="${ultrasonic_sensor_radius * sin_angle_210}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="2" p_angle="0" y_angle="${angle_180}" x_loc="${ultrasonic_sensor_radius * cos_angle_180}" y_loc="${ultrasonic_sensor_radius * sin_angle_180}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="3" p_angle="0" y_angle="${angle_150}" x_loc="${ultrasonic_sensor_radius * cos_angle_150}" y_loc="${ultrasonic_sensor_radius * sin_angle_150}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="4" p_angle="0" y_angle="${angle_120}" x_loc="${ultrasonic_sensor_radius * cos_angle_120}" y_loc="${ultrasonic_sensor_radius * sin_angle_120}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+    </macro>
+
+    <macro name="ultrasonic_array_3_back" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="5" p_angle="0" y_angle="${angle_225}" x_loc="${ultrasonic_sensor_radius * cos_angle_225}" y_loc="${ultrasonic_sensor_radius * sin_angle_225}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="6" p_angle="0" y_angle="${angle_180}" x_loc="${ultrasonic_sensor_radius * cos_angle_180}" y_loc="${ultrasonic_sensor_radius * sin_angle_180}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+        <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="7" p_angle="0" y_angle="${angle_135}" x_loc="${ultrasonic_sensor_radius * cos_angle_135}" y_loc="${ultrasonic_sensor_radius * sin_angle_135}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
+    </macro>
+
+
+    <!-- Infrared Sensor Parameters -->
+    <property name="infrared_sensor_radius" value="${platter_radius - infrared_length/2}"/>
+
+    <!-- Infrared Sensor Arrays -->
+    <macro name="infrared_array_2_front_lower" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="${angle_45}" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="${angle_45}" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+    <macro name="infrared_array_4_front" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="2" p_angle="0" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="3" p_angle="0" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="4" p_angle="0" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="5" p_angle="0" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+    <macro name="infrared_array_2_front_upper" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="0" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="0" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+    <macro name="infrared_array_2_back_lower" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="0" p_angle="${angle_45}" y_angle="${angle_150}" x_loc="${infrared_sensor_radius * cos_angle_150}" y_loc="${infrared_sensor_radius * sin_angle_150}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="1" p_angle="${angle_45}" y_angle="${angle_210}" x_loc="${infrared_sensor_radius * cos_angle_210}" y_loc="${infrared_sensor_radius * sin_angle_210}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+    <macro name="infrared_array_4_back" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="${pitch}" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="${pitch}" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="${pitch}" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="${pitch}" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+    <macro name="infrared_array_2_back_upper" params="parent offset_z">
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="0" p_angle="0" y_angle="${angle_150}" x_loc="${infrared_sensor_radius * cos_angle_150}" y_loc="${infrared_sensor_radius * sin_angle_150}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+        <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="1" p_angle="0" y_angle="${angle_210}" x_loc="${infrared_sensor_radius * cos_angle_210}" y_loc="${infrared_sensor_radius * sin_angle_210}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
+    </macro>
+
+
+</robot>

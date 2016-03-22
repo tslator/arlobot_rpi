@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<robot name="arlobot_global" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- This file contains global parameters (primarily constants) that are used by various xacro files and that are
+         static for the Arlobot robot
+    -->
+
+    <property name="PI" value="3.1415" />
+
+
+    <!-- Convenience properties for angles, cosine and sine calculations
+         Note: ROS Jade allows actual cos/sin function calls to perform these calculations, but alas, we are not on
+         Jade :-(.  But, doing this can make it a simple transition.  Just update these properties and everything will
+         work, but with embedded function calls instead of static values
+    -->
+    <property name="angle_0" value="0"/>
+    <property name="angle_30" value="${PI/6}"/> <!-- 0.5236 -->
+    <property name="angle_45" value="${PI/4}"/> <!-- 0.7854 -->
+    <property name="angle_60" value="${PI/3}"/> <!-- 1.0472 -->
+    <property name="angle_90" value="${PI/2}"/> <!-- 1.0472 -->
+    <property name="angle_120" value="${2*PI/3}"/> <!-- 2.0944 -->
+    <property name="angle_135" value="${3*PI/4}"/> <!-- 2.3562 -->
+    <property name="angle_150" value="${5*PI/6}"/> <!-- 2.6180 -->
+    <property name="angle_180" value="${PI}"/> <!-- 3.1416 -->
+    <property name="angle_210" value="${7*PI/6}"/> <!-- 3.6652 -->
+    <property name="angle_225" value="$(5*PI/4}"/> <!-- 3.9270 -->
+    <property name="angle_240" value="${4*PI/3}"/> <!-- 4.1888 -->
+    <property name="angle_315" value="${7*PI/4}"/> <!-- 5.4978 -->
+    <property name="angle_330" value="${11*PI/6}"/> <!-- 5.7596 -->
+    <property name="angle_300" value="${5*PI/3}"/> <!-- 5.2360 -->
+
+    <property name="cos_angle_0" value="1.0000"/>
+    <property name="cos_angle_30" value="0.8660"/>
+    <property name="cos_angle_45" value="0.7071"/>
+    <property name="cos_angle_60" value="0.5000"/>
+    <property name="cos_angle_120" value="-0.5000"/>
+    <property name="cos_angle_135" value="−0.7071"/>
+    <property name="cos_angle_150" value="-0.8660"/>
+    <property name="cos_angle_180" value="-1.0000"/>
+    <property name="cos_angle_210" value="-0.8660"/>
+    <property name="cos_angle_225" value="−0.7071"/>
+    <property name="cos_angle_240" value="-0.5000"/>
+    <property name="cos_angle_300" value="0.5000"/>
+    <property name="cos_angle_315" value="0.7071"/>
+    <property name="cos_angle_330" value="0.8660"/>
+
+    <property name="sin_angle_0" value="0.0000"/>
+    <property name="sin_angle_30" value="0.5000"/>
+    <property name="sin_angle_45" value="0.7071"/>
+    <property name="sin_angle_60" value="0.8660"/>
+    <property name="sin_angle_120" value="0.8660"/>
+    <property name="sin_angle_135" value="0.7071"/>
+    <property name="sin_angle_150" value="0.5000"/>
+    <property name="sin_angle_180" value="0.0000"/>
+    <property name="sin_angle_210" value="-0.5000"/>
+    <property name="sin_angle_225" value="−0.7071"/>
+    <property name="sin_angle_240" value="-0.8660"/>
+    <property name="sin_angle_300" value="-0.8660"/>
+    <property name="sin_angle_315" value="-0.7071"/>
+    <property name="sin_angle_330" value="-0.5000"/>
+
+    <!-- Component parameters -->
+
+    <property name="ultrasonic_length" value="0.0174"/>
+    <property name="ultrasonic_width" value="0.05"/>
+    <property name="ultrasonic_height" value="0.055"/>
+
+    <property name="infrared_length" value="0.01"/>
+    <property name="infrared_width" value="0.035"/>
+    <property name="infrared_height" value="0.01"/>
+
+    <property name="platter_radius" value="0.2286" />
+    <property name="platter_height" value="0.009525" />
+
+    <property name="battery_box_size_x" value="0.1778" />
+    <property name="battery_box_size_y" value="0.36195" />
+    <property name="battery_box_size_z" value="0.0762" />
+
+    <!-- Note: wheel length is the wheel width -->
+    <property name="wheel_length" value="0.0254" />
+    <property name="wheel_radius" value="0.0762" />
+
+    <!-- Note: For Arlobot, the wheel is offset (positive Z axis) relative to the battery box -->
+    <property name="wheel_offset_x" value="0.00" />
+    <property name="wheel_offset_y" value="${battery_box_size_y/2 + wheel_length}" />
+    <property name="wheel_offset_z" value="0.0178" />
+
+    <!-- Base offset values -->
+    <property name="base_size_x" value="${battery_box_size_x}" />
+    <property name="base_size_y" value="${battery_box_size_y}" />
+    <property name="base_size_z" value="${battery_box_size_z}" />
+    <property name="base_offset_z" value="${wheel_radius - wheel_offset_z}"/>
+
+    <!-- Base level offset values -->
+    <property name="baselevel_offset_x" value="0" />
+    <property name="baselevel_offset_y" value="0" />
+    <property name="baselevel_offset_z" value="${base_size_z/2 + platter_height/2}" />
+    <property name="baselevel_top_offset_z" value="${platter_height/2}"/>
+
+    <!-- Middle level offset values -->
+    <property name="midlevel_offset_x" value="0"/>
+    <property name="midlevel_offset_y" value="0"/>
+    <property name="midlevel_offset_z" value="0"/>
+
+    <!-- Top level offset values -->
+    <property name="toplevel_offset_x" value="0"/>
+    <property name="toplevel_offset_y" value="0"/>
+    <property name="toplevel_offset_z" value="0"/>
+
+
+</robot>
