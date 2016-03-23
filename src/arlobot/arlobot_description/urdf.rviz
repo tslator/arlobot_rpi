@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /RobotModel1
         - /RobotModel1/Links1
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.61079
     Tree Height: 626
   - Class: rviz/Selection
     Name: Selection
@@ -50,7 +50,7 @@ Visualization Manager:
       Plane Cell Count: 20
       Reference Frame: <Fixed Frame>
       Value: true
-    - Alpha: 0.5
+    - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -120,12 +120,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        infrared_array_back_0_link:
+        infrared_array_back_8_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        infrared_array_back_1_link:
+        infrared_array_back_9_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -135,32 +135,117 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        infrared_array_front_10_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_front_11_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_front_12_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_front_13_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         infrared_array_front_1_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ultrasonic_array_back_0_link:
+        infrared_array_front_2_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ultrasonic_array_back_1_link:
+        infrared_array_front_3_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ultrasonic_array_back_2_link:
+        infrared_array_front_4_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ultrasonic_array_back_3_link:
+        infrared_array_front_5_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ultrasonic_array_back_4_link:
+        midlevel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        midlevel_pc_case_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        midlevel_standoff_5in_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        midlevel_standoff_5in_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        midlevel_standoff_5in_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        midlevel_standoff_5in_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_10_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_11_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_12_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_13_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_14_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_15_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_8_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_back_9_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -186,6 +271,21 @@ Visualization Manager:
           Show Trail: false
           Value: true
         ultrasonic_array_front_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_front_5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_front_6_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ultrasonic_array_front_7_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -220,22 +320,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.981996
+      Distance: 1.14585
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.193328
-        Y: 0.0567799
-        Z: 0.077828
+        X: 0.00883546
+        Y: -0.00185645
+        Z: 0.111429
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.984796
+      Pitch: 0.354801
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.36043
+      Yaw: 5.26361
     Saved: ~
 Window Geometry:
   Displays:

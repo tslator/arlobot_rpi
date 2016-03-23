@@ -8,7 +8,8 @@
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.global.urdf.xacro"/>
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.base.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.baselevel.urdf.xacro" />
-    <!-- xacro:include filename="$(find arlobot_description)/urdf/arlobot.midlevel.urdf.xacro" />
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.midlevel.urdf.xacro" />
+    <!--
         The midlevel includes:
             - Four supports (arlobot.support.urdf.xacro)
             - Platter (arlobot.platter.urdf.xacro)
@@ -34,7 +35,7 @@
     <base name="base" color="Black"/>
 
     <baselevel parent="base" name="baselevel" color="Black"/>
-    <!-- midlevel name="midlevel" color="Black/> -->
-    <!-- toplevel name="toplevel" color="Black/> -->
+    <midlevel parent="baselevel" name="midlevel" color="Black"/>
+    <!-- <toplevel parent="base" name="toplevel" color="Black"/> -->
 
 </robot>

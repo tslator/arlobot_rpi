@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+
+<robot name="midlevel" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <!--
+        The baselevel includes:
+            - Platter (arlobot_description/meshes/arlobot.platter.dae)
+            - Four 5 in standoffs/supports
+            - Three forward-facing ultrasonic sensors (arlobot.rangesensor.urdf.xacro)
+            - Four forward-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - Three back-facing ultrasonic sensors (arlobot.rangesensor.urdf.xacro)
+            - Four back-facing infrared sensors (arlobot.rangesensor.urdf.xacro)
+            - PC case
+    -->
+
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.standoff.urdf.xacro"/>
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.rangesensor.urdf.xacro" />
+
+    <!-- The mid level macro -->
+
+    <!-- The mid level macro essentially defines the middle platter of the Arlobot.  There are four 5 in standoffs/supports
+    which mount on the baselevel platter.
+    -->
+    <macro name="midlevel" params="parent name color">
+        <joint name="${parent}_${name}_joint" type="fixed">
+            <origin xyz="${midlevel_offset_x} ${midlevel_offset_y} ${midlevel_offset_z}" rpy="0 0 0"/>
+            <parent link="${parent}_link"/>
+            <child link="${name}_link" />
+        </joint>
+        <link name="${name}_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+                <material name="${color}" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${platter_radius}" length="${platter_height}"/>
+                </geometry>
+            </collision>
+        </link>
+    </macro>
+
+
+    <!-- The PC case macro -->
+    <property name="pc_case_size_x" value="0.2286"/>
+    <property name="pc_case_size_y" value="0.1969"/>
+    <property name="pc_case_size_z" value="0.0762"/>
+
+    <property name="pc_case_offset_x" value="0"/>
+    <property name="pc_case_offset_y" value="0"/>
+    <property name="pc_case_offset_z" value="${midlevel_top_offset_z + pc_case_size_z/2}"/>
+
+    <macro name="pc_case" params="parent color">
+        <joint name="${parent}_pc_case_joint" type="fixed">
+            <origin xyz="${pc_case_offset_x} ${pc_case_offset_y} ${pc_case_offset_z}" rpy="0 0 0" />
+            <parent link="${parent}_link" />
+            <child link="${parent}_pc_case_link" />
+        </joint>
+        <link name="${parent}_pc_case_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${pc_case_size_x} ${pc_case_size_y} ${pc_case_size_z}" />
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
+    </macro>
+
+    <!--
+
+    Build the Mid Level
+
+    -->
+
+    <!-- The standoffs belong to midlevel but they are placed below the platter.  The reasoning for this is that even
+    though the standoffs are attach to the baselevel, they serve no purpose unless there is a midlevel platter.  So, it
+    makes more sensor for the standoffs to be associated with the midlevel.  Now, because the standoffs are attached to
+    midlevel, their origin is on the midlevel platter, e.g., viewed at 0 z offset, half of the standoff will be above
+    and below the midlevel platter.  To move the standoff below, adjust the z offset by half the height of the standoff.
+    -->
+
+    <property name="midlevel_standoff_offset_z" value="${-standoff_height/2}"/>
+
+    <standoff_5in parent="midlevel" number="0" x_loc="0.0676402" y_loc="0.1314196" z_loc="${midlevel_standoff_offset_z}"/>
+    <standoff_5in parent="midlevel" number="1" x_loc="0.0676402" y_loc="-0.1314196" z_loc="${midlevel_standoff_offset_z}"/>
+    <standoff_5in parent="midlevel" number="2" x_loc="-0.052832" y_loc="-0.1314196" z_loc="${midlevel_standoff_offset_z}"/>
+    <standoff_5in parent="midlevel" number="3" x_loc="-0.052832" y_loc="0.1314196" z_loc="${midlevel_standoff_offset_z}"/>
+
+    <!-- This calculation is needed to position the ultrasonic sensor on the top of the mid level platter -->
+    <property name="midlevel_ultrasonic_offset_z" value="${midlevel_top_offset_z + ultrasonic_height/2}"/>
+
+    <ultrasonic_array_3_front parent="midlevel" offset_z="${midlevel_ultrasonic_offset_z}"/>
+    <ultrasonic_array_3_back  parent="midlevel" offset_z="${midlevel_ultrasonic_offset_z}"/>
+
+
+    <!-- This calculation is needed to position the infrared sensor under the mid level platter -->
+    <property name="midlevel_infrared_offset_z" value="${-(infrared_height/2 + platter_height/2)}"/>
+
+    <infrared_array_4_front parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
+    <infrared_array_4_back parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
+
+
+    <pc_case parent="midlevel" color="Blue"/>
+
+
+</robot>
