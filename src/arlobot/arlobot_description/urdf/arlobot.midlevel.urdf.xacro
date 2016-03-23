@@ -110,7 +110,6 @@
     <infrared_array_4_front parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
     <infrared_array_4_back parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
 
-
     <pc_case parent="midlevel" color="Blue"/>
 
 

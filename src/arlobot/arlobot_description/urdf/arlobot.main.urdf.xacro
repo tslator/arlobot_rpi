@@ -9,33 +9,13 @@
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.base.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.baselevel.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.midlevel.urdf.xacro" />
-    <!--
-        The midlevel includes:
-            - Four supports (arlobot.support.urdf.xacro)
-            - Platter (arlobot.platter.urdf.xacro)
-            - Three forward-facing ultrasonic sensors (arlobot.ultrasonic.urdf.xacro)
-            - Four forward-facing infrared sensors (arlobot.infrared.urdf.xacro)
-            - Three back-facing ultrasonic sensors (arlobot.ultrasonic.urdf.xacro)
-            - Four back-facing infrared sensors (arlobot.infrared.urdf.xacro)
-            - PC case (arlobot.pccase.urdf.xacro)
-    -->
-    <!-- xacro:include filename="$(find arlobot_description)/urdf/arlobot.toplevel.urdf.xacro" />
-        The toplevel includes:
-            - Four supports (arlobot.support.urdf.xacro)
-            - Platter (arlobot.platter.urdf.xacro)
-            - Two forward-facing infrared sensors (arlobot.infrared.urdf.xacro)
-            - Two back-facing infrared sensors (arlobot.infrared.urdf.xacro)
-            - One forward-facing Kinect (kinect.urdf.xacro)
-            - One forward-facing HD web camera (arlobot.webcamera.urdf.xacro)
-            - One speaker (arlobot.speaker.urdf.xacro)
-            - One LIDAR (arlobot.xv11lidar.urdf.xacro)
-    -->
+    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.toplevel.urdf.xacro" />
 
     <!-- Add the base and wheels -->
     <base name="base" color="Black"/>
 
     <baselevel parent="base" name="baselevel" color="Black"/>
     <midlevel parent="baselevel" name="midlevel" color="Black"/>
-    <!-- <toplevel parent="base" name="toplevel" color="Black"/> -->
+    <toplevel parent="midlevel" name="toplevel" color="Black"/>
 
 </robot>

@@ -62,8 +62,8 @@
         <range_sensor parent="${parent}" sensor_type="ultrasonic" location="front" number="7" p_angle="0" y_angle="${angle_315}" x_loc="${ultrasonic_sensor_radius * cos_angle_315}" y_loc="${ultrasonic_sensor_radius * sin_angle_315}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
     </macro>
 
-    <!-- Note: The back arrays use contiguous numbers 0 .. 7 to match how they are actually used in stack, i.e., sensors
-         0 .. 7 give information about what is in back of the robot
+    <!-- Note: The back arrays use contiguous numbers 8 .. 15 to match how they are actually used in stack, i.e., sensors
+         8 .. 15 give information about what is in back of the robot
     -->
     <macro name="ultrasonic_array_5_back" params="parent offset_z">
         <range_sensor parent="${parent}" sensor_type="ultrasonic" location="back" number="8" p_angle="0" y_angle="${angle_240}" x_loc="${ultrasonic_sensor_radius * cos_angle_240}" y_loc="${ultrasonic_sensor_radius * sin_angle_240}" z_loc="${offset_z}" l="${ultrasonic_length}" w="${ultrasonic_width}" h="${ultrasonic_height}"/>
@@ -84,6 +84,8 @@
     <property name="infrared_sensor_radius" value="${platter_radius - infrared_length/2}"/>
 
     <!-- Infrared Sensor Arrays -->
+
+    <!-- Front Sensors -->
     <macro name="infrared_array_2_front_lower" params="parent offset_z">
         <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="0" p_angle="${angle_45}" y_angle="${angle_330}" x_loc="${infrared_sensor_radius * cos_angle_330}" y_loc="${infrared_sensor_radius * sin_angle_330}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
         <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="1" p_angle="${angle_45}" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
@@ -101,6 +103,7 @@
         <range_sensor parent="${parent}" sensor_type="infrared" location="front" number="7" p_angle="0" y_angle="${angle_30}" x_loc="${infrared_sensor_radius * cos_angle_30}" y_loc="${infrared_sensor_radius * sin_angle_30}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
     </macro>
 
+    <!-- Back Sensors -->
     <macro name="infrared_array_2_back_lower" params="parent offset_z">
         <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="8" p_angle="${angle_45}" y_angle="${angle_150}" x_loc="${infrared_sensor_radius * cos_angle_150}" y_loc="${infrared_sensor_radius * sin_angle_150}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
         <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="9" p_angle="${angle_45}" y_angle="${angle_210}" x_loc="${infrared_sensor_radius * cos_angle_210}" y_loc="${infrared_sensor_radius * sin_angle_210}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>

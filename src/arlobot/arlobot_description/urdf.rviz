@@ -70,6 +70,21 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        base_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_laser_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_laser_middle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
@@ -116,6 +131,16 @@ Visualization Manager:
           Show Trail: false
           Value: true
         baselevel_right_motor_driver_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_back_14_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_back_15_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -180,6 +205,16 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        infrared_array_front_6_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        infrared_array_front_7_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         midlevel_link:
           Alpha: 1
           Show Axes: false
@@ -206,6 +241,31 @@ Visualization Manager:
           Show Trail: false
           Value: true
         midlevel_standoff_5in_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        toplevel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        toplevel_standoff_5in_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        toplevel_standoff_5in_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        toplevel_standoff_5in_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        toplevel_standoff_5in_3_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -332,10 +392,10 @@ Visualization Manager:
         Z: 0.111429
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.354801
+      Pitch: 0.189801
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.26361
+      Yaw: 0.0172742
     Saved: ~
 Window Geometry:
   Displays:

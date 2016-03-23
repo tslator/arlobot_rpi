@@ -122,7 +122,9 @@
     <!-- Top level offset values -->
     <property name="toplevel_offset_x" value="0"/>
     <property name="toplevel_offset_y" value="0"/>
-    <property name="toplevel_offset_z" value="0"/>
+    <property name="toplevel_offset_z" value="${standoff_height + platter_height/2}"/>
+    <!-- Note: toplevel_top_offset_z is relative to the parent -->
+    <property name="toplevel_top_offset_z" value="${platter_height/2}"/>
 
 
 </robot>
