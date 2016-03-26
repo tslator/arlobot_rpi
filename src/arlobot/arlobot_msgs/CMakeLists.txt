@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(msgs)
+project(arlobot_msgs)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED message_generation std_msgs)
+find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  std_msgs
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -43,17 +46,16 @@ find_package(catkin REQUIRED message_generation std_msgs)
 add_message_files(
   FILES
   BasePower.msg
+  PcPower.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
+   HALSetFloatArray.srv
    HALGetFloatArray.srv
    HALGetImu.srv
    HALGetLaserScan.srv
-   HALGetOneValue.srv
-   HALGetTwoValues.srv
-   HALSetTwoValues.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -100,7 +102,7 @@ add_service_files(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES msgs
+#  LIBRARIES arlobot_msgs
   CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
@@ -112,26 +114,29 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
-# add_library(msgs
-#   src/${PROJECT_NAME}/msgs.cpp
+# add_library(arlobot_msgs
+#   src/${PROJECT_NAME}/arlobot_msgs.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(msgs ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(arlobot_msgs ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(msgs_node src/msgs_node.cpp)
+# add_executable(arlobot_msgs_node src/arlobot_msgs_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(msgs_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(arlobot_msgs_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(msgs_node
+# target_link_libraries(arlobot_msgs_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -150,7 +155,7 @@ catkin_package(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS msgs msgs_node
+# install(TARGETS arlobot_msgs arlobot_msgs_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -175,7 +180,7 @@ catkin_package(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_msgs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_arlobot_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

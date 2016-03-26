@@ -3,7 +3,7 @@
 import rospy
 from hal_service_node import HALServiceNode, HALServiceNodeError
 from base_hal import BaseHardwareAbstractionLayer, BaseHardwareAbstractionLayerError
-from msgs.srv import *
+from .....arlobot_msgs.srv import *
 
 
 class BaseHALServiceNodeError(HALServiceNodeError):
@@ -44,39 +44,39 @@ class BaseHALServiceNode(HALServiceNode):
             raise BaseHALServiceNodeError
 
     def _run(self):
-        self._services['BaseHALSetSpeed'] = rospy.Service('BaseHALSetSpeed', HALSetTwoValues, self._hal_set_speed)
-        self._services['BaseHALSetAccel'] = rospy.Service('BaseHALSetAccel', HALSetTwoValues, self._hal_set_accel)
-        self._services['BaseHALGetCount'] = rospy.Service('BaseHALGetCount', HALGetTwoValues, self._hal_get_count)
-        self._services['BaseHALGetSpeed'] = rospy.Service('BaseHALGetSpeed', HALGetTwoValues, self._hal_get_speed)
+        self._services['BaseHALSetSpeed'] = rospy.Service('BaseHALSetSpeed', HALSetFloatArray, self._hal_set_speed)
+        self._services['BaseHALSetAccel'] = rospy.Service('BaseHALSetAccel', HALSetFloatArray, self._hal_set_accel)
+        self._services['BaseHALGetCount'] = rospy.Service('BaseHALGetCount', HALGetFloatArray, self._hal_get_count)
+        self._services['BaseHALGetSpeed'] = rospy.Service('BaseHALGetSpeed', HALGetFloatArray, self._hal_get_speed)
         self._services['BaseHALGetInfrared'] = rospy.Service('BaseHALGetInfrared', HALGetFloatArray, self._hal_get_infrared)
         self._services['BaseHALGetUltrasonic'] = rospy.Service('BaseHALGetUltrasonic', HALGetFloatArray, self._hal_get_ultrasonic)
         self._services['BaseHALGetImu'] = rospy.Service('BaseHALGetImu', HALGetImu, self._hal_get_imu)
         self._services['BaseHALGetLaserScan'] = rospy.Service('BaseHALGetLaserScan', HALGetLaserScan, self._hal_get_laser_scan)
-        self._services['BaseHALGetVoltage'] = rospy.Service('BaseHALGetVoltage', HALGetOneValue, self._hal_get_voltage)
-        self._services['BaseHALGetCurrent'] = rospy.Service('BaseHALGetCurrent', HALGetOneValue, self._hal_get_current)
-        self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetOneValue, self._hal_get_temp)
+        self._services['BaseHALGetVoltage'] = rospy.Service('BaseHALGetVoltage', HALGetFloatArray, self._hal_get_voltage)
+        self._services['BaseHALGetCurrent'] = rospy.Service('BaseHALGetCurrent', HALGetFloatArray, self._hal_get_current)
+        self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetFloatArray, self._hal_get_temp)
 
     def _hal_set_speed(self, request):
         success = False
-        left = request.value_1
-        right = request.value_2
+        left = request.values[0]
+        right = request.values[1]
         try:
             self._hal.SetSpeed(left, right)
             success = True
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::SetSpeed")
-        return HALSetTwoValuesResponse(success=success)
+        return HALSetFloatArrayResponse(success=success)
 
     def _hal_set_accel(self, request):
         success = False
-        left = request.value_1
-        right = request.value_2
+        left = request.values[0]
+        right = request.values[1]
         try:
             self._hal.SetAccel(left, right)
             success = True
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::SetAccel")
-        return HALSetTwoValuesResponse(success=success)
+        return HALSetFloatArrayResponse(success=success)
 
     def _hal_get_count(self, request):
         left = 0
@@ -85,7 +85,7 @@ class BaseHALServiceNode(HALServiceNode):
             left, right = self._hal.GetCount()
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetCount")
-        return HALGetTwoValuesResponse(value_1 = left, value_2 = right)
+        return HALGetFloatArrayResponse(values = [left, right])
 
     def _hal_get_speed(self, request):
         left = 0
@@ -94,7 +94,7 @@ class BaseHALServiceNode(HALServiceNode):
             left, right = self._hal.GetSpeed()
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetSpeed")
-        return HALGetTwoValuesResponse(value_1 = left, value_2 = right)
+        return HALGetFloatArrayResponse(values = [left, right])
 
     def _hal_get_infrared(self, request):
         values = []
@@ -136,28 +136,28 @@ class BaseHALServiceNode(HALServiceNode):
         return HALGetImuResponse(accel=accel, mag=mag, temp=temp)
 
     def _hal_get_voltage(self, request):
-        voltage = 0
+        values = []
         try:
-            voltage = self._hal.GetVoltage()
+            values.append(self._hal.GetVoltage())
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetVoltage")
-        return HALGetOneValueResponse(value=voltage)
+        return HALGetFloatArrayResponse(values=values)
 
     def _hal_get_current(self, request):
-        current = 0
+        values = []
         try:
-            current = self._hal.GetCurrent()
+            values.append(self._hal.GetCurrent())
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetCurrent")
-        return HALGetOneValueResponse(value=current)
+        return HALGetFloatArrayResponse(values=values)
 
     def _hal_get_temp(self, request):
-        temp = 0
+        values = []
         try:
-            temp = self._hal.GetTemp()
+            values.append(self._hal.GetTemp())
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetTemp")
-        return HALGetOneValueResponse(value = temp)
+        return HALGetFloatArrayResponse(values = values)
 
 
 if __name__ ==  "__main__":

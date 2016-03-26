@@ -4,6 +4,7 @@ from __future__ import print_function
 import rospy
 from hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from hw.m4atxhw import M4AtxHw, M4AtxHwError
+from hw.kinectauxhw import KinectAuxHw, KinectAuxHwError
 
 
 class PCHardwareAbstractionLayerError(HardwareAbstractionLayerError):
@@ -11,12 +12,19 @@ class PCHardwareAbstractionLayerError(HardwareAbstractionLayerError):
 
 
 class PCHardwareAbstractionLayer(HardwareAbstractionLayer):
+
     def __init__(self):
         HardwareAbstractionLayer.__init__(self, "PC HAL")
+
         #try:
         #    self._m4atx = M4AtxHw()
         #except M4AtxHwError:
         #    raise PCHardwareAbstractionLayerError("Unable to instantiate M4AtxHw")
+
+        try:
+            self._kinectaux = KinectAuxHw()
+        except KinectAuxHwError:
+            raise PCHardwareAbstractionLayerError("Unable to instantiate KinectAuxHw")
 
     def _init(self):
         pass
@@ -39,6 +47,21 @@ class PCHardwareAbstractionLayer(HardwareAbstractionLayer):
     def GetTemp(self):
         #return self._m4atx.GetTemp()
         return 0
+
+    def GetSpeed(self):
+        return self._kinectaux.GetSpeed()
+
+    def GetAccel(self):
+        return self._kinectaux.GetAccel()
+
+    def GetTilt(self):
+        return self._kinectaux.GetTilt()
+
+    def SetTilt(self, angle):
+        return self._kinectaux.SetTilt(angle)
+
+    def SetLed(self, value):
+        return self._kinectaux.SetLed(value)
 
 if __name__ == "__main__":
     pc_hal = PCHardwareAbstractionLayer()

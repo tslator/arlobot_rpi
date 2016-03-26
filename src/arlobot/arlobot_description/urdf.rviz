@@ -70,21 +70,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        base_laser:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        base_laser_bottom:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        base_laser_middle:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
@@ -380,7 +365,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.14585
+      Distance: 1.08126
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -392,10 +377,10 @@ Visualization Manager:
         Z: 0.111429
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.189801
+      Pitch: 0.304801
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.0172742
+      Yaw: 0.667271
     Saved: ~
 Window Geometry:
   Displays:
@@ -413,5 +398,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1633
-  X: 55
+  X: 119
   Y: 14

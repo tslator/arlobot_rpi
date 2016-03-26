@@ -68,7 +68,17 @@ class M4Device:
         if self._dev is None:
             raise ValueError('Device not found')
 
-        self._dev.set_configuration()
+        if self._dev is None:
+            raise ValueError('Device not found')
+        else:
+            print ("M4 ATX device found")
+
+        reattach = False
+        if self._dev.is_kernel_driver_active(0):
+            print("device kernel driver is active")
+            reattach = True
+            self._dev.detach_kernel_driver(0)
+            print("device kernel driver detached")
 
 
     def _parse(self, data):
@@ -165,7 +175,7 @@ class M4AtxHw:
             self._temp = result[5]
         time.sleep(1)
 
-    def GetVoltage(self):
+    def GetVoltages(self):
         return self._voltages
 
     def GetTemp(self):
@@ -173,9 +183,15 @@ class M4AtxHw:
 
 
 if __name__ == "__main__":
+    dev = M4Device()
+    print(dev.get_diag())
+
+    '''
+
     m4 = M4AtxHw()
 
     m4.Start()
     print(m4.GetVoltage())
     print(m4.GetTemp())
     m4.Stop()
+    '''

@@ -17,7 +17,7 @@
 
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.standoff.urdf.xacro"/>
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.rangesensor.urdf.xacro" />
-    <xacro:include filename="$(find arlobot_description)/urdf/laser.urdf.xacro" />
+    <!--<xacro:include filename="$(find arlobot_description)/urdf/laser.urdf.xacro" />-->
 
     <!-- The top level macro -->
 
@@ -77,8 +77,10 @@
     <property name="laser_offset_y" value=""/>
     <property name="laser_offset_z" value="${toplevel_top_offset_z + laser_size_z"/>
 
+    <!--
     <laser parent="toplevel" color="DarkGrey">
         <origin xyx="${laser_offset_x} ${laser_offset_y} ${laser_offset_z}" rpy="0 0 0 " />
     </laser>
+    -->
 
 </robot>

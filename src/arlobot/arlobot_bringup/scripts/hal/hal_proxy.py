@@ -6,8 +6,7 @@
 
 import rospy
 
-from msgs.srv import HALSetTwoValues, HALGetFloatArray, HALGetLaserScan, \
-                     HALGetImu, HALGetTwoValues, HALGetOneValue
+from msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu
 from std_srvs.srv import Trigger
 
 
@@ -38,31 +37,31 @@ class BaseHALProxy:
         # wait_for_service('BaseHALServiceStatus'), all of the other services will also be ready
 
     def SetSpeed(self, speeds):
-        set_speed = rospy.ServiceProxy('BaseHALSetSpeed', HALSetTwoValues)
+        set_speed = rospy.ServiceProxy('BaseHALSetSpeed', HALSetFloatArray)
         left_speed = speeds['left']
         right_speed = speeds['right']
-        response = set_speed(left_speed, right_speed)
+        response = set_speed([left_speed, right_speed])
         return response.success
 
     def SetAccel(self, accels):
-        set_accel = rospy.ServiceProxy('BaseHALSetAccel', HALSetTwoValues)
+        set_accel = rospy.ServiceProxy('BaseHALSetAccel', HALSetFloatArray)
         left_accel = accels['left']
         right_accel = accels['right']
-        response = set_accel(left_accel, right_accel)
+        response = set_accel([left_accel, right_accel])
         return response.success
 
     def GetCount(self):
-        get_count = rospy.ServiceProxy('BaseHALGetCount', HALGetTwoValues)
+        get_count = rospy.ServiceProxy('BaseHALGetCount', HALGetFloatArray)
         response = get_count()
-        left_count = response.value_1
-        right_count = response.value_2
+        left_count = response.values[0]
+        right_count = response.values[1]
         return {'left' : left_count, 'right' : right_count}
 
     def GetSpeed(self):
-        get_speed = rospy.ServiceProxy('BaseHALGetSpeed', HALGetTwoValues)
+        get_speed = rospy.ServiceProxy('BaseHALGetSpeed', HALGetFloatArray)
         response = get_speed()
-        left_speed = response.value_1
-        right_speed = response.value_2
+        left_speed = response.values[0]
+        right_speed = response.values[1]
         return {'left' : left_speed, 'right' : right_speed}
 
     def GetUltrasonic(self):
@@ -88,19 +87,19 @@ class BaseHALProxy:
                  'temp' : {'f' : response.temp[0], 'c' : response.temp[1]}}
 
     def GetVoltage(self):
-        get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetOneValue)
+        get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetFloatArray)
         response = get_voltage()
-        return response.value
+        return response.values
 
     def GetCurrent(self):
-        get_current = rospy.ServiceProxy('BaseHALGetCurrent', HALGetOneValue)
+        get_current = rospy.ServiceProxy('BaseHALGetCurrent', HALGetFloatArray)
         response = get_current()
-        return response.value
+        return response.values[0]
 
     def GetTemp(self):
-        get_temp = rospy.ServiceProxy('BaseHALGetTemp', HALGetTwoValues)
+        get_temp = rospy.ServiceProxy('BaseHALGetTemp', HALGetFloatArray)
         response = get_temp()
-        return response.value
+        return response.values[0]
 
 
 class PCHALProxyError(Exception):
@@ -108,6 +107,22 @@ class PCHALProxyError(Exception):
 
 
 class PCHALProxy:
+
+    MIN_TILT_ANGLE = -31.0
+    MID_TILT_ANGLE = 0.0
+    MAX_TILT_ANGLE = 31.0
+
+    MIN_LED = 0
+    MAX_LED = 6
+    LED_OFF = MIN_LED
+    LED_GREEN = 1
+    LED_RED = 2
+    LED_ORANGE = 3
+    LED_GREEN_BLINK = 4
+    LED_ORANGE_BLINK = 5
+    LED_RED_ORANGE_BLINK = MAX_LED
+
+
     def __init__(self):
         rospy.wait_for_service('PCHALServiceStatus')
         try:
@@ -127,6 +142,32 @@ class PCHALProxy:
         return {'VIN' : response.values[0], 'IGN' : response.values[1], '33V' : response.values[2], '5V' : response.values[3], '12V' : response.values[4]}
 
     def GetTemp(self):
-        get_temp = rospy.ServiceProxy('PCHALGetVoltage', HALGetOneValue)
+        get_temp = rospy.ServiceProxy('PCHALGetVoltage', HALGetFloatArray)
         response = get_temp()
-        return {'c' : response.value}
+        return {'c' : response.values}
+
+    def GetSpeed(self):
+        get_speed = rospy.ServiceProxy('PCHALGetSpeed', HALGetFloatArray)
+        response = get_speed()
+        return response.values[0]
+
+    def GetAccel(self):
+        get_accel = rospy.ServiceProxy('PCHALGetAccel', HALGetFloatArray)
+        response = get_accel()
+        return {'x' : response.values[0], 'y' : response.values[1], 'z' : response.values[2]}
+
+    def GetTilt(self):
+        get_tilt = rospy.ServiceProxy('PCHALGetTilt', HALGetFloatArray)
+        response = get_tilt()
+        return {'tilt' : response.values[0], 'status' : response.values[1]}
+
+    def SetTilt(self, angle):
+        set_tilt = rospy.ServiceProxy('PCHALSetTilt', HALSetFloatArray)
+        response = set_tilt([angle,])
+        return response.success
+
+    def SetLed(self, value):
+        set_led = rospy.ServiceProxy('PCHALSetLed', HALSetFloatArray)
+        response = set_led([value,])
+        return response.success
+
