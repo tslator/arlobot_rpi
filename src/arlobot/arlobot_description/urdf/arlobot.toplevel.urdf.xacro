@@ -77,8 +77,7 @@
     <property name="laser_offset_y" value=""/>
     <property name="laser_offset_z" value="${toplevel_top_offset_z + laser_size_z/2"/>
 
-    <!--
-    <laser parent="toplevel" color="DarkGrey" offset_z="${laser_offset_z}"/>
-    -->
+    <xv11_laser parent="toplevel" color="DarkGrey" offset_z="${laser_offset_z}"/>
+
 
 </robot>
