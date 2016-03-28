@@ -25,12 +25,12 @@ class PowerPiHw:
 
     def GetVoltage(self):
         reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__BUS_REG)
-        print("voltage value: ", reg_value)
+        #print("voltage value: ", reg_value)
         return float((reg_value & 0xFFF8) >> 1)
 
     def GetCurrent(self):
         reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__SHUNT_REG)
-        print("current value: ", reg_value)
+        #print("current value: ", reg_value)
         return float(reg_value/10)
 
 

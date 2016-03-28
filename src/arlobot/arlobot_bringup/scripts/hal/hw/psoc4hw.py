@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import time
+from utils import meter_to_millimeter, millimeter_to_meter
 
 
 class Psoc4HwError(Exception):
@@ -60,13 +61,13 @@ class Psoc4Hw:
         oo - offset
         vv - velocity
         '''
-        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['COMMANDED_VELOCITY'], speed)
+        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_VELOCITY'], meter_to_millimeter(speed))
 
     def SetAccel(self, acceleration):
         '''
         w aa oo cc
         '''
-        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['COMMANDED_ACCELERATION'], acceleration)
+        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_ACCELERATION'], acceleration)
 
     def GetCount(self):
         '''
@@ -78,7 +79,8 @@ class Psoc4Hw:
         '''
         w aa r oo vv
         '''
-        return self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
+        speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
+        return millimeter_to_meter(speed)
 
     def GetInfraredDistances(self):
         '''

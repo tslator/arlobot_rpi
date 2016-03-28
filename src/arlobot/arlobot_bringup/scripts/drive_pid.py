@@ -27,8 +27,10 @@ class DrivePid:
         self._integrator_min = -0.5
         self._integrator_max = 0.5
 
+
     def SetTarget(self, target):
         self._target = target
+        self._output(target)
 
     def Reset(self):
         pass
@@ -57,7 +59,7 @@ class DrivePid:
 
         output = self._p_value + self._i_value + self._d_value
 
-        self._output(output)
+        #self._output(output)
 
         #rospy.loginfo("Target: {:6.2f}, Input: {:6.2f}, Error: {:6.2f}, Output: {:6.2f}".format(self._target, input, self._error, output))
 

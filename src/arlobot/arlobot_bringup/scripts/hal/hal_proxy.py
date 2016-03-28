@@ -6,7 +6,7 @@
 
 import rospy
 
-from msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu
+from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu
 from std_srvs.srv import Trigger
 
 
