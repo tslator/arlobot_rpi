@@ -99,7 +99,8 @@ class ArlobotDifferentialDrive():
         :return: None
         '''
         #rospy.loginfo("PLS: {:6.2f}, CLS: {:6.2f}, PO: {:6.2f}".format(self._left_pid_speed, self._calc_left_speed, pid_output))
-        self._left_pid_speed = self._calc_left_speed + pid_output
+        #self._left_pid_speed = self._calc_left_speed + pid_output
+        self._left_pid_speed = pid_output
         self._update_speed()
 
     def _set_right_speed(self, pid_output):
@@ -109,7 +110,8 @@ class ArlobotDifferentialDrive():
         :return: None
         '''
         #rospy.loginfo("PRS: {:6.2f}, CRS: {:6.2f}, PO: {:6.2f}".format(self._right_pid_speed, self._calc_right_speed, pid_output))
-        self._right_pid_speed = self._calc_right_speed + pid_output
+        #self._right_pid_speed = self._calc_right_speed + pid_output
+        self._right_pid_speed = pid_output
         self._update_speed()
 
     def Start(self):

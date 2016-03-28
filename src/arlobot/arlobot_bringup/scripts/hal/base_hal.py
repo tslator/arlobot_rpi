@@ -148,11 +148,11 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             with self._lock:
                 self._left_speed = left
                 self._right_speed = right
-
-            #rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
         else:
             self._left_psoc4.SetSpeed(left)
             self._right_psoc4.SetSpeed(right)
+
+        rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
 
     def SetAccel(self, left, right):
         if self._simulated:
@@ -167,10 +167,11 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 # Note: This is a simulation of the encoder counts so quantize them to integer values
                 left = self._left_count
                 right = self._right_count
-            #rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
         else:
             left = self._left_psoc4.GetCount()
             right = self._right_psoc4.GetCount()
+
+        rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
         return left, right
 
     def GetSpeed(self):
@@ -211,7 +212,9 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                          'temp': {'f':0.0, 'c':0.0}}
         else:
             #imu_data = self._imu.GetImuData()
-            pass
+            imu_data = { 'accel' : {'x' : 0.0, 'y' : 0.0, 'z' : 0.0},
+                         'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                         'temp' : {'f': 0.0, 'c': 0.0}}
 
         return imu_data
 
@@ -222,9 +225,9 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             time_offset = 0.0
         else:
             #ranges, intensities, time_offset = self._xv11.GetLaserScan()
-            ranges = []
-            intensities = []
-            time_offset = []
+            ranges = [0]*360
+            intensities = [0]*360
+            time_offset = 0.0
 
         return ranges, intensities, time_offset
 
@@ -253,9 +256,17 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
 if __name__ == "__main__":
     base_hal = BaseHardwareAbstractionLayer(False)
-
+    print("Base HAL starting up")
     base_hal.Startup()
     while not base_hal.Ready(True): pass
+    print("Base HAL is ready")
+    print("Setting speed - left: 0.5, right: 0.5")
     base_hal.SetSpeed(0.5,0.5)
+    print("Wait 10 seconds")
+    time.sleep(10)
+    print("Setting speed - left: 0, right: 0")
+    base_hal.SetSpeed(0,0)
+    print("Base HAL Shutting down")
     base_hal.Shutdown()
     while not base_hal.Ready(False): pass
+    print("Base HAL Shutdown")
