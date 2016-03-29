@@ -34,6 +34,8 @@ class ArlobotDriveNode:
         gains = rospy.get_param("Drive Node Gains")
         loop_rate = rospy.get_param("Drive Node Loop Rate")
         diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
+        self._odom_linear_scale_correction = rospy.get_param("odom_linear_scale_correction", 1.0)
+        self._odom_angular_scale_correction = rospy.get_param("odom_angular_scale_correction", 1.0)
 
         meter_per_tick = (math.pi * wheel_diameter) / ticks_per_rev
         drive_type = rospy.get_param("Drive Node Drive Type", "ArlobotDifferential")
@@ -86,6 +88,10 @@ class ArlobotDriveNode:
             #                                                                                     heading,
             #                                                                                     linear_speed,
             #                                                                                     angular_speed))
+
+            # adjust linear and angular speed by calibration factor
+            linear_speed = linear_speed * self._odom_linear_scale_correction
+            angular_speed = angular_speed * self._odom_angular_scale_correction
 
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster, heading, x_dist, y_dist, linear_speed, angular_speed)
 

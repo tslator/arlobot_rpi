@@ -3,6 +3,9 @@ Drive Type: "ArlobotDifferential"
 Track Width: 0.4030      # meter
 Tick Per Revolution: 72  # encoder tick or count
 Wheel Diameter: 0.1524   # meter
+# These are calibration scalings obtained by running calibration_linear/angular.py
+odom_linear_scale_correction: 0.6
+odom_angular_scale_correction: 0.53
 
 # Speed constraints
 Max Linear Speed: 1.0  # meter/sec
