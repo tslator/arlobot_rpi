@@ -8,12 +8,14 @@ class PowerPiHwError(Exception):
 
 class PowerPiHw:
 
-    __CONFIG_REG = 0
-    __SHUNT_REG = 1
-    __BUS_REG = 2
-    __POWER_REG = 3
-    __CURRENT_REG = 4
-    __CALIBRATION_REG = 5
+    __INA_CONFIG_REG = 0
+    __INA_SHUNT_REG = 1
+    __INA_BUS_REG = 2
+    __INA_POWER_REG = 3
+    __INA_CURRENT_REG = 4
+    __INA_CALIBRATION_REG = 5
+
+    __AVR_STATUS_REG = 2
 
     AVR_ADDR = 0x21
     INC219_ADDR = 0x40
@@ -24,12 +26,12 @@ class PowerPiHw:
         self._ina219_address = ina219_addr
 
     def GetVoltage(self):
-        reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__BUS_REG)
+        reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__INA_BUS_REG)
         #print("voltage value: ", reg_value)
         return float((reg_value & 0xFFF8) >> 1)
 
     def GetCurrent(self):
-        reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__SHUNT_REG)
+        reg_value = self._i2c_bus.ReadUint16(self._ina219_address, self.__INA_SHUNT_REG)
         #print("current value: ", reg_value)
         return float(reg_value/10)
 

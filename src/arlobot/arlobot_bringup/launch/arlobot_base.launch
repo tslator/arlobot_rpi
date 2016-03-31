@@ -1,4 +1,18 @@
 <launch>
+
+  <!--
+  We need to change this launch file so that is launches remotely on the arlobotbase machine.  Below is a first attempt
+  to do that.
+
+  Note: ROS_MASTER_URI will always run on arlobot so no need to use any environment variables references
+  Note: Take the settings from the .bashrc script and also change the .bashrc script to reference this script
+  <env name="ROS_MASTER_URI" value="http://arlobot:11311"/>
+
+  Note: arlobotbase is in /etc/hosts
+  <machine name="arlobotbase" address="arlobotbase" password="arlobot" env-loader="$(find arlobot_bringup)/environment/arlobotbase_env.sh"/>
+
+  -->
+
   <env name="ROS_MASTER_URI" value="http://arlobot:11311"/>
   <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
 </launch>
