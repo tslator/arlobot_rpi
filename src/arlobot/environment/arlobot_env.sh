@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-export ROS_IP=
-export ROS_HOSTNAME=
+export ROS_IP=`ifconfig wlan0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+export ROS_HOSTNAME="arlobot"
 
-. /home/arlo/catkin_ws/devel/setup.sh
+source /home/pi/catkin_ws/devel/setup.bash
+
 exec "@"
