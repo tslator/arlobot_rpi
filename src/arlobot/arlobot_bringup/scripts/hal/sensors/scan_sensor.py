@@ -79,7 +79,7 @@ class UltrasonicScanSensor(ScanSensor):
     __FRAME_ID = "ultrasonic_array"
     _OFFSETS = [60, 30, 0, 330, 300, 45, 0, 315, 240, 210, 180, 150, 120, 225, 180, 135]
 
-    def __init__(self, offsets):
+    def __init__(self):
         ScanSensor.__init__(self, "ultrasonic_scan")
 
         self._offsets = offsets
@@ -108,7 +108,7 @@ class InfraredScanSensor(ScanSensor):
     __FRAME_ID = "infrared_array"
     __OFFSETS = [330, 30, 45, 15, 345, 315, 330, 30, 150, 210, 225, 195, 165, 135, 150, 210]
 
-    def __init__(self, offsets):
+    def __init__(self):
         ScanSensor.__init__(self, "infrared_scan")
 
         self._offsets = offsets
