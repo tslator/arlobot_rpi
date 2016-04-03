@@ -38,7 +38,7 @@ class ScanSensor:
         self._last_time = new_time
 
         msg = LaserScan()
-        msg.header.frame_id = self._frame_id
+        msg.header.frame_id = self._FRAME_ID
         msg.header.stamp = Time.now()
         msg.angle_max = self.__MAX_ANGLE
         msg.angle_min = self.__MIN_ANGLE
