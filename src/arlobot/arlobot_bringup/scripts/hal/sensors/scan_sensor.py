@@ -15,10 +15,11 @@ class ScanSensor:
     __MAX_ANGLE = 2.0*pi
     __ANGLE_INCREMENT = 2.0*pi/360
 
-    def __init__(self, pub_name):
+    def __init__(self, pub_name, frame_id):
 
         self._publisher = Publisher(pub_name, LaserScan, queue_size=10)
 
+        self._frame_id = frame_id
         self._last_time = Time.now()
 
         try:
@@ -38,7 +39,7 @@ class ScanSensor:
         self._last_time = new_time
 
         msg = LaserScan()
-        msg.header.frame_id = self._FRAME_ID
+        msg.header.frame_id = self._frame_id
         msg.header.stamp = Time.now()
         msg.angle_max = self.__MAX_ANGLE
         msg.angle_min = self.__MIN_ANGLE
@@ -76,11 +77,10 @@ class LaserScanSensor(ScanSensor):
 class UltrasonicScanSensor(ScanSensor):
     __MIN_RANGE = 0.02 # meters
     __MAX_RANGE = 5.0  # meters
-    __FRAME_ID = "ultrasonic_array"
     _OFFSETS = [60, 30, 0, 330, 300, 45, 0, 315, 240, 210, 180, 150, 120, 225, 180, 135]
 
     def __init__(self):
-        ScanSensor.__init__(self, "ultrasonic_scan")
+        ScanSensor.__init__(self, "ultrasonic_scan", "ultrasonic_array")
 
         self._last_scan_time = Time.now()
 
@@ -104,11 +104,10 @@ class UltrasonicScanSensor(ScanSensor):
 class InfraredScanSensor(ScanSensor):
     __MIN_RANGE = 0.10
     __MAX_RANGE = 0.80
-    __FRAME_ID = "infrared_array"
     __OFFSETS = [330, 30, 45, 15, 345, 315, 330, 30, 150, 210, 225, 195, 165, 135, 150, 210]
 
     def __init__(self):
-        ScanSensor.__init__(self, "infrared_scan")
+        ScanSensor.__init__(self, "infrared_scan", "infrared_array")
 
         self._last_scan_time = Time.now()
 
