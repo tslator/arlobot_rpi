@@ -88,7 +88,8 @@ class HALServiceNode:
 
     def _shutdown(self, timeout=__DEFAULT_TIMEOUT):
         rospy.loginfo("Shutting down {} ...".format(self._hal_name))
-        self._hal.Shutdown()
+        if self._hal:
+            self._hal.Shutdown()
         success = self._wait(False, timeout)
         message = ""
 

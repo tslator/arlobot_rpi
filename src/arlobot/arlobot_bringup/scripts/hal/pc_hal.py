@@ -21,10 +21,10 @@ class PCHardwareAbstractionLayer(HardwareAbstractionLayer):
         #except M4AtxHwError:
         #    raise PCHardwareAbstractionLayerError("Unable to instantiate M4AtxHw")
 
-        try:
-            self._kinectaux = KinectAuxHw()
-        except KinectAuxHwError:
-            raise PCHardwareAbstractionLayerError("Unable to instantiate KinectAuxHw")
+        #try:
+        #    self._kinectaux = KinectAuxHw()
+        #except KinectAuxHwError:
+        #    raise PCHardwareAbstractionLayerError("Unable to instantiate KinectAuxHw")
 
     def _init(self):
         pass
@@ -49,19 +49,24 @@ class PCHardwareAbstractionLayer(HardwareAbstractionLayer):
         return 0
 
     def GetSpeed(self):
-        return self._kinectaux.GetSpeed()
+        #return self._kinectaux.GetSpeed()
+        return None
 
     def GetAccel(self):
-        return self._kinectaux.GetAccel()
+        #return self._kinectaux.GetAccel()
+        return None
 
     def GetTilt(self):
-        return self._kinectaux.GetTilt()
+        #return self._kinectaux.GetTilt()
+        return None
 
     def SetTilt(self, angle):
-        return self._kinectaux.SetTilt(angle)
+        #return self._kinectaux.SetTilt(angle)
+        return None
 
     def SetLed(self, value):
-        return self._kinectaux.SetLed(value)
+        #return self._kinectaux.SetLed(value)
+        return None
 
 if __name__ == "__main__":
     pc_hal = PCHardwareAbstractionLayer()
