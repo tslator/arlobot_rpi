@@ -23,6 +23,13 @@ Num Ultrasonic Back Sensors: 8
 Num Infrared Front Sensors: 8
 Num Infrared Back Sensors: 8
 
+# Scan Sensor enable
+# I have genericized the laser scan sensor into a scan sensor.  It uses the LaserScan message but will allow using
+# ultrasonic and infrared sensor data
+Laser Scan Enable: False
+Ultrasonic Scan Enable: True
+Infrared Scan Enable: True
+
 # HAL parameters
 Base HAL Service Timeout Rate: 1 # Hz
 Base HAL Service Timeout: 5 # seconds
