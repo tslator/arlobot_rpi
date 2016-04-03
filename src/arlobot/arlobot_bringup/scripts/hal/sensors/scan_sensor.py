@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from rospy import Publisher, Time, get_time
+from rospy import Publisher, Time, get_time, get_param
 from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import LaserScan
 from math import pi
@@ -15,11 +15,13 @@ class ScanSensor:
     __MAX_ANGLE = 2.0*pi
     __ANGLE_INCREMENT = 2.0*pi/360
 
-    def __init__(self, pub_name, frame_id):
+    def __init__(self, pub_name, frame_id, min_range, max_range):
 
         self._publisher = Publisher(pub_name, LaserScan, queue_size=10)
 
         self._frame_id = frame_id
+        self._min_range = min_range
+        self._max_range = max_range
         self._last_time = Time.now()
 
         try:
@@ -47,11 +49,10 @@ class ScanSensor:
         # Note: time_increment is the time between measurements, i.e. how often we read the scan and publish it (in
         # seconds)
         msg.time_increment = delta_time
-        # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  This
-        # comes from the XV11 itself (in seconds)
+        # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.
         msg.scan_time = scan_time
-        msg.range_min = self.__MIN_RANGE
-        msg.range_max = self.__MAX_RANGE
+        msg.range_min = self._min_range
+        msg.range_max = self._max_range
         msg.ranges = [min(max(range, msg.range_min), msg.range_max) for range in ranges]
         msg.intensities = intensities
 
@@ -65,10 +66,9 @@ class ScanSensor:
 class LaserScanSensor(ScanSensor):
     __MIN_RANGE = 0.06
     __MAX_RANGE = 5.0
-    __FRAME_ID = "neato_laser"
 
     def __init__(self, name):
-        ScanSensor.__init__(self, "laser", name+"_laser")
+        ScanSensor.__init__(self, "laser", name+"_laser", InfraredScanSensor.__MIN_RANGE, InfraredScanSensor.__MAX_RANGE)
 
     def _get_data(self):
         return self._hal_proxy.GetLaserScan()
@@ -77,16 +77,21 @@ class LaserScanSensor(ScanSensor):
 class UltrasonicScanSensor(ScanSensor):
     __MIN_RANGE = 0.02 # meters
     __MAX_RANGE = 5.0  # meters
+    # Note: The values in offsets are degrees and represent the physical position of the sensor
     _OFFSETS = [60, 30, 0, 330, 300, 45, 0, 315, 240, 210, 180, 150, 120, 225, 180, 135]
 
     def __init__(self):
-        ScanSensor.__init__(self, "ultrasonic_scan", "ultrasonic_array")
+        ScanSensor.__init__(self,
+                            "ultrasonic_scan",
+                            "ultrasonic_array",
+                            InfraredScanSensor.__MIN_RANGE,
+                            InfraredScanSensor.__MAX_RANGE)
 
         self._last_scan_time = Time.now()
 
     def _get_data(self):
         new_time = Time.now()
-        delta_time = new_time - self._last_scan_time
+        scan_time = new_time - self._last_scan_time
         self._last_scan_time = new_time
 
         values = self._hal_proxy.GetUltrasonic()
@@ -98,22 +103,30 @@ class UltrasonicScanSensor(ScanSensor):
             # we want to take the smallest value.
             ranges[offset] = min(values[ii], ranges[offset])
 
-        return ranges, [0]*360, delta_time
+        # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  For the
+        # xv11 laser, scan_time comes from the driver.  For the purposes of simulating a laser scan, we'll just use the
+        # time between calls to publish
+        return ranges, [0]*360, scan_time
 
 
 class InfraredScanSensor(ScanSensor):
-    __MIN_RANGE = 0.10
-    __MAX_RANGE = 0.80
+    __MIN_RANGE = 0.10 # meters
+    __MAX_RANGE = 0.80 # meters
+    # Note: The values in offsets are degrees and represent the physical position of the sensor
     __OFFSETS = [330, 30, 45, 15, 345, 315, 330, 30, 150, 210, 225, 195, 165, 135, 150, 210]
 
     def __init__(self):
-        ScanSensor.__init__(self, "infrared_scan", "infrared_array")
+        ScanSensor.__init__(self,
+                            "infrared_scan",
+                            "infrared_array",
+                            InfraredScanSensor.__MIN_RANGE,
+                            InfraredScanSensor.__MAX_RANGE)
 
         self._last_scan_time = Time.now()
 
     def _get_data(self):
         new_time = Time.now()
-        delta_time = new_time - self._last_scan_time
+        scan_time = new_time - self._last_scan_time
         self._last_scan_time = new_time
 
         values = self._hal_proxy.GetInfrared()
@@ -125,7 +138,10 @@ class InfraredScanSensor(ScanSensor):
             # we want to take the smallest value.
             ranges[offset] = min(values[ii], ranges[offset])
 
-        return ranges, [0]*360, delta_time
+        # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  For the
+        # xv11 laser, scan_time comes from the driver.  For the purposes of simulating a laser scan, we'll just use the
+        # time between calls to publish
+        return ranges, [0]*360, scan_time
 
 
 if __name__ == "__main__":
