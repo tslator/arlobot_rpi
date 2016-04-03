@@ -84,8 +84,8 @@ class UltrasonicScanSensor(ScanSensor):
         ScanSensor.__init__(self,
                             "ultrasonic_scan",
                             "ultrasonic_array",
-                            InfraredScanSensor.__MIN_RANGE,
-                            InfraredScanSensor.__MAX_RANGE)
+                            UltrasonicScanSensor.__MIN_RANGE,
+                            UltrasonicScanSensor.__MAX_RANGE)
 
         self._last_scan_time = Time.now()
 
