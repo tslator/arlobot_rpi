@@ -7,7 +7,7 @@ import rospy
 
 from hal_service_node import HALServiceNode, HALServiceNodeError
 from pc_hal import PCHardwareAbstractionLayer, PCHardwareAbstractionLayerError
-from msgs.srv import *
+from arlobot_msgs.srv import *
 
 
 
