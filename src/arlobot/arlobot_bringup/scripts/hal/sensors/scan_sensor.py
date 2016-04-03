@@ -82,7 +82,6 @@ class UltrasonicScanSensor(ScanSensor):
     def __init__(self):
         ScanSensor.__init__(self, "ultrasonic_scan")
 
-        self._offsets = offsets
         self._last_scan_time = Time.now()
 
     def _get_data(self):
@@ -111,7 +110,6 @@ class InfraredScanSensor(ScanSensor):
     def __init__(self):
         ScanSensor.__init__(self, "infrared_scan")
 
-        self._offsets = offsets
         self._last_scan_time = Time.now()
 
     def _get_data(self):
