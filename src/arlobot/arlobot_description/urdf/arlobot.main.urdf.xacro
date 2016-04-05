@@ -6,10 +6,7 @@
     <!-- Include all component files -->
     <xacro:include filename="$(find arlobot_description)/urdf/materials.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.global.urdf.xacro"/>
-    <!--
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.base.urdf.xacro" />
-    -->
-    <xacro:include filename="$(find arlobot_description)/urdf/arlobot.newbase.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.baselevel.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.midlevel.urdf.xacro" />
     <xacro:include filename="$(find arlobot_description)/urdf/arlobot.toplevel.urdf.xacro" />
