@@ -228,6 +228,52 @@
         </link>
     </macro>
 
+    <!-- Note: The following macros are purely organizational in nature.  That is, they do not contribute to the
+               geometry of the model.  They only wrap the sensor macros so they are grouped by function and position
+    -->
+    <macro name="baselevel_front_ultrasonic_array" params="offset_z">
+        <link name="baselevel_front_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_front_ultrasonic_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_front_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_5_front parent="baselevel_front_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_back_ultrasonic_array" params="offset_z">
+        <link name="baselevel_back_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_back_ultrasonic_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_back_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_5_back parent="baselevel_back_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_front_infrared_array" params="offset_z">
+        <link name="baselevel_front_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_front_infrared_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_front_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_front_lower parent="baselevel_front_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="baselevel_back_infrared_array" params="offset_z">
+        <link name="baselevel_back_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="baselevel_back_infrared_array_joint" type="fixed">
+            <parent link="baselevel_link"/>
+            <child link="baselevel_back_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_back_lower parent="baselevel_back_infrared_array" offset_z="${offset_z}"/>
+    </macro>
 
     <!--
 
@@ -243,14 +289,14 @@
     <!-- This calculation is needed to position the ultrasonic sensor on the top of the base level platter -->
     <property name="baselevel_ultrasonic_offset_z" value="${baselevel_top_offset_z + ultrasonic_height/2}"/>
 
-    <ultrasonic_array_5_front parent="baselevel" offset_z="${baselevel_ultrasonic_offset_z}"/>
-    <ultrasonic_array_5_back parent="baselevel" offset_z="${baselevel_ultrasonic_offset_z}"/>
+    <baselevel_front_ultrasonic_array offset_z="${baselevel_ultrasonic_offset_z}"/>
+    <baselevel_back_ultrasonic_array offset_z="${baselevel_ultrasonic_offset_z}"/>
 
     <!-- This calculation is needed to position the infrared sensor under the base level platter -->
     <property name="baselevel_infrared_offset_z" value="${-platter_height - infrared_height/2}"/>
 
-    <infrared_array_2_front_lower parent="baselevel" offset_z="${baselevel_infrared_offset_z}"/>
-    <infrared_array_2_back_lower parent="baselevel" offset_z="${baselevel_infrared_offset_z}"/>
+    <baselevel_front_infrared_array offset_z="${baselevel_infrared_offset_z}"/>
+    <baselevel_back_infrared_array offset_z="${baselevel_infrared_offset_z}"/>
 
     <power parent="baselevel" color="LightGrey"/>
 

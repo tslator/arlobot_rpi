@@ -77,6 +77,54 @@
         </link>
     </macro>
 
+    <!-- Note: The following macros are purely organizational in nature.  That is, they do not contribute to the
+               geometry of the model.  They only wrap the sensor macros so they are grouped by function and position
+    -->
+    <macro name="midlevel_front_ultrasonic_array" params="offset_z">
+        <link name="midlevel_front_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="midlevel_front_ultrasonic_array_joint" type="fixed">
+            <parent link="midlevel_link"/>
+            <child link="midlevel_front_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_3_front parent="midlevel_front_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="midlevel_back_ultrasonic_array" params="offset_z">
+        <link name="midlevel_back_ultrasonic_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="midlevel_back_ultrasonic_array_joint" type="fixed">
+            <parent link="midlevel_link"/>
+            <child link="midlevel_back_ultrasonic_array_link"/>
+        </joint>
+        <ultrasonic_array_3_back parent="midlevel_back_ultrasonic_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="midlevel_front_infrared_array" params="offset_z">
+        <link name="midlevel_front_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="midlevel_front_infrared_array_joint" type="fixed">
+            <parent link="midlevel_link"/>
+            <child link="midlevel_front_infrared_array_link"/>
+        </joint>
+        <infrared_array_4_front parent="midlevel_front_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="midlevel_back_infrared_array" params="offset_z">
+        <link name="midlevel_back_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="midlevel_back_infrared_array_joint" type="fixed">
+            <parent link="midlevel_link"/>
+            <child link="midlevel_back_infrared_array_link"/>
+        </joint>
+        <infrared_array_4_back parent="midlevel_back_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+
     <!--
 
     Build the Mid Level
@@ -100,17 +148,15 @@
     <!-- This calculation is needed to position the ultrasonic sensor on the top of the mid level platter -->
     <property name="midlevel_ultrasonic_offset_z" value="${midlevel_top_offset_z + ultrasonic_height/2}"/>
 
-    <ultrasonic_array_3_front parent="midlevel" offset_z="${midlevel_ultrasonic_offset_z}"/>
-    <ultrasonic_array_3_back  parent="midlevel" offset_z="${midlevel_ultrasonic_offset_z}"/>
-
+    <midlevel_front_ultrasonic_array offset_z="${midlevel_ultrasonic_offset_z}"/>
+    <midlevel_back_ultrasonic_array offset_z="${midlevel_ultrasonic_offset_z}"/>
 
     <!-- This calculation is needed to position the infrared sensor under the mid level platter -->
     <property name="midlevel_infrared_offset_z" value="${-(infrared_height/2 + platter_height/2)}"/>
 
-    <infrared_array_4_front parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
-    <infrared_array_4_back parent="midlevel" offset_z="${midlevel_infrared_offset_z}"/>
+    <midlevel_front_infrared_array offset_z="${midlevel_infrared_offset_z}"/>
+    <midlevel_back_infrared_array offset_z="${midlevel_infrared_offset_z}"/>
 
     <pc_case parent="midlevel" color="Blue"/>
-
 
 </robot>

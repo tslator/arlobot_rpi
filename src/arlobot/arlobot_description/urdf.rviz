@@ -6,8 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /RobotModel1
         - /RobotModel1/Links1
+        - /TF1
       Splitter Ratio: 0.61079
     Tree Height: 626
   - Class: rviz/Selection
@@ -65,272 +65,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        base_l_wheel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        base_r_wheel_link:
+        left_wheel_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        baselevel_back_caster_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_controller_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_front_caster_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_left_motor_driver_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_power_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_relay_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        baselevel_right_motor_driver_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_back_14_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_back_15_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_back_8_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_back_9_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_0_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_10_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_11_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_12_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_13_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_4_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_5_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_6_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        infrared_array_front_7_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_pc_case_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_standoff_5in_0_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_standoff_5in_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_standoff_5in_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        midlevel_standoff_5in_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toplevel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toplevel_standoff_5in_0_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toplevel_standoff_5in_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toplevel_standoff_5in_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toplevel_standoff_5in_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_10_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_11_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_12_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_13_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_14_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_15_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_8_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_back_9_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_0_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_4_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_5_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_6_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ultrasonic_array_front_7_link:
+        right_wheel_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -341,10 +86,40 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        base_footprint:
+          Value: true
+        base_link:
+          Value: true
+        left_wheel_link:
+          Value: true
+        odom:
+          Value: true
+        right_wheel_link:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: false
+      Show Axes: false
+      Show Names: false
+      Tree:
+        odom:
+          base_footprint:
+            base_link:
+              left_wheel_link:
+                {}
+              right_wheel_link:
+                {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 100; 100; 100
-    Fixed Frame: base_footprint
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -377,10 +152,10 @@ Visualization Manager:
         Z: 0.111429
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.389801
+      Pitch: 0.149801
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.17228
+      Yaw: 3.79729
     Saved: ~
 Window Geometry:
   Displays:
@@ -398,5 +173,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1633
-  X: 99
+  X: 69
   Y: 14

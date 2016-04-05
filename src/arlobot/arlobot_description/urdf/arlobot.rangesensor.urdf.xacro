@@ -121,5 +121,4 @@
         <range_sensor parent="${parent}" sensor_type="infrared" location="back" number="15" p_angle="0" y_angle="${angle_210}" x_loc="${infrared_sensor_radius * cos_angle_210}" y_loc="${infrared_sensor_radius * sin_angle_210}" z_loc="${offset_z}" l="${infrared_length}" w="${infrared_width}" h="${infrared_height}"/>
     </macro>
 
-
 </robot>

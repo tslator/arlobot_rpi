@@ -47,6 +47,32 @@
         </link>
     </macro>
 
+
+    <!-- Note: The following macros are purely organizational in nature.  That is, they do not contribute to the
+               geometry of the model.  They only wrap the sensor macros so they are grouped by function and position
+    -->
+    <macro name="toplevel_front_infrared_array" params="offset_z">
+        <link name="toplevel_front_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="toplevel_front_infrared_array_joint" type="fixed">
+            <parent link="toplevel_link"/>
+            <child link="toplevel_front_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_front_upper parent="toplevel_front_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
+    <macro name="toplevel_back_infrared_array" params="offset_z">
+        <link name="toplevel_back_infrared_array_link">
+            <!-- This is an organizational link it has no dimensions -->
+        </link>
+        <joint name="toplevel_back_infrared_array_joint" type="fixed">
+            <parent link="toplevel_link"/>
+            <child link="toplevel_back_infrared_array_link"/>
+        </joint>
+        <infrared_array_2_back_upper parent="toplevel_back_infrared_array" offset_z="${offset_z}"/>
+    </macro>
+
     <!--
 
     Build the Top Level
@@ -70,8 +96,8 @@
     <!-- This calculation is needed to position the infrared sensor under the top level platter -->
     <property name="toplevel_infrared_offset_z" value="${-(infrared_height/2 + platter_height/2)}"/>
 
-    <infrared_array_2_front_upper parent="toplevel" offset_z="${toplevel_infrared_offset_z}"/>
-    <infrared_array_2_back_upper parent="toplevel" offset_z="${toplevel_infrared_offset_z}"/>
+    <toplevel_front_infrared_array offset_z="${toplevel_infrared_offset_z}"/>
+    <toplevel_back_infrared_array offset_z="${toplevel_infrared_offset_z}"/>
 
     <property name="laser_offset_x" value=""/>
     <property name="laser_offset_y" value=""/>

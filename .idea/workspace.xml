@@ -6,6 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="dcce5797-7828-46d2-9e6b-a433e4031a4c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/odom_ekf.launch" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/odom_ekf.launch" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/test_urdf.launch" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/test_urdf.launch" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf.rviz" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf.rviz" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.base.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.base.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.baselevel.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.baselevel.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.main.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.main.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.midlevel.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.midlevel.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.rangesensor.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.rangesensor.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/arlobot/arlobot_nav/sim.rviz" afterPath="$PROJECT_DIR$/src/arlobot/arlobot_nav/sim.rviz" />
     </list>
     <ignored path="arlobot_rpi.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,21 +37,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="model_robot.launch" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/model_robot.launch">
+      <file leaf-file-name="minimal.launch" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+            <state relative-caret-position="270">
+              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="xv11.laser.urdf.xacro" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/xv11.laser.urdf.xacro">
+      <file leaf-file-name="arlobot.base.urdf.xacro" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.base.urdf.xacro">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="363">
-              <caret line="80" column="29" selection-start-line="80" selection-start-column="29" selection-end-line="80" selection-end-column="29" />
+            <state relative-caret-position="783">
+              <caret line="71" column="8" selection-start-line="71" selection-start-column="8" selection-end-line="71" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot.newbase.urdf.xacro" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.newbase.urdf.xacro">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="783">
+              <caret line="71" column="8" selection-start-line="0" selection-start-column="0" selection-end-line="71" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot.main.urdf.xacro" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.main.urdf.xacro">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="22" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot.midlevel.urdf.xacro" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.midlevel.urdf.xacro">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="603">
+              <caret line="125" column="0" selection-start-line="104" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -49,8 +90,38 @@
       <file leaf-file-name="arlobot.toplevel.urdf.xacro" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1309">
-              <caret line="77" column="83" selection-start-line="77" selection-start-column="83" selection-end-line="77" selection-end-column="83" />
+            <state relative-caret-position="828">
+              <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot.baselevel.urdf.xacro" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.baselevel.urdf.xacro">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="570">
+              <caret line="233" column="0" selection-start-line="233" selection-start-column="0" selection-end-line="233" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="arlobot.rangesensor.urdf.xacro" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.rangesensor.urdf.xacro">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1845">
+              <caret line="123" column="0" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_urdf.launch" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/test_urdf.launch">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="225">
+              <caret line="15" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -71,15 +142,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/sensors/xtion_pro_live.urdf.xacro" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/view_robot.launch" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_teleop/scripts/keyboard_teleop.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_teleop/launch/keyboard_teleop.launch" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/kinect.urdf.xacro" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot_stack.xml" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/param/arlobot_config.yaml" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_drive_node.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/msgs/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_base_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/range_array_sensor.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/timed_out_and_back.py" />
@@ -87,7 +149,6 @@
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/odom_out_and_back.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/nav_square.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/i2c.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/m4atx.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_sensors_node.py" />
@@ -101,34 +162,45 @@
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/param/arlobot_base.yaml" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot_base.xml" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/utils.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_proxy.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/base_hal.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/powerpihw.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/param/arlobot.yaml" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal_service_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/m4atxhw.py" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot.xml" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/base_hal_service_node.py" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/common.urdf.xacro" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/fake_arlobot.launch" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/Untitled Folder/arlo.urdf.xacro.curr" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot_sensors.xacro" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.xacro" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot_body.xacro" />
-        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro" />
         <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/xv11.laser.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal_service_node.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/scan_sensor.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/fake_arlobot.launch" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal.py" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/odom_ekf.launch" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/test_urdf.launch" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.rangesensor.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.baselevel.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.midlevel.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.main.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.newbase.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro" />
+        <option value="$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.base.urdf.xacro" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-7" />
-    <option name="width" value="1932" />
-    <option name="height" value="1047" />
+    <option name="x" value="65" />
+    <option name="y" value="52" />
+    <option name="width" value="1855" />
+    <option name="height" value="1028" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -172,6 +244,7 @@
     </navigator>
     <panes>
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -262,6 +335,28 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_msgs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="arlobot_description" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -292,15 +387,178 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="hal" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="hal" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sensors" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nodes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_rpi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="arlobot_bringup" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="launch" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$USER_HOME$/.ros/log/da50ffb0-ed4f-11e5-8336-408d5c19117c/rviz-2-stdout.log" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../rbx1/rbx1_bringup/launch/turtlebot_minimal_create.launch" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -365,6 +623,18 @@
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="arlobot_rpi" />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Attests">
@@ -500,10 +770,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="1932" height="1047" extended-state="0" />
+    <frame x="65" y="52" width="1855" height="1028" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2096093" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24528302" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32896176" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -576,74 +846,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/model_robot.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/model_robot.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/fake_arlobot.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="4" column="97" selection-start-line="4" selection-start-column="97" selection-end-line="4" selection-end-column="97" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/nav_square.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="54" column="20" selection-start-line="54" selection-start-column="20" selection-end-line="54" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hw/xv11hw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="51" column="0" selection-start-line="47" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/imu_sensor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/infrared_range_sensor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="31" column="19" selection-start-line="31" selection-start-column="19" selection-end-line="31" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#37#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/laser_sensor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/ultrasonic_range_sensor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -655,13 +857,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="3" column="84" selection-start-line="3" selection-start-column="84" selection-end-line="3" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_sensors_node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="85" column="24" selection-start-line="85" selection-start-column="24" selection-end-line="85" selection-end-column="24" />
         </state>
       </provider>
     </entry>
@@ -728,20 +923,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="7" column="25" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_base_node.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -763,13 +944,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal_service_node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="31" column="33" selection-start-line="31" selection-start-column="33" selection-end-line="31" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/arlobot.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -788,13 +962,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="1" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -854,10 +1021,98 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro">
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_nav/sim.rviz">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="19" column="8" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/hal_service_node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1365">
+          <caret line="94" column="0" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="26" column="9" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/sensors/scan_sensor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="895">
+          <caret line="87" column="48" selection-start-line="87" selection-start-column="48" selection-end-line="87" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/arlobot_sensors_node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="895">
+          <caret line="85" column="24" selection-start-line="85" selection-start-column="24" selection-end-line="85" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/scripts/hal/pc_hal_service_node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/xv11.laser.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="895">
+          <caret line="80" column="19" selection-start-line="80" selection-start-column="19" selection-end-line="80" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/model_robot.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/odom_ekf.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="20" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf.rviz">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/nodes/odom_ekf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/fake_arlobot.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/materials.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -866,43 +1121,101 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/model_robot.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_nav/sim.rviz">
+    <entry file="file://$PROJECT_DIR$/../rbx1/rbx1_bringup/launch/turtlebot_minimal_create.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/fake_arlobot.launch">
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/test_urdf.launch">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="4" column="97" selection-start-line="4" selection-start-column="97" selection-end-line="4" selection-end-column="97" />
+        <state relative-caret-position="225">
+          <caret line="15" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/xv11.laser.urdf.xacro">
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_bringup/launch/minimal.launch">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="363">
-          <caret line="80" column="29" selection-start-line="80" selection-start-column="29" selection-end-line="80" selection-end-column="29" />
+        <state relative-caret-position="270">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlo.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="8" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.global.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="94" column="30" selection-start-line="94" selection-start-column="30" selection-end-line="94" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.rangesensor.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1845">
+          <caret line="123" column="0" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.baselevel.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="233" column="0" selection-start-line="233" selection-start-column="0" selection-end-line="233" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.main.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="22" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.midlevel.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="603">
+          <caret line="125" column="0" selection-start-line="104" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.toplevel.urdf.xacro">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1309">
-          <caret line="77" column="83" selection-start-line="77" selection-start-column="83" selection-end-line="77" selection-end-column="83" />
+        <state relative-caret-position="828">
+          <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.newbase.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="783">
+          <caret line="71" column="8" selection-start-line="0" selection-start-column="0" selection-end-line="71" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/arlobot/arlobot_description/urdf/arlobot.base.urdf.xacro">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="783">
+          <caret line="71" column="8" selection-start-line="71" selection-start-column="8" selection-end-line="71" selection-end-column="8" />
           <folding />
         </state>
       </provider>

@@ -2,37 +2,22 @@
 
 <robot name="base" xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <!-- This file contains the definition for the Alrobot base which includes:
-          - the battery box (the base in this case)
-          - left/right wheels
-       Add references to the Arlobot robot system and the design files
-    -->
-
-
-    <!-- define a wheel -->
-    <macro name="wheel" params="suffix parent reflect color">
-        <joint name="${parent}_${suffix}_wheel_joint" type="continuous">
-            <axis xyz="0 0 1" />
-            <limit effort="100" velocity="100"/>
-            <safety_controller k_velocity="10" />
-            <origin xyz="${wheel_offset_x} ${reflect*wheel_offset_y} ${wheel_offset_z}" rpy="${reflect*PI/2} 0 0" />
-            <parent link="${parent}_link"/>
-            <child link="${parent}_${suffix}_wheel_link"/>
-        </joint>
-        <link name="${parent}_${suffix}_wheel_link">
-            <visual>
-                <origin xyz="0 0 0" rpy="0 0 0" />
-                <geometry>
-                    <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
-                </geometry>
-                <material name="${color}" />
-            </visual>
-        </link>
-    </macro>
+    <!-- base_footprint is a fictitious link(frame) that is on the ground
+         right below base_link origin, navigation stack depends on this frame -->
 
     <!-- The base xacro macro -->
-    <macro name="base" params="name color">
-        <link name="${name}_link">
+    <macro name="base" params="color">
+        <link name="base_footprint">
+            <visual>
+              <origin xyz="0 0 0" rpy="0 0 0" />
+              <geometry>
+                  <box size="0.05 0.05 0.001" />
+              </geometry>
+              <material name="TransparentGreen" />
+            </visual>
+        </link>
+
+        <link name="base_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0" />
                 <geometry>
@@ -47,29 +32,41 @@
               </geometry>
             </collision>
         </link>
+
+        <joint name="base_joint" type="fixed">
+            <!-- Note: The wheels extend radius - z offset below the battery box so we must offset the base_joint by that same
+            amount in order for the robot to reset at 0 offset on the Z axis
+            -->
+            <origin xyz="0 0 ${base_offset_z}" rpy="0 0 0" />
+            <parent link="base_footprint"/>
+            <child link="base_link" />
+        </joint>
     </macro>
 
-    <link name="base_footprint">
-        <visual>
-          <origin xyz="0 0 0" rpy="0 0 0" />
-          <geometry>
-              <box size="0.05 0.05 0.001" />
-          </geometry>
-          <material name="TransparentGreen" />
-        </visual>
-    </link>
+    <macro name="wheel" params="parent suffix reflect color">
+        <!-- Note: type is fixed here.  tried continuous but then the link is lost.  not sure why though -->
+        <joint name="${parent}_${suffix}_wheel_joint" type="fixed">
+            <axis xyz="0 0 1" />
+            <limit effort="100" velocity="100"/>
+            <safety_controller k_velocity="10" />
+            <origin xyz="${wheel_offset_x} ${reflect*wheel_offset_y} ${wheel_offset_z}" rpy="${reflect*PI/2} 0 0" />
+            <parent link="${parent}_link"/>
+            <child link="${suffix}_wheel_link"/>
+        </joint>
 
-    <joint name="base_joint" type="fixed">
-        <!-- Note: The wheels extend radius - z offset below the battery box so we must offset the base_joint by that same
-        amount in order for the robot to reset at 0 offset on the Z axis
-        -->
-        <origin xyz="0 0 ${base_offset_z}" rpy="0 0 0" />
-        <parent link="base_footprint"/>
-        <child link="base_link" />
-    </joint>
+        <link name="${suffix}_wheel_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+                </geometry>
+                <material name="${color}" />
+            </visual>
+        </link>
 
-    <!-- Add the drive wheels -->
-    <wheel parent="base" suffix="l" reflect="1" color="Orange"/>
-    <wheel parent="base" suffix="r" reflect="-1" color="Orange"/>
+    </macro>
+
+    <wheel parent="base" suffix="left" reflect="1" color="Orange"/>
+    <wheel parent="base" suffix="right" reflect="-1" color="Orange"/>
 
 </robot>

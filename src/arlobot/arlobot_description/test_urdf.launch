@@ -3,7 +3,7 @@
     <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find arlobot_description)/urdf/arlobot.main.urdf.xacro'" />
     <param name="robot_description" command="$(arg urdf_file)" />
 
-s    <!-- Publish the robot state -->
+    <!-- Publish the robot state -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
         <param name="publish_frequency" value="20.0"/>
     </node>
