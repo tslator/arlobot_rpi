@@ -50,8 +50,8 @@ Base HAL Service Timeout Rate: 1 # Hz
 Base HAL Service Timeout: 5 # seconds
 Base HAL Simulate: False
 I2C Device: 1
-Left Psoc4 I2C Address: 0x08
-Right Psoc4 I2C Address: 0x09
+Left Psoc4 I2C Address: 0x09
+Right Psoc4 I2C Address: 0x08
 IMU Mag I2C Address: 0x1e
 IMU Acc I2C Address: 0x1d
 Power Pi AVR I2C Address: 0x21
