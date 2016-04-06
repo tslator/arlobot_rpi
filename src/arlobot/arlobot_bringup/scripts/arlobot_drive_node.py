@@ -6,7 +6,7 @@ import tf
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
 from arlobot_diff_drive import ArlobotDifferentialDrive, ArlobotDifferentialDriveError
-
+import time
 
 
 class ArlobotDriveNodeError(Exception):
@@ -33,7 +33,7 @@ class ArlobotDriveNode:
         max_angular_speed = rospy.get_param("Max Angular Speed")
         gains = rospy.get_param("Drive Node Gains")
         loop_rate = rospy.get_param("Drive Node Loop Rate")
-        safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
+        self._safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
         diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
         self._odom_linear_scale_correction = rospy.get_param("odom_linear_scale_correction", 1.0)
         self._odom_angular_scale_correction = rospy.get_param("odom_angular_scale_correction", 1.0)
@@ -54,7 +54,6 @@ class ArlobotDriveNode:
 
 
         self._loop_rate = rospy.Rate(loop_rate)
-        self._safety_timeout_duration = rospy.Duration(safety_timeout)
         self._safety_delta_time = rospy.Time.now()
         self._last_twist_time = rospy.Time.now()
 
@@ -72,7 +71,7 @@ class ArlobotDriveNode:
         pass
 
     def _twist_command_callback(self, command):
-        self._safety_delta_time = rospy.Time.now().secs - self._last_twist_time.secs
+        self._safety_delta_time = rospy.Time.now() - self._last_twist_time
         self._last_twist_time = rospy.Time.now()
 
         self._apply_motion_profile()
@@ -90,7 +89,7 @@ class ArlobotDriveNode:
         while not rospy.is_shutdown():
 
             # Check that we are receiving Twist commands fast enough; otherwise, stop the motors
-            if rospy.Duration(self._safety_delta_time) > self._safety_timeout_duration:
+            if self._safety_delta_time.secs > self._safety_timeout:
                 rospy.logwarn("Safety Timeout callback invoked: no twist command for {} seconds".format(delta_time))
                 self._drive.SetSpeed(0.0, 0.0)
 
