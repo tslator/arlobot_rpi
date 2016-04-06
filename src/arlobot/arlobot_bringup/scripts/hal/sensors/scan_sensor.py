@@ -64,28 +64,28 @@ class ScanSensor:
 
 
 class LaserScanSensor(ScanSensor):
-    __MIN_RANGE = 0.06
-    __MAX_RANGE = 5.0
 
     def __init__(self, name):
-        ScanSensor.__init__(self, "laser", name+"_laser", InfraredScanSensor.__MIN_RANGE, InfraredScanSensor.__MAX_RANGE)
+        min_range = rospy.get_param("Laser Min Range")
+        max_range = rospy.get_param("Laser Max Range")
+        ScanSensor.__init__(self, "laser", name+"_laser", min_range, max_range)
 
     def _get_data(self):
         return self._hal_proxy.GetLaserScan()
 
 
 class UltrasonicScanSensor(ScanSensor):
-    __MIN_RANGE = 0.02 # meters
-    __MAX_RANGE = 5.0  # meters
     # Note: The values in offsets are degrees and represent the physical position of the sensor
     _OFFSETS = [60, 30, 0, 330, 300, 45, 0, 315, 240, 210, 180, 150, 120, 225, 180, 135]
 
     def __init__(self):
+        min_range = rospy.get_param("Ultrasonic Min Range")
+        max_range = rospy.get_param("Ultrasonic Max Range")
         ScanSensor.__init__(self,
                             "ultrasonic_scan",
                             "ultrasonic_array",
-                            UltrasonicScanSensor.__MIN_RANGE,
-                            UltrasonicScanSensor.__MAX_RANGE)
+                            min_range,
+                            max_range)
 
         self._last_scan_time = Time.now()
 
@@ -110,17 +110,17 @@ class UltrasonicScanSensor(ScanSensor):
 
 
 class InfraredScanSensor(ScanSensor):
-    __MIN_RANGE = 0.10 # meters
-    __MAX_RANGE = 0.80 # meters
     # Note: The values in offsets are degrees and represent the physical position of the sensor
     __OFFSETS = [330, 30, 45, 15, 345, 315, 330, 30, 150, 210, 225, 195, 165, 135, 150, 210]
 
     def __init__(self):
+        min_range = rospy.get_param("Infrared Min Range")
+        max_range = rospy.get_param("Infrared Max Range")
         ScanSensor.__init__(self,
                             "infrared_scan",
                             "infrared_array",
-                            InfraredScanSensor.__MIN_RANGE,
-                            InfraredScanSensor.__MAX_RANGE)
+                            min_range,
+                            max_range)
 
         self._last_scan_time = Time.now()
 

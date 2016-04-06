@@ -14,17 +14,29 @@ Max Angular Speed: 1.0 # rad/sec
 # Node parameters
 Base Node Loop Rate: 1     # Hz
 Drive Node Loop Rate: 10   # Hz
-Sensors Node Loop Rate: 1 # Hz
+Sensors Node Loop Rate: 1  # Hz
 Diff Drive Loop Rate: 10   # Hz
 
 # Safety Timeout that stop the motors if no command is received within defined period
 Drive Node Safety Timeout: 1.0
 
-# Number of range sensors
+# Ultrasonic range sensors
+Ultrasonic Field Of View:  0.523599
+Ultrasonic Min Range: 0.02 # meters
+Ultrasonic Max Range: 5.0  # meters
 Num Ultrasonic Front Sensors: 8
 Num Ultrasonic Back Sensors: 8
+
+# Infrared range sensors
+Infrared Field Of View:  0.174533
+Infrared Min Range: 0.10
+Infrared Max Range: 0.80
 Num Infrared Front Sensors: 8
 Num Infrared Back Sensors: 8
+
+# Laser range sensor
+Laser Min Range: 0.06
+Laser Max Range: 5.0
 
 # Scan Sensor enable
 # I have genericized the laser scan sensor into a scan sensor.  It uses the LaserScan message but will allow using
@@ -49,7 +61,3 @@ XV11 Baud: 115200
 
 # Drive Control
 Drive Node Gains: {"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}
-
-# Sensors Parameters
-# I was thinking about either an enable/disable for each sensor type or maybe just control over publishing.  There is no
-# specific need here at the moment.
