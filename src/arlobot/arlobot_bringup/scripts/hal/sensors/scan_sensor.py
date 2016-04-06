@@ -13,7 +13,7 @@ class ScanSensorError(Exception):
 class ScanSensor:
     __MIN_ANGLE = 0.0
     __MAX_ANGLE = 2.0*pi
-    __ANGLE_INCREMENT = 2.0*pi/360
+    __ANGLE_INCREMENT = 2.0*pi/360.0
 
     def __init__(self, pub_name, frame_id, min_range, max_range):
 
@@ -48,11 +48,11 @@ class ScanSensor:
         msg.angle_increment = self.__ANGLE_INCREMENT
         # Note: time_increment is the time between measurements, i.e. how often we read the scan and publish it (in
         # seconds)
-        msg.time_increment = delta_time.secs
+        msg.time_increment = 0.1 #delta_time.secs
         # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.
-        msg.scan_time = scan_time
-        msg.range_min = self._min_range
-        msg.range_max = self._max_range
+        msg.scan_time = 0.1 # scan_time
+        msg.range_min = float(self._min_range)
+        msg.range_max = float(self._max_range)
         msg.ranges = [min(max(range, msg.range_min), msg.range_max) for range in ranges]
         msg.intensities = intensities
 
