@@ -55,6 +55,7 @@ class ArlobotDriveNode:
 
         self._loop_rate = rospy.Rate(loop_rate)
         self._safety_timeout_duration = rospy.Duration(safety_timeout)
+        self._safety_delta_time = rospy.Time.now()
         self._last_twist_time = rospy.Time.now()
 
         # Subscriptions
