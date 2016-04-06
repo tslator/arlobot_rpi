@@ -64,7 +64,7 @@ class ArlobotDriveNode:
         #    * Create a timer that to monitor Twist command frequency.  If there has been no command for the specified
         #      period of time, then set the motor speed to 0.
         # The timeout is configurable.  Default is 0.5 seconds
-        self._safety_timer = rospy.Timer(rospy.Time(safety_timeout), self._safety_timeout_callback, True)
+        self._safety_timer = rospy.Timer(rospy.Duration(safety_timeout), self._safety_timeout_callback, True)
         # Note: Stop the timer right away.  It will get restarted on the first Twist command
         self._safety_timer.shutdown()
 
