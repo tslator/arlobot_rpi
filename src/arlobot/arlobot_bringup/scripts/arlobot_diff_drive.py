@@ -161,8 +161,10 @@ class ArlobotDifferentialDrive():
         left_count = count["left"]
         right_count = count["right"]
 
-        delta_left_count = left_count - self._last_left_count
-        delta_right_count = right_count - self._last_right_count
+        # Check that the resulting delta counts make sense
+        if left_count - self._last_left_count > 100 or right_count - self._last_right_count > 100:
+            rospy.logwarn("There are a large change in count: {}, {}".format(left_count - self._last_left_count, right_count - self._last_right_count))
+            return
 
         self._last_left_count = left_count
         self._last_right_count = right_count
