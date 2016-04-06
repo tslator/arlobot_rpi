@@ -33,7 +33,7 @@ class ArlobotDriveNode:
         max_angular_speed = rospy.get_param("Max Angular Speed")
         gains = rospy.get_param("Drive Node Gains")
         loop_rate = rospy.get_param("Drive Node Loop Rate")
-        safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
+        self._safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
         diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
         self._odom_linear_scale_correction = rospy.get_param("odom_linear_scale_correction", 1.0)
         self._odom_angular_scale_correction = rospy.get_param("odom_angular_scale_correction", 1.0)
@@ -55,19 +55,6 @@ class ArlobotDriveNode:
 
         self._loop_rate = rospy.Rate(loop_rate)
 
-        # Arlobotbase (on RaspberryPi) receives Twist commands from the Arlobot (on PC).  The connection is Ethernet, but
-        # it is possible that communication could be hosed.  If so, it is possible for the robot to continue at the last
-        # speed command received which could cause damage or injury.
-        # Mitigation:
-        #    * HB-25 motor controllers implement a 4 second command timeout.  Note, at 1.0 mps, the robot could travel 4
-        #      meters in that time, but the hardware guarantees the motors will stop after 4 seconds.
-        #    * Create a timer that to monitor Twist command frequency.  If there has been no command for the specified
-        #      period of time, then set the motor speed to 0.
-        # The timeout is configurable.  Default is 0.5 seconds
-        self._safety_timer = rospy.Timer(rospy.Duration(safety_timeout), self._safety_timeout_callback, True)
-        # Note: Stop the timer right away.  It will get restarted on the first Twist command
-        self._safety_timer.shutdown()
-
         # Subscriptions
 
         # Subscribes to the Twist message received from ROS proper
@@ -79,8 +66,18 @@ class ArlobotDriveNode:
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
     def _reset_safety_timer(self):
+        # Arlobotbase (on RaspberryPi) receives Twist commands from the Arlobot (on PC).  The connection is Ethernet, but
+        # it is possible that communication could be hosed.  If so, it is possible for the robot to continue at the last
+        # speed command received which could cause damage or injury.
+        # Mitigation:
+        #    * HB-25 motor controllers implement a 4 second command timeout.  Note, at 1.0 mps, the robot could travel 4
+        #      meters in that time, but the hardware guarantees the motors will stop after 4 seconds.
+        #    * Create a timer that to monitor Twist command frequency.  If there has been no command for the specified
+        #      period of time, then set the motor speed to 0.
+        # The timeout is configurable.  Default is 0.5 seconds
         self._safety_timer.shutdown()
-        self._safety_timer.start()
+        del self._safety_timer
+        self._safety_timer = rospy.Timer(rospy.Duration(self._safety_timeout), self._safety_timeout_callback, True)
 
     def _safety_timeout_callback(self, event):
         rospy.logdebug("Safety Timeout callback invoked: no twist command for {} seconds".format(event.last_duration))
