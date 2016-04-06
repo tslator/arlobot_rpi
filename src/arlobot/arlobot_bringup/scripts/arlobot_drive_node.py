@@ -72,7 +72,7 @@ class ArlobotDriveNode:
         pass
 
     def _twist_command_callback(self, command):
-        self._safety_delta_time = rospy.Time.now() - self._last_twist_time
+        self._safety_delta_time = rospy.Duration(rospy.Time.now() - self._last_twist_time)
         self._last_twist_time = rospy.Time.now()
 
         self._apply_motion_profile()
@@ -90,7 +90,7 @@ class ArlobotDriveNode:
         while not rospy.is_shutdown():
 
             # Check that we are receiving Twist commands fast enough; otherwise, stop the motors
-            if self._safety_delta_time - self._safety_timeout_duration > 0:
+            if self._safety_delta_time > self._safety_timeout_duration:
                 rospy.logwarn("Safety Timeout callback invoked: no twist command for {} seconds".format(delta_time))
                 self._drive.SetSpeed(0.0, 0.0)
 
