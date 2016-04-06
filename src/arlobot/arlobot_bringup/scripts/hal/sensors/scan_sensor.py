@@ -88,6 +88,7 @@ class UltrasonicScanSensor(ScanSensor):
                             max_range)
 
         self._last_scan_time = Time.now()
+        self._max_range = max_range
 
     def _get_data(self):
         new_time = Time.now()
@@ -96,7 +97,7 @@ class UltrasonicScanSensor(ScanSensor):
 
         values = self._hal_proxy.GetUltrasonic()
 
-        ranges = [self.__MAX_RANGE]*360
+        ranges = [self._max_range]*360
         for ii in range(len(values)):
             offset = UltrasonicScanSensor._OFFSETS[ii]
             # Note: There are duplicates in the offsets, e.g., sensors at the same angle but different height.  I think
@@ -123,6 +124,7 @@ class InfraredScanSensor(ScanSensor):
                             max_range)
 
         self._last_scan_time = Time.now()
+        self._max_range = max_range
 
     def _get_data(self):
         new_time = Time.now()
@@ -131,7 +133,7 @@ class InfraredScanSensor(ScanSensor):
 
         values = self._hal_proxy.GetInfrared()
 
-        ranges = [self.__MAX_RANGE]*360
+        ranges = [self._max_range]*360
         for ii in range(len(values)):
             offset = InfraredScanSensor.__OFFSETS[ii]
             # Note: There are duplicates in the offsets, e.g., sensors at the same angle but different height.  I think
