@@ -17,6 +17,9 @@ Drive Node Loop Rate: 10   # Hz
 Sensors Node Loop Rate: 1 # Hz
 Diff Drive Loop Rate: 10   # Hz
 
+# Safety Timeout that stop the motors if no command is received within defined period
+Drive Node Safety Timeout: 1.0
+
 # Number of range sensors
 Num Ultrasonic Front Sensors: 8
 Num Ultrasonic Back Sensors: 8
