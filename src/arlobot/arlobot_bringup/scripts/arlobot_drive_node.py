@@ -33,7 +33,7 @@ class ArlobotDriveNode:
         max_angular_speed = rospy.get_param("Max Angular Speed")
         gains = rospy.get_param("Drive Node Gains")
         loop_rate = rospy.get_param("Drive Node Loop Rate")
-        self._safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
+        safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
         diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
         self._odom_linear_scale_correction = rospy.get_param("odom_linear_scale_correction", 1.0)
         self._odom_angular_scale_correction = rospy.get_param("odom_angular_scale_correction", 1.0)
@@ -54,6 +54,8 @@ class ArlobotDriveNode:
 
 
         self._loop_rate = rospy.Rate(loop_rate)
+        self._safety_timeout_duration = rospy.Duration(safety_timeout)
+        self._last_twist_time = rospy.Time.now()
 
         # Subscriptions
 
@@ -65,32 +67,21 @@ class ArlobotDriveNode:
         # Publishes the Odometry message
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
-    def _reset_safety_timer(self):
-        # Arlobotbase (on RaspberryPi) receives Twist commands from the Arlobot (on PC).  The connection is Ethernet, but
-        # it is possible that communication could be hosed.  If so, it is possible for the robot to continue at the last
-        # speed command received which could cause damage or injury.
-        # Mitigation:
-        #    * HB-25 motor controllers implement a 4 second command timeout.  Note, at 1.0 mps, the robot could travel 4
-        #      meters in that time, but the hardware guarantees the motors will stop after 4 seconds.
-        #    * Create a timer that to monitor Twist command frequency.  If there has been no command for the specified
-        #      period of time, then set the motor speed to 0.
-        # The timeout is configurable.  Default is 0.5 seconds
-        self._safety_timer.shutdown()
-        del self._safety_timer
-        self._safety_timer = rospy.Timer(rospy.Duration(self._safety_timeout), self._safety_timeout_callback, True)
-
-    def _safety_timeout_callback(self, event):
-        rospy.logdebug("Safety Timeout callback invoked: no twist command for {} seconds".format(event.last_duration))
-        self._drive.SetSpeed(0.0, 0.0)
-
     def _apply_motion_profile(self):
         pass
 
     def _twist_command_callback(self, command):
-        self._reset_safety_timer()
-        self._apply_motion_profile()
+        delta_time = rospy.Time.now() - self._last_twist_time
+        if delta_time > self._safety_timeout_duration:
+            rospy.logdebug("Safety Timeout callback invoked: no twist command for {} seconds".format(delta_time))
+            command.linear.x = 0.0
+            command.angular.z = 0.0
+        else:
+            self._apply_motion_profile()
+
         self._drive.SetSpeed(command.linear.x, command.angular.z)
         # rospy.logdebug("Twist command: {}".format(str(command)))
+        self._last_twist_time = rospy.Time.now()
 
     def Start(self):
         rospy.loginfo("Arlobot Drive Node has started")
