@@ -48,7 +48,7 @@ class ScanSensor:
         msg.angle_increment = self.__ANGLE_INCREMENT
         # Note: time_increment is the time between measurements, i.e. how often we read the scan and publish it (in
         # seconds)
-        msg.time_increment = delta_time
+        msg.time_increment = delta_time.secs
         # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.
         msg.scan_time = scan_time
         msg.range_min = self._min_range
@@ -107,7 +107,7 @@ class UltrasonicScanSensor(ScanSensor):
         # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  For the
         # xv11 laser, scan_time comes from the driver.  For the purposes of simulating a laser scan, we'll just use the
         # time between calls to publish
-        return ranges, [0]*360, scan_time
+        return ranges, [0]*360, scan_time.secs
 
 
 class InfraredScanSensor(ScanSensor):
