@@ -1,6 +1,8 @@
 from __future__ import print_function
 
 from smbus import SMBus
+import struct
+
 
 class I2CBusError(Exception):
     pass
@@ -65,15 +67,20 @@ class I2CBus:
 
     def ReadInt32(self, address, offset):
         value = self._try(lambda : self._smbus.read_i2c_block_data(address, offset, 4))
-
         int_value = (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
         return int_value if int_value < (2**31 - 1) else int_value - 2**32
 
-    def ReadArray(self, address, offset, size = 8):
-        #values = self._try(lambda : self._smbus.read_i2c_block_data(address, offset, size))
-        #return values
-        return [0]*8
+    def ReadArray(self, address, offset, num_values, type):
+        type_sizes = {'f' : 4, 'l' : 4, 's' : 2, 'b' : 1 }
 
+        # Create a format specifier based on the size.  The format specified the number of float values to convert
+        format = '%s%s' % (num_values, type)
+        # Calculate number of bytes to read
+        #   - num_values is the number of elements to read
+        #   - num_bytes is num_values * size of each value
+        num_bytes = num_values * type_sizes[type]
+        values = self._try(lambda: self._smbus.read_i2c_block_data(address, offset, num_bytes))
+        return struct.pack(format, str(bytearray(values)))
 
 if __name__ == "__main__":
     import sys
@@ -106,3 +113,6 @@ if __name__ == "__main__":
     values = i2c1.ReadArray(int(sys.argv[1]), 12)
     assert(len(values) == 8)
     print("ReadArray returned:", values)
+
+    values = i2c1.ReadArray(int(sys.argv[1]), )
+    print("ReadArray")

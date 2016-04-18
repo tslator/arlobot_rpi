@@ -31,7 +31,7 @@ import sys
 import time
 import os
 sys.path.append("../arlobot_bringup/scripts/hal/hw")
-import i2c.py
+import i2c
 
 # Raspberry Pi 2 supports only device 1
 I2C_DEVICE = 1
@@ -46,7 +46,7 @@ def OptoAsserted():
     return (asserted)
 
 try:
-    i2c_bus = I2CBus(I2C_DEVICE)
+    i2c_bus = i2c.I2CBus(I2C_DEVICE)
 except RuntimeError:
     print("Unable to instantiate I2C bus device 1")
     sys.exit(1)
