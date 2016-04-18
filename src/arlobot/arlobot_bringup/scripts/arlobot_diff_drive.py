@@ -75,6 +75,13 @@ class ArlobotDifferentialDrive():
         except:
             raise ArlobotDifferentialDriveError
 
+        # We have a choice here: either zero out the encoder count or initialize the last left/right counts to the current
+        # count value so that it doesn't cause a large jump in position
+        count = self._hal_proxy.GetCount()
+ 
+        self._last_left_count = count["left"]
+        self._last_right_count = count["right"]
+
     def _get_left_speed(self):
         '''
         This function is used by the PID to retrieve the current speed
@@ -130,7 +137,7 @@ class ArlobotDifferentialDrive():
         self._left_pid.SetTarget(left_speed)
         self._right_pid.SetTarget(right_speed)
 
-        #rospy.loginfo("lv: {:6.2f}, av: {:6.2f}, ls: {:6.2f}, rs: {:6.2f}".format(linear_velocity, angular_velocity, left_speed, right_speed))
+        rospy.loginfo("lv: {:6.2f}, av: {:6.2f}, ls: {:6.2f}, rs: {:6.2f}".format(linear_velocity, angular_velocity, left_speed, right_speed))
 
     def GetOdometry(self):
         with self._lock:
@@ -153,6 +160,11 @@ class ArlobotDifferentialDrive():
 
         left_count = count["left"]
         right_count = count["right"]
+
+        # Check that the resulting delta counts make sense
+        if abs(left_count - self._last_left_count) > 20 or abs(right_count - self._last_right_count) > 20:
+            rospy.logwarn("There was a large change in count: {}, {}".format(left_count - self._last_left_count, right_count - self._last_right_count))
+            return
 
         delta_left_count = left_count - self._last_left_count
         delta_right_count = right_count - self._last_right_count
@@ -193,12 +205,12 @@ class ArlobotDifferentialDrive():
             self._linear_speed = max(-self._max_linear_speed, min(linear_speed, self._max_linear_speed))
             self._angular_speed = max(-self._max_angular_speed, min(angular_speed, self._max_angular_speed))
 
-        #rospy.logdebug("Count: {:6.2f}, {:6.2f}; Delta Count: {:6.2f}, {:6.2f}; Delta Dist: {:6.4f}, {:6.4f}; L/R Speed: {:6.4f}, {:6.4f}, L/A Speed: {:6.4f}, {:6.4f}".format(
-        #              left_count, right_count,
-        #              delta_left_count, delta_right_count,
-        #              delta_x_dist, delta_y_dist,
-        #              left_speed, right_speed,
-        #              linear_speed, angular_speed))
+        rospy.logwarn("Count: {:6.2f}, {:6.2f}; Delta Count: {:6.2f}, {:6.2f}; Delta Dist: {:6.4f}, {:6.4f}; L/R Speed: {:6.4f}, {:6.4f}, L/A Speed: {:6.4f}, {:6.4f}".format(
+                      left_count, right_count,
+                      delta_left_count, delta_right_count,
+                      delta_x_dist, delta_y_dist,
+                      left_speed, right_speed,
+                      linear_speed, angular_speed))
 
 
     def __work(self):

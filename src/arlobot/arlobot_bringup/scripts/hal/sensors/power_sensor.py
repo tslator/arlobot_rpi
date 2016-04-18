@@ -3,7 +3,7 @@
 import rospy
 from ..hal_proxy import BaseHALProxy, BaseHALProxyError, PCHALProxy, PCHALProxyError
 # Import some standard message for reporting power, battery etc
-from msgs.msg import BasePower
+from arlobot_msgs.msg import BasePower
 
 
 class PowerSensorError(Exception):

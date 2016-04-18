@@ -48,8 +48,8 @@ class Psoc4Hw:
     MOTOR_CONTROLLER_ON = __MOTOR_CONTROLLER_BIT
     MOTOR_CONTROLLER_OFF = ~MOTOR_CONTROLLER_ON
 
-    LEFT_PSOC4_ADDR = 0x08
-    RIGHT_PSOC4_ADDR = 0x09
+    LEFT_PSOC4_ADDR = 0x09
+    RIGHT_PSOC4_ADDR = 0x08
 
     def __init__(self, i2cbus, address):
         self._address = address

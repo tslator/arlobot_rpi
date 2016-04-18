@@ -76,7 +76,7 @@ class ArlobotDriveNode:
 
         self._apply_motion_profile()
         self._drive.SetSpeed(command.linear.x, command.angular.z)
-        rospy.logdebug("Twist command: {}".format(str(command)))
+        rospy.logwarn("Twist command: {}".format(str(command)))
 
     def Start(self):
         rospy.loginfo("Arlobot Drive Node has started")
@@ -90,11 +90,11 @@ class ArlobotDriveNode:
 
             # Check that we are receiving Twist commands fast enough; otherwise, stop the motors
             if self._safety_delta_time.secs > self._safety_timeout:
-                #rospy.logdebug("Safety Timeout invoked: no twist command for {} seconds".format(self._safety_timeout))
+                rospy.logdebug("Safety Timeout invoked: no twist command for {} seconds".format(self._safety_timeout))
                 self._drive.SetSpeed(0.0, 0.0)
 
             x_dist, y_dist, heading, linear_speed, angular_speed = self._drive.GetOdometry()
-            #rospy.logdebug("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(x_dist,
+            #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(x_dist,
             #                                                                                     y_dist,
             #                                                                                     heading,
             #                                                                                     linear_speed,

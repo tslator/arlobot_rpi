@@ -13,7 +13,7 @@ class ScanSensorError(Exception):
 class ScanSensor:
     __MIN_ANGLE = 0.0
     __MAX_ANGLE = 2.0*pi
-    __ANGLE_INCREMENT = 2.0*pi/360
+    __ANGLE_INCREMENT = 2.0*pi/360.0
 
     def __init__(self, pub_name, frame_id, min_range, max_range):
 
@@ -48,11 +48,11 @@ class ScanSensor:
         msg.angle_increment = self.__ANGLE_INCREMENT
         # Note: time_increment is the time between measurements, i.e. how often we read the scan and publish it (in
         # seconds)
-        msg.time_increment = delta_time
+        msg.time_increment = 0.1 #delta_time.secs
         # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.
-        msg.scan_time = scan_time
-        msg.range_min = self._min_range
-        msg.range_max = self._max_range
+        msg.scan_time = 0.1 # scan_time
+        msg.range_min = float(self._min_range)
+        msg.range_max = float(self._max_range)
         msg.ranges = [min(max(range, msg.range_min), msg.range_max) for range in ranges]
         msg.intensities = intensities
 
@@ -66,8 +66,8 @@ class ScanSensor:
 class LaserScanSensor(ScanSensor):
 
     def __init__(self, name):
-        min_range = rospy.get_param("Laser Min Range")
-        max_range = rospy.get_param("Laser Max Range")
+        min_range = get_param("Laser Min Range")
+        max_range = get_param("Laser Max Range")
         ScanSensor.__init__(self, "laser", name+"_laser", min_range, max_range)
 
     def _get_data(self):
@@ -79,8 +79,8 @@ class UltrasonicScanSensor(ScanSensor):
     _OFFSETS = [60, 30, 0, 330, 300, 45, 0, 315, 240, 210, 180, 150, 120, 225, 180, 135]
 
     def __init__(self):
-        min_range = rospy.get_param("Ultrasonic Min Range")
-        max_range = rospy.get_param("Ultrasonic Max Range")
+        min_range = get_param("Ultrasonic Min Range")
+        max_range = get_param("Ultrasonic Max Range")
         ScanSensor.__init__(self,
                             "ultrasonic_scan",
                             "ultrasonic_array",
@@ -88,6 +88,7 @@ class UltrasonicScanSensor(ScanSensor):
                             max_range)
 
         self._last_scan_time = Time.now()
+        self._max_range = max_range
 
     def _get_data(self):
         new_time = Time.now()
@@ -96,7 +97,7 @@ class UltrasonicScanSensor(ScanSensor):
 
         values = self._hal_proxy.GetUltrasonic()
 
-        ranges = [self.__MAX_RANGE]*360
+        ranges = [self._max_range]*360
         for ii in range(len(values)):
             offset = UltrasonicScanSensor._OFFSETS[ii]
             # Note: There are duplicates in the offsets, e.g., sensors at the same angle but different height.  I think
@@ -106,7 +107,7 @@ class UltrasonicScanSensor(ScanSensor):
         # Note: scan_time is the time between scans of the laser, i.e., the time it takes to read 360 degrees.  For the
         # xv11 laser, scan_time comes from the driver.  For the purposes of simulating a laser scan, we'll just use the
         # time between calls to publish
-        return ranges, [0]*360, scan_time
+        return ranges, [0]*360, scan_time.secs
 
 
 class InfraredScanSensor(ScanSensor):
@@ -114,8 +115,8 @@ class InfraredScanSensor(ScanSensor):
     __OFFSETS = [330, 30, 45, 15, 345, 315, 330, 30, 150, 210, 225, 195, 165, 135, 150, 210]
 
     def __init__(self):
-        min_range = rospy.get_param("Infrared Min Range")
-        max_range = rospy.get_param("Infrared Max Range")
+        min_range = get_param("Infrared Min Range")
+        max_range = get_param("Infrared Max Range")
         ScanSensor.__init__(self,
                             "infrared_scan",
                             "infrared_array",
@@ -123,6 +124,7 @@ class InfraredScanSensor(ScanSensor):
                             max_range)
 
         self._last_scan_time = Time.now()
+        self._max_range = max_range
 
     def _get_data(self):
         new_time = Time.now()
@@ -131,7 +133,7 @@ class InfraredScanSensor(ScanSensor):
 
         values = self._hal_proxy.GetInfrared()
 
-        ranges = [self.__MAX_RANGE]*360
+        ranges = [self._max_range]*360
         for ii in range(len(values)):
             offset = InfraredScanSensor.__OFFSETS[ii]
             # Note: There are duplicates in the offsets, e.g., sensors at the same angle but different height.  I think
