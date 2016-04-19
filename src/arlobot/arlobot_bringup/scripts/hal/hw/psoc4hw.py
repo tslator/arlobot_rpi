@@ -11,8 +11,16 @@ class Psoc4HwError(Exception):
 class Psoc4Hw:
     __REGISTER_MAP = {#---------- READ/WRITE ------------
                       'CONTROL_REGISTER': 0,
+                            """
+                            - Bit 0: enable / disable the HB25 motors
+                            - Bit 1: clear encoder count
+                            - Bit 2: calibrate - requests the Psoc to start calibrating
+                            - Bit 3: upload calibration
+                            - Bit 4: download calibration
+                            """
                       'COMMANDED_VELOCITY': 2,
                       'COMMANDED_ACCELERATION': 4,
+                      'CALIBRATION_PORT' : 6,
 
                       #----------------------------------
                       #------ READ/WRITE Boundary -------
@@ -20,25 +28,42 @@ class Psoc4Hw:
 
                       #----------- READ ONLY ------------
                       'DEVICE_STATUS' : 6,
+                            """
+                            - Bit 0: HB25 Motor Controller Initialized
+                            - Bit 1: Calibrated - indicates whether the calibration values
+                                     have been loaded; 0 - no, 1 - yes
+                            - Bit 2: Calibrating - indicates when the Psoc is in calibration;
+                                     0 - no, 1 - yes
+                            """
                       'MEASURED_COUNT': 8,
                       'MEASURED_VELOCITY': 12,
-                      'ULTRASONIC_DISTANCE': 14,
-                      'INFRARED_DISTANCE': 30,
-                      'TEST': 38}
+                      'MEASURED_CNTS_PER_SEC': 14,
+                      'ODOMETRY': 16,
+                      'ULTRASONIC_DISTANCE': 36,
+                      'INFRARED_DISTANCE': 52,
+                      'TEST': 60}
 
     __MOTOR_CONTROLLER_BIT = 0x0001
-    __ENCODER_BIT = 0x0002
+    __CLEAR_ENCODER_BIT = 0x0002
+    __CALIBRATE_BIT = 0x0004
+    __UPLOAD_CALIBRATION_BIT = 0x0008
+    __DOWNLOAD_CALIBRATION_BIT = 0x0010
+
+    __MOTOR_CONTROLLER_INIT_BIT = 0x0001
+    __CALIBRATED_BIT = 0x0002
+    __CALIBRATING_BIT = 0x0004
 
     MOTOR_CONTROLLER_ON = __MOTOR_CONTROLLER_BIT
-    MOTOR_CONTROLLER_OFF = ~MOTOR_CONTROLLER_ON
+    CLEAR_ENCODER_COUNT = __CLEAR_ENCODER_BIT
+    PERFORM_CALIBRATION = __CALIBRATE_BIT
+    UPLOAD_CALIBRATION = __UPLOAD_CALIBRATION_BIT
+    DOWNLOAD_CALIBRATION = __DOWNLOAD_CALIBRATION_BIT
 
     LEFT_PSOC4_ADDR = 0x09
     RIGHT_PSOC4_ADDR = 0x08
 
     def __init__(self, i2cbus, address):
         self._address = address
-        self._control = self.MOTOR_CONTROLLER_ON
-
         self._i2c_bus = i2cbus
 
     def SetControl(self, value):
@@ -47,56 +72,62 @@ class Psoc4Hw:
         :param value:
         :return:
         '''
-        if value == self.MOTOR_CONTROLLER_ON:
-            self._control |= value
-        elif value == self.MOTOR_CONTROLLER_OFF:
-            self._control &= ~(value)
-
-        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CONTROL_REGISTER'], self._control)
+        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CONTROL_REGISTER'], value)
 
     def SetSpeed(self, speed):
         '''
-        w aa oo vv
-        aa - address
-        oo - offset
-        vv - velocity
         '''
         self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_VELOCITY'], meter_to_millimeter(speed))
 
     def SetAccel(self, acceleration):
         '''
-        w aa oo cc
         '''
         self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_ACCELERATION'], acceleration)
 
+    def SetCalibrationPort(self, value):
+        '''
+        '''
+        self._i2c_bus.WriteUint16(self._addres, self.__REGISTER_MAP['CALIBRATION_PORT'], value)
+
+    def GetCalibrationPort(self):
+        '''
+        '''
+        return self._i2c_buf.ReadUint16(self._address, self.__REGISTER_MAP['CALIBRATION_PORT'])
+
     def GetCount(self):
         '''
-        w aa r oo cc cc cc cc
         '''
         return self._i2c_bus.ReadInt32(self._address, self.__REGISTER_MAP['MEASURED_COUNT'])
 
     def GetSpeed(self):
         '''
-        w aa r oo vv
         '''
         speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
         return millimeter_to_meter(speed)
 
+    def GetCountsPerSec(self):
+        '''
+        '''
+        cnts_per_sec = self._i2c_buf.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_CNTS_PER_SEC'])
+
+    def GetOdometry(self):
+        # Each of the values is a floating point value
+        values = self._i2c_bus.ReadArray(self._address, self._REGISTER_MAP['ODOMETRY'], 5, 'f')
+
     def GetInfraredDistances(self):
         '''
-        w aa r oo 11 22 33 44 55 66 77 88
         '''
-        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['ULTRASONIC_DISTANCE'])
+        # Each of the values is a byte value
+        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['ULTRASONIC_DISTANCE'], 8, 'b')
 
     def GetUlrasonicDistances(self):
         '''
-        w aa r oo 11 22 33 44 55 66 77 88
         '''
-        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['INFRARED_DISTANCE'])
+        # Each of the values is a short value
+        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['INFRARED_DISTANCE'], 8, 's')
 
     def GetStatus(self):
         '''
-        w aa r oo vv vv
         '''
         return self._i2c_bus.ReadUint16(self._address, self.__REGISTER_MAP['DEVICE_STATUS'])
 

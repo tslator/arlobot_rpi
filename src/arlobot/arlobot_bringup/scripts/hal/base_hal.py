@@ -184,6 +184,16 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             right = self._right_psoc4.GetSpeed()
         return left, right
 
+    def GetOdometry(self):
+        def average(x, y) : return (x + y)/2
+
+        left_odom = self._left_psoc4.GetOdometry()
+        right_odom = self._right_psoc4.GetOdometry()
+
+        avg = map(average, left_odom, right_odom)
+
+        return tuple(avg)
+
     def GetInfrared(self):
         if self._simulated:
             front = [float(random.randrange(10,81,1))/100 for _ in range (8)]
