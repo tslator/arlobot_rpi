@@ -50,19 +50,25 @@ class BaseHALProxy:
         response = set_accel([left_accel, right_accel])
         return response.success
 
-    def GetCount(self):
-        get_count = rospy.ServiceProxy('BaseHALGetCount', HALGetFloatArray)
-        response = get_count()
-        left_count = response.values[0]
-        right_count = response.values[1]
-        return {'left' : left_count, 'right' : right_count}
-
     def GetSpeed(self):
         get_speed = rospy.ServiceProxy('BaseHALGetSpeed', HALGetFloatArray)
         response = get_speed()
         left_speed = response.values[0]
         right_speed = response.values[1]
         return {'left' : left_speed, 'right' : right_speed}
+
+    def GetCountsPerSecond(self):
+        pass
+
+    def GetOdometry(self):
+        get_odometry = rospy.ServiceProxy('BaseHALGetOdometry', HALGetFloatArray)
+        response = get_odometry()
+
+        return {'x_dist' : response.values[0],
+                'y_dist' : response.values[1],
+                'heading' : response.values[2],
+                'linear' : response.values[3],
+                'angular' : response.values[4]}
 
     def GetUltrasonic(self):
         get_ultrasonic = rospy.ServiceProxy('BaseHALGetUltrasonic', HALGetFloatArray)

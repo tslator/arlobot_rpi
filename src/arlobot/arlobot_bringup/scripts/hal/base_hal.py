@@ -28,8 +28,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
         i2c_device = rospy.get_param("I2C Device", I2CBus.DEV_I2C_1)
 
-        left_psoc4_addr = rospy.get_param("Left Psoc4 I2C Address", Psoc4Hw.LEFT_PSOC4_ADDR)
-        right_psoc4_addr = rospy.get_param("Right Psoc4 I2C Address", Psoc4Hw.RIGHT_PSOC4_ADDR)
+        psoc4_addr = rospy.get_param("Left Psoc4 I2C Address", Psoc4Hw.PSOC4_ADDR)
 
         imu_mag_addr = rospy.get_param("IMU Mag I2C Address", ImuHw.MAG_ADDR)
         imu_acc_addr = rospy.get_param("IMU Acc I2C Address", ImuHw.ACC_ADDR)
@@ -72,14 +71,9 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             except RuntimeError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus")
 
-            # Instantiate left and right Psoc4 classes
+            # Instantiate Psoc4 class
             try:
-                self._left_psoc4 = Psoc4Hw(self._i2c_bus, left_psoc4_addr)
-            except Psoc4HwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate Psoc4Hw")
-
-            try:
-                self._right_psoc4 = Psoc4Hw(self._i2c_bus, right_psoc4_addr)
+                self._psoc4 = Psoc4Hw(self._i2c_bus, psoc4_addr)
             except Psoc4HwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate Psoc4Hw")
 
@@ -140,8 +134,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             pass
         else:
             # Before shutting down, turn off the motor controllers
-            self._left_psoc4.SetControl(self._left_psoc4.MOTOR_CONTROLLER_OFF)
-            self._right_psoc4.SetControl(self._right_psoc4.MOTOR_CONTROLLER_OFF)
+            self._psoc4.SetControl(self._psoc4.MOTOR_CONTROLLER_OFF)
 
     def SetSpeed(self, left, right):
         if self._simulated:
@@ -149,8 +142,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 self._left_speed = left
                 self._right_speed = right
         else:
-            self._left_psoc4.SetSpeed(left)
-            self._right_psoc4.SetSpeed(right)
+            self._psoc4.SetSpeed(left, right)
 
         rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
 
@@ -158,8 +150,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
         if self._simulated:
             pass
         else:
-            self._left_psoc4.SetAccel(left)
-            self._right_psoc4.SetAccel(right)
+            self._psoc4.SetAccel(left, right)
 
     def GetCount(self):
         if self._simulated:
@@ -168,8 +159,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 left = self._left_count
                 right = self._right_count
         else:
-            left = self._left_psoc4.GetCount()
-            right = self._right_psoc4.GetCount()
+            left, right = self._psoc4.GetCount()
 
         rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
         return left, right
@@ -180,40 +170,33 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 left = self._left_speed
                 right = self._right_speed
         else:
-            left = self._left_psoc4.GetSpeed()
-            right = self._right_psoc4.GetSpeed()
+            left, right = self._psoc4.GetSpeed()
         return left, right
 
     def GetOdometry(self):
-        def average(x, y) : return (x + y)/2
-
-        left_odom = self._left_psoc4.GetOdometry()
-        right_odom = self._right_psoc4.GetOdometry()
-
-        avg = map(average, left_odom, right_odom)
-
-        return tuple(avg)
+        return self._psoc4.GetOdometry()
 
     def GetInfrared(self):
+        distances = []
         if self._simulated:
             front = [float(random.randrange(10,81,1))/100 for _ in range (8)]
-            back = [float(random.randrange(10,81,1))/100 for _ in range (8)]
+            rear = [float(random.randrange(10,81,1))/100 for _ in range (8)]
+            distances = front + rear
         else:
-            # Note: There are no left/right infrared sensors, but there are front and back
-            front = self._left_psoc4.GetInfraredDistances()
-            back = self._right_psoc4.GetInfraredDistances()
-        return front + back
+            distances = self._psoc4.GetInfraredDistances()
+        return distances
 
     def GetUltrasonic(self):
+        distances = []
         if self._simulated:
             front = [float(random.randrange(2,501,1))/100 for _ in range (8)]
-            back = [float(random.randrange(2,501,1))/100 for _ in range (8)]
+            rear = [float(random.randrange(2,501,1))/100 for _ in range (8)]
+            distances = front + rear
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
-            front = self._left_psoc4.GetUlrasonicDistances()
-            back = self._right_psoc4.GetUlrasonicDistances()
+            distances = self._psoc4.GetUlrasonicDistances()
 
-        return front + back
+        return distances
 
     def GetImuSensor(self):
         if self._simulated:

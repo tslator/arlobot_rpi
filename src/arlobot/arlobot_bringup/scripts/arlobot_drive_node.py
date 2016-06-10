@@ -93,18 +93,23 @@ class ArlobotDriveNode:
                 rospy.logdebug("Safety Timeout invoked: no twist command for {} seconds".format(self._safety_timeout))
                 self._drive.SetSpeed(0.0, 0.0)
 
-            x_dist, y_dist, heading, linear_speed, angular_speed = self._drive.GetOdometry()
-            #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(x_dist,
-            #                                                                                     y_dist,
-            #                                                                                     heading,
-            #                                                                                     linear_speed,
-            #                                                                                     angular_speed))
+            odometry = self._drive.GetOdometry()
+            #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(odometry['x_dist'],
+            #                                                                                    odometry['y_dist'],
+            #                                                                                    odometry['heading'],
+            #                                                                                    odometry['linear'],
+            #                                                                                    odometry['angular']))
 
             # adjust linear and angular speed by calibration factor
-            linear_speed = linear_speed * self._odom_linear_scale_correction
-            angular_speed = angular_speed * self._odom_angular_scale_correction
+            odometry['linear'] = odometry['linear'] * self._odom_linear_scale_correction
+            odometry['angular'] = odometry['angular'] * self._odom_angular_scale_correction
 
-            self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster, heading, x_dist, y_dist, linear_speed, angular_speed)
+            self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
+                                           odometry['heading'],
+                                           odometry['x_dist'],
+                                           odometry['y_dist'],
+                                           odometry['linear'],
+                                           odometry['angular'])
 
             self._loop_rate.sleep()
 
