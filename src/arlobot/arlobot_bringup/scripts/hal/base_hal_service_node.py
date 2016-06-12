@@ -46,8 +46,8 @@ class BaseHALServiceNode(HALServiceNode):
     def _run(self):
         self._services['BaseHALSetSpeed'] = rospy.Service('BaseHALSetSpeed', HALSetFloatArray, self._hal_set_speed)
         self._services['BaseHALSetAccel'] = rospy.Service('BaseHALSetAccel', HALSetFloatArray, self._hal_set_accel)
-        self._services['BaseHALGetCount'] = rospy.Service('BaseHALGetCount', HALGetFloatArray, self._hal_get_count)
         self._services['BaseHALGetSpeed'] = rospy.Service('BaseHALGetSpeed', HALGetFloatArray, self._hal_get_speed)
+        self._services['BaseHALGetOdometry'] = rospy.Service('BaseHALGetOdometry', HALGetFloatArray, self._hal_get_odometry)
         self._services['BaseHALGetInfrared'] = rospy.Service('BaseHALGetInfrared', HALGetFloatArray, self._hal_get_infrared)
         self._services['BaseHALGetUltrasonic'] = rospy.Service('BaseHALGetUltrasonic', HALGetFloatArray, self._hal_get_ultrasonic)
         self._services['BaseHALGetImu'] = rospy.Service('BaseHALGetImu', HALGetImu, self._hal_get_imu)
@@ -78,15 +78,6 @@ class BaseHALServiceNode(HALServiceNode):
             raise BaseHALServiceNodeError("Failure calling HAL::SetAccel")
         return HALSetFloatArrayResponse(success=success)
 
-    def _hal_get_count(self, request):
-        left = 0
-        right = 0
-        try:
-            left, right = self._hal.GetCount()
-        except BaseHardwareAbstractionLayerError:
-            raise BaseHALServiceNodeError("Failure calling HAL::GetCount")
-        return HALGetFloatArrayResponse(values = [left, right])
-
     def _hal_get_speed(self, request):
         left = 0
         right = 0
@@ -95,6 +86,14 @@ class BaseHALServiceNode(HALServiceNode):
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetSpeed")
         return HALGetFloatArrayResponse(values = [left, right])
+
+    def _hal_get_odometry(self, request):
+        values = []
+        try:
+            values = self._hal.GetOdometry()
+        except BaseHardwareAbstractionLayerError:
+            raise BaseHALServiceNodeError("Failure calling HAL:GetOdometry")
+        return HALGetFloatArrayResponse(values = values)
 
     def _hal_get_infrared(self, request):
         values = []

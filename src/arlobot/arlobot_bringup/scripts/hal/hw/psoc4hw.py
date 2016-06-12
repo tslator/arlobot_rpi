@@ -18,7 +18,12 @@ class Psoc4Hw:
                             - Bit 3: upload calibration
                             - Bit 4: download calibration
                             """
+<<<<<<< HEAD
                       'COMMANDED_VELOCITY': 2,
+=======
+                      'LEFT_COMMANDED_VELOCITY': 2,
+                      'RIGHT_COMMANDED_VELOCITY': 4,
+>>>>>>> 12b5873b0859d610b664a64a0b5dcc66c8c6b016
                       'CALIBRATION_PORT' : 6,
 
                       #----------------------------------
@@ -26,7 +31,7 @@ class Psoc4Hw:
                       #----------------------------------
 
                       #----------- READ ONLY ------------
-                      'DEVICE_STATUS' : 6,
+                      'DEVICE_STATUS' : 8,
                             """
                             - Bit 0: HB25 Motor Controller Initialized
                             - Bit 1: Calibrated - indicates whether the calibration values
@@ -34,13 +39,14 @@ class Psoc4Hw:
                             - Bit 2: Calibrating - indicates when the Psoc is in calibration;
                                      0 - no, 1 - yes
                             """
-                      'MEASURED_COUNT': 8,
-                      'MEASURED_VELOCITY': 12,
-                      'MEASURED_CNTS_PER_SEC': 14,
-                      'ODOMETRY': 16,
-                      'ULTRASONIC_DISTANCE': 36,
-                      'INFRARED_DISTANCE': 52,
-                      'TEST': 60}
+                      'LEFT_MEASURED_VELOCITY': 10,
+                      'RIGHT_MEASURED_VELOCITY': 12,
+                      'ODOMETRY': 14,
+                      'FRONT_ULTRASONIC_DISTANCE': 34,
+                      'REAR_ULTRASONIC_DISTANCE': 42,
+                      'FRONT_INFRARED_DISTANCE': 50,
+                      'REAR_INFRARED_DISTANCE': 58,
+                      'HEARTBEAT': 66}
 
     __MOTOR_CONTROLLER_BIT = 0x0001
     __CLEAR_ENCODER_BIT = 0x0002
@@ -58,12 +64,13 @@ class Psoc4Hw:
     UPLOAD_CALIBRATION = __UPLOAD_CALIBRATION_BIT
     DOWNLOAD_CALIBRATION = __DOWNLOAD_CALIBRATION_BIT
 
-    LEFT_PSOC4_ADDR = 0x09
-    RIGHT_PSOC4_ADDR = 0x08
+    PSOC4_ADDR = 0x09
 
     def __init__(self, i2cbus, address):
         self._address = address
         self._i2c_bus = i2cbus
+
+    #------------ Read / Write ---------------
 
     def SetControl(self, value):
         '''
@@ -73,62 +80,67 @@ class Psoc4Hw:
         '''
         self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CONTROL_REGISTER'], value)
 
-    def SetSpeed(self, speed):
+    def SetSpeed(self, left_speed, right_speed):
         '''
         '''
-        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_VELOCITY'], meter_to_millimeter(speed))
-
-    def SetAccel(self, acceleration):
-        '''
-        '''
-        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['COMMANDED_ACCELERATION'], acceleration)
+        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['LEFT_COMMANDED_VELOCITY'], meter_to_millimeter(left_speed))
+        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['RIGHT_COMMANDED_VELOCITY'], meter_to_millimeter(right_speed))
 
     def SetCalibrationPort(self, value):
         '''
         '''
-        self._i2c_bus.WriteUint16(self._addres, self.__REGISTER_MAP['CALIBRATION_PORT'], value)
+        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CALIBRATION_PORT'], value)
 
     def GetCalibrationPort(self):
         '''
         '''
         return self._i2c_buf.ReadUint16(self._address, self.__REGISTER_MAP['CALIBRATION_PORT'])
 
-    def GetCount(self):
-        '''
-        '''
-        return self._i2c_bus.ReadInt32(self._address, self.__REGISTER_MAP['MEASURED_COUNT'])
-
-    def GetSpeed(self):
-        '''
-        '''
-        speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_VELOCITY'])
-        return millimeter_to_meter(speed)
-
-    def GetCountsPerSec(self):
-        '''
-        '''
-        cnts_per_sec = self._i2c_buf.ReadInt16(self._address, self.__REGISTER_MAP['MEASURED_CNTS_PER_SEC'])
-
-    def GetOdometry(self):
-        # Each of the values is a floating point value
-        values = self._i2c_bus.ReadArray(self._address, self._REGISTER_MAP['ODOMETRY'], 5, 'f')
-
-    def GetInfraredDistances(self):
-        '''
-        '''
-        # Each of the values is a byte value
-        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['ULTRASONIC_DISTANCE'], 8, 'b')
-
-    def GetUlrasonicDistances(self):
-        '''
-        '''
-        # Each of the values is a short value
-        return self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['INFRARED_DISTANCE'], 8, 's')
+    #------------ Read Only ---------------
 
     def GetStatus(self):
         '''
         '''
         return self._i2c_bus.ReadUint16(self._address, self.__REGISTER_MAP['DEVICE_STATUS'])
+
+    def GetSpeed(self):
+        '''
+        '''
+        left_speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['LEFT_MEASURED_VELOCITY'])
+        right_speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['RIGHT_MEASURED_VELOCITY'])
+        return millimeter_to_meter(left_speed), millimeter_to_meter(right_speed)
+
+    def GetOdometry(self):
+        # Each of the values is a floating point value
+        #  - x distance
+        #  - y distance
+        #  - heading
+        #  - linear velocity
+        #  - angular velocity
+        return self._i2c_bus.ReadArray(self._address, self._REGISTER_MAP['ODOMETRY'], 5, 'f')
+
+    def GetUlrasonicDistances(self):
+        '''
+        '''
+        # Each of the values is a short value
+        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 's')
+        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 's')
+
+        return front + rear
+
+    def GetInfraredDistances(self):
+        '''
+        '''
+        # Each of the values is a byte value
+        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'b')
+        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'b')
+
+        return front + rear
+
+    def GetHeartbeat(self):
+        '''
+        '''
+        return self._i2c_bus.ReadUint32(self._address, self.__REGISTER_MAP['HEARTBEAT'])
 
 
 if __name__ == "__main__":
@@ -139,54 +151,37 @@ if __name__ == "__main__":
         raise I2CBusError()
 
     try:
-        psoc4 = Psoc4Hw(i2c_bus, Psoc4Hw.LEFT_PSOC4_ADDR)
+        psoc4 = Psoc4Hw(i2c_bus, Psoc4Hw.PSOC4_ADDR)
     except Psoc4HwError:
         print("Failed to create Psoc4Hw instance")
 
     # Test speed minimum value
-    psoc4.SetSpeed(-100)
-    result = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", result)
+    psoc4.SetSpeed(200, 200)
+    left, right = psoc4.GetSpeed()
+    print("psoc4.GetSpeed: ", left, right)
     #assert(result == -100)
 
     # Test speed median value
     psoc4.SetSpeed(0)
-    result = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", result)
+    left, right = psoc4.GetSpeed()
+    print("psoc4.GetSpeed: ", left, right)
     #assert(result == 0)
 
     # Test speed maximum value
-    psoc4.SetSpeed(100)
-    result = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", result)
+    psoc4.SetSpeed(-200, -200)
+    left, right = psoc4.GetSpeed()
+    print("psoc4.GetSpeed: ", left, right)
     #assert(result == 100)
 
-    # Test acceleration minimum value
-    psoc4.SetAccel(-1000)
-    # Test acceleration median value
-    psoc4.SetAccel(0)
-    # Test acceleration maximum value
-    psoc4.SetAccel(1000)
+    # Test read/write to calibration port
+    psoc4.SetCalibrationPort(0xff)
+    result = psoc4.GetCalibrationPort()
 
-    # Test count is positive after forward move
-    start = psoc4.GetCount()
-    print("psoc4.GetCount: ", start)
-    psoc4.SetSpeed(100)
-    time.sleep(5)
-    stop = psoc4.GetCount()
-    print("psoc4.GetCount: ", stop)
-    psoc4.SetSpeed(0)
-    #assert(start - stop > 0)
+    # Test read device status
+    result = psoc4.GetStatus()
 
-    # Test count is negative after reverse move
-    start = psoc4.GetCount()
-    print("psoc4.GetCount: ", start)
-    psoc4.SetSpeed(-100)
-    time.sleep(5)
-    end = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", end)
-    psoc4.SetSpeed(0)
-    #assert(start - end < 0)
+    # Test read odometry
+    odom = psoc4.GetOdometry()
 
     # Test getting infrared distances
     distances = psoc4.GetInfraredDistances()
