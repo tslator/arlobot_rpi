@@ -19,7 +19,6 @@ class Psoc4Hw:
                             - Bit 4: download calibration
                             """
                       'COMMANDED_VELOCITY': 2,
-                      'COMMANDED_ACCELERATION': 4,
                       'CALIBRATION_PORT' : 6,
 
                       #----------------------------------
