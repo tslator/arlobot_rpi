@@ -16,7 +16,7 @@ class ArlobotSensorsNodeError(Exception):
 class ArlobotSensorsNode:
     '''
     This node is responsible for reading all sensor information coming from the Arlobot base.  The primary source of
-    sensor information will be the Psoc4 processor via I2C to the Raspberry Pi, but there could be sensors attached
+    sensor information will be the Psoc processor via I2C to the Raspberry Pi, but there could be sensors attached
     directly to the Raspberry Pi or some other processor or bus.
 
     The purpose of this node is to have central place where all sensors in the system can be managed.  I'm not sure if

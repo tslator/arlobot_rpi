@@ -8,8 +8,7 @@ import rospy
 
 from hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from hw.imuhw import ImuHw, ImuHwError
-from hw.powerpihw import PowerPiHw, PowerPiHwError
-from hw.psoc4hw import Psoc4Hw, Psoc4HwError
+from hw.psochw import PsocHw, PsocHwError
 from hw.xv11hw import Xv11Hw, Xv11HwError
 from hw.i2c import I2CBus
 from utils import Worker
@@ -28,13 +27,10 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
         i2c_device = rospy.get_param("I2C Device", I2CBus.DEV_I2C_1)
 
-        psoc4_addr = rospy.get_param("Left Psoc4 I2C Address", Psoc4Hw.PSOC4_ADDR)
+        psoc_addr = rospy.get_param("Psoc I2C Address", PsocHw.PSOC_ADDR)
 
         imu_mag_addr = rospy.get_param("IMU Mag I2C Address", ImuHw.MAG_ADDR)
         imu_acc_addr = rospy.get_param("IMU Acc I2C Address", ImuHw.ACC_ADDR)
-
-        powerpi_avr_addr = rospy.get_param("Power Pi AVR I2C Address", PowerPiHw.AVR_ADDR)
-        powerpi_ina219_addr = rospy.get_param("Power Pi INA219 I2C Address", PowerPiHw.INC219_ADDR)
 
         xv11_port = rospy.get_param("XV11 Port", Xv11Hw.PORT)
         xv11_baud = rospy.get_param("XV11 Baud", Xv11Hw.BAUD)
@@ -71,11 +67,11 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             except RuntimeError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus")
 
-            # Instantiate Psoc4 class
+            # Instantiate Psoc class
             try:
-                self._psoc4 = Psoc4Hw(self._i2c_bus, psoc4_addr)
-            except Psoc4HwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate Psoc4Hw")
+                self._psoc = PsocHw(self._i2c_bus, psoc_addr)
+            except PsocHwError:
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw")
 
             '''
             try:
@@ -83,10 +79,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             except ImuHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
             '''
-            try:
-                self._powerpi = PowerPiHw(self._i2c_bus, powerpi_avr_addr, powerpi_ina219_addr)
-            except PowerPiHwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate PowerPiHw")
+
             '''
             try:
                 self._xv11 = Xv11Hw(xv11_port, xv11_baud)
@@ -134,7 +127,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             pass
         else:
             # Before shutting down, turn off the motor controllers
-            self._psoc4.SetControl(self._psoc4.MOTOR_CONTROLLER_OFF)
+            self._psoc.SetControl(self._psoc.MOTOR_CONTROLLER_OFF)
 
     def SetSpeed(self, left, right):
         if self._simulated:
@@ -142,7 +135,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 self._left_speed = left
                 self._right_speed = right
         else:
-            self._psoc4.SetSpeed(left, right)
+            self._psoc.SetSpeed(left, right)
 
         rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
 
@@ -150,7 +143,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
         if self._simulated:
             pass
         else:
-            self._psoc4.SetAccel(left, right)
+            self._psoc.SetAccel(left, right)
 
     def GetCount(self):
         if self._simulated:
@@ -159,7 +152,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 left = self._left_count
                 right = self._right_count
         else:
-            left, right = self._psoc4.GetCount()
+            left, right = self._psoc.GetCount()
 
         rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
         return left, right
@@ -170,11 +163,11 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 left = self._left_speed
                 right = self._right_speed
         else:
-            left, right = self._psoc4.GetSpeed()
+            left, right = self._psoc.GetSpeed()
         return left, right
 
     def GetOdometry(self):
-        return self._psoc4.GetOdometry()
+        return self._psoc.GetOdometry()
 
     def GetInfrared(self):
         distances = []
@@ -183,7 +176,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             rear = [float(random.randrange(10,81,1))/100 for _ in range (8)]
             distances = front + rear
         else:
-            distances = self._psoc4.GetInfraredDistances()
+            distances = self._psoc.GetInfraredDistances()
         return distances
 
     def GetUltrasonic(self):
@@ -194,7 +187,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             distances = front + rear
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
-            distances = self._psoc4.GetUlrasonicDistances()
+            distances = self._psoc.GetUlrasonicDistances()
 
         return distances
 
@@ -223,20 +216,6 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             time_offset = 0.0
 
         return ranges, intensities, time_offset
-
-    def GetVoltage(self):
-        if self._simulated:
-            voltage = 5.0
-        else:
-            voltage = self._powerpi.GetVoltage()
-        return voltage
-
-    def GetCurrent(self):
-        if self._simulated:
-            current = 2.1
-        else:
-            current = self._powerpi.GetCurrent()
-        return current
 
     def GetTemp(self):
         if self._simulated:

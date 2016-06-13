@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 from i2c import I2CBus, I2CBusError
-from psoc4hw import Psoc4Hw, Psoc4HwError
+from psochw import PsocHw, PsocHwError
 
 if __name__ == "__main__":
     try:
@@ -11,12 +11,12 @@ if __name__ == "__main__":
         raise I2CBusError("Unable to create I2CBus instance")
 
     try:
-        psoc4 = Psoc4Hw(i2c_bus, Psoc4Hw.LEFT_PSOC4_ADDR)
-    except Psoc4HwError:
-        print("Failed to create Psoc4Hw instances")
+        psoc = PsocHw(i2c_bus, PsocHw.PSOC_ADDR)
+    except PsocHwError:
+        print("Failed to create PsocHw instances")
 
-    # Consider creating a console application that can interact with the Psoc4Hw
+    # Consider creating a console application that can interact with the PsocHw
     # so that basic testing can be repeated on other boards.  Maybe make a test
     # application that be run on all boards
 
-    psoc4.SetSpeed(0)
+    psoc.SetSpeed(0)

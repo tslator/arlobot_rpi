@@ -4,13 +4,29 @@ import time
 from utils import meter_to_millimeter, millimeter_to_meter
 
 
-class Psoc4HwError(Exception):
+class PsocHwError(Exception):
     pass
 
 
-class Psoc4Hw:
+class PsocHw:
+
+    __CONTROL_REGISTER_OFFSET = 0
+    __LEFT_COMMANDED_VELOCITY_OFFSET = 2
+    __RIGHT_COMMANDED_VELOCITY_OFFSET = 4
+    __CALIBRATION_PORT_OFFSET = 6
+    __DEVICE_STATUS_OFFSET = 8
+    __LEFT_MEASURED_VELOCITY_OFFSET = 10
+    __RIGHT_MEASURED_VELOCITY_OFFSET = 12
+    __ODOMETRY_OFFSET = 14
+    __FRONT_ULTRASONIC_DISTANCE_OFFSET = 34
+    __REAR_ULTRASONIC_DISTANCE_OFFSET = 42
+    __FRONT_INFRARED_DISTANCE_OFFSET = 50
+    __REAR_INFRARED_DISTANCE_OFFSET = 58
+    __HEARTBEAT_OFFSET = 66
+
+
     __REGISTER_MAP = {#---------- READ/WRITE ------------
-                      'CONTROL_REGISTER': 0,
+                      'CONTROL_REGISTER': PsocHw.__CONTROL_REGISTER_OFFSET,
                             """
                             - Bit 0: enable / disable the HB25 motors
                             - Bit 1: clear encoder count
@@ -18,12 +34,8 @@ class Psoc4Hw:
                             - Bit 3: upload calibration
                             - Bit 4: download calibration
                             """
-<<<<<<< HEAD
-                      'COMMANDED_VELOCITY': 2,
-=======
                       'LEFT_COMMANDED_VELOCITY': 2,
                       'RIGHT_COMMANDED_VELOCITY': 4,
->>>>>>> 12b5873b0859d610b664a64a0b5dcc66c8c6b016
                       'CALIBRATION_PORT' : 6,
 
                       #----------------------------------
@@ -64,7 +76,7 @@ class Psoc4Hw:
     UPLOAD_CALIBRATION = __UPLOAD_CALIBRATION_BIT
     DOWNLOAD_CALIBRATION = __DOWNLOAD_CALIBRATION_BIT
 
-    PSOC4_ADDR = 0x09
+    PSOC_ADDR = 0x08
 
     def __init__(self, i2cbus, address):
         self._address = address
@@ -151,45 +163,45 @@ if __name__ == "__main__":
         raise I2CBusError()
 
     try:
-        psoc4 = Psoc4Hw(i2c_bus, Psoc4Hw.PSOC4_ADDR)
-    except Psoc4HwError:
-        print("Failed to create Psoc4Hw instance")
+        psoc = PsocHw(i2c_bus, PsocHw.PSOC_ADDR)
+    except PsocHwError:
+        print("Failed to create PsocHw instance")
 
     # Test speed minimum value
-    psoc4.SetSpeed(200, 200)
-    left, right = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", left, right)
+    psoc.SetSpeed(200, 200)
+    left, right = psoc.GetSpeed()
+    print("psoc.GetSpeed: ", left, right)
     #assert(result == -100)
 
     # Test speed median value
-    psoc4.SetSpeed(0)
-    left, right = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", left, right)
+    psoc.SetSpeed(0)
+    left, right = psoc.GetSpeed()
+    print("psoc.GetSpeed: ", left, right)
     #assert(result == 0)
 
     # Test speed maximum value
-    psoc4.SetSpeed(-200, -200)
-    left, right = psoc4.GetSpeed()
-    print("psoc4.GetSpeed: ", left, right)
+    psoc.SetSpeed(-200, -200)
+    left, right = psoc.GetSpeed()
+    print("psoc.GetSpeed: ", left, right)
     #assert(result == 100)
 
     # Test read/write to calibration port
-    psoc4.SetCalibrationPort(0xff)
-    result = psoc4.GetCalibrationPort()
+    psoc.SetCalibrationPort(0xff)
+    result = psoc.GetCalibrationPort()
 
     # Test read device status
-    result = psoc4.GetStatus()
+    result = psoc.GetStatus()
 
     # Test read odometry
-    odom = psoc4.GetOdometry()
+    odom = psoc.GetOdometry()
 
     # Test getting infrared distances
-    distances = psoc4.GetInfraredDistances()
+    distances = psoc.GetInfraredDistances()
     print(distances)
 
     # Test getting ultrasonic distances
-    distances = psoc4.GetUlrasonicDistances()
+    distances = psoc.GetUlrasonicDistances()
     print(distances)
 
-    status = psoc4.GetStatus()
+    status = psoc.GetStatus()
     print(status)
