@@ -1,11 +1,11 @@
 # Robot drive and mechanical parameters
 Drive Type: "ArlobotDifferential"
 Track Width: 0.4030      # meter
-Tick Per Revolution: 72  # encoder tick or count
+Tick Per Revolution: 144  # encoder tick or count
 Wheel Diameter: 0.1524   # meter
 # These are calibration scalings obtained by running calibration_linear/angular.py
-odom_linear_scale_correction: 0.6
-odom_angular_scale_correction: 0.53
+odom_linear_scale_correction: 1.0
+odom_angular_scale_correction: 1.0
 
 # Speed constraints
 Max Linear Speed: 1.0  # meter/sec
@@ -15,7 +15,6 @@ Max Angular Speed: 1.0 # rad/sec
 Base Node Loop Rate: 1     # Hz
 Drive Node Loop Rate: 20   # Hz
 Sensors Node Loop Rate: 1  # Hz
-Diff Drive Loop Rate: 50   # Hz
 
 # Safety Timeout that stop the motors if no command is received within defined period
 Drive Node Safety Timeout: 1.0
@@ -50,11 +49,8 @@ Base HAL Service Timeout Rate: 1 # Hz
 Base HAL Service Timeout: 5 # seconds
 Base HAL Simulate: False
 I2C Device: 1
-Psoc4 I2C Address: 0x08
+Psoc I2C Address: 0x08
 IMU Mag I2C Address: 0x1e
 IMU Acc I2C Address: 0x1d
 XV11 Port: "/dev/ttyACM0"
 XV11 Baud: 115200
-
-# Drive Control
-Drive Node Gains: {"kp" : 1.0, "ki" : 0.1, "kd" : 0.01}

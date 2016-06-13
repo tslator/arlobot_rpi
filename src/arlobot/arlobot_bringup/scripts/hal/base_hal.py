@@ -46,11 +46,14 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             self._tick_per_revolution = rospy.get_param("Tick Per Revolution")
             self._meter_per_revolution = self._circumference
             self._tick_per_meter = self._tick_per_revolution / self._meter_per_revolution
+            self._track_width = rospy.get_param("Track Width", 1)
 
             # Muxtex lock for exchanging data between the HAL and the wheel threads
             self._lock = RLock()
 
             # Variables for exchanging speed and count values
+            self._linear_speed = 0
+            self._angular_speed = 0
             self._left_speed = 0
             self._right_speed = 0
             self._left_count = 0
@@ -129,27 +132,27 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             # Before shutting down, turn off the motor controllers
             self._psoc.DisableMotors()
 
-    def SetSpeed(self, left, right):
+    def SetSpeed(self, linear, angular):
         if self._simulated:
             with self._lock:
-                self._left_speed = left
-                self._right_speed = right
+                self._left_speed = linear - (angular * self._track_width) / 2
+                self._right_speed = linear + (angular * self._track_width) / 2
         else:
-            self._psoc.SetSpeed(left, right)
+            self._psoc.SetSpeed(linear, angular)
 
-        rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
-
-    def GetSpeed(self):
-        if self._simulated:
-            with self._lock:
-                left = self._left_speed
-                right = self._right_speed
-        else:
-            left, right = self._psoc.GetSpeed()
-        return left, right
+        rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(linear, angular))
 
     def GetOdometry(self):
-        return self._psoc.GetOdometry()
+        if self._simulated:
+            with self._lock:
+                x_dist = 0
+                y_dist = 0
+                heading = 0
+                linear_speed = (self._right_speed + self._left_speed) / 2
+                angular_speed = (self._right_speed - self._left_speed) / self._track_width
+                return [x_dist, y_dist, heading, linear_speed, angular_speed]
+        else:
+            return self._psoc.GetOdometry()
 
     def GetInfrared(self):
         distances = []

@@ -11,12 +11,10 @@ class PsocHwError(Exception):
 class PsocHw:
 
     __CONTROL_REGISTER_OFFSET = 0
-    __LEFT_COMMANDED_VELOCITY_OFFSET = 2
-    __RIGHT_COMMANDED_VELOCITY_OFFSET = 4
+    __LINEAR_COMMANDED_VELOCITY_OFFSET = 2
+    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 4
     __CALIBRATION_PORT_OFFSET = 6
     __DEVICE_STATUS_OFFSET = 8
-    __LEFT_MEASURED_VELOCITY_OFFSET = 10
-    __RIGHT_MEASURED_VELOCITY_OFFSET = 12
     __ODOMETRY_OFFSET = 14
     __FRONT_ULTRASONIC_DISTANCE_OFFSET = 34
     __REAR_ULTRASONIC_DISTANCE_OFFSET = 42
@@ -34,8 +32,8 @@ class PsocHw:
                             - Bit 3: upload calibration
                             - Bit 4: download calibration
                             """
-                      'LEFT_COMMANDED_VELOCITY': __LEFT_COMMANDED_VELOCITY_OFFSET,
-                      'RIGHT_COMMANDED_VELOCITY': __RIGHT_COMMANDED_VELOCITY_OFFSET,
+                      'LINEAR_COMMANDED_VELOCITY': __LINEAR_COMMANDED_VELOCITY_OFFSET,
+                      'ANGULAR_COMMANDED_VELOCITY': __ANGULAR_COMMANDED_VELOCITY_OFFSET,
                       'CALIBRATION_PORT' : __CALIBRATION_PORT_OFFSET,
 
                       #----------------------------------
@@ -51,8 +49,6 @@ class PsocHw:
                             - Bit 2: Calibrating - indicates when the Psoc is in calibration;
                                      0 - no, 1 - yes
                             """
-                      'LEFT_MEASURED_VELOCITY': __LEFT_MEASURED_VELOCITY_OFFSET,
-                      'RIGHT_MEASURED_VELOCITY': __RIGHT_MEASURED_VELOCITY_OFFSET,
                       'ODOMETRY': __ODOMETRY_OFFSET,
                       'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
                       'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
@@ -94,11 +90,11 @@ class PsocHw:
     def ClearOdometry(self):
         self._set_control(PsocHw.__CONTROL_CLEAR_ODOMETRY_BIT)
 
-    def SetSpeed(self, left_speed, right_speed):
+    def SetSpeed(self, linear_speed, angular_speed):
         '''
         '''
-        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['LEFT_COMMANDED_VELOCITY'], meter_to_millimeter(left_speed))
-        self._i2c_bus.WriteInt16(self._address, self.__REGISTER_MAP['RIGHT_COMMANDED_VELOCITY'], meter_to_millimeter(right_speed))
+        self._i2c_bus.WriteFloat(self._address, self.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
+        self._i2c_bus.WriteFloat(self._address, self.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
 
     def SetCalibrationPort(self, value):
         '''
@@ -134,13 +130,6 @@ class PsocHw:
         '''
         result = self._get_status()
         return result & PsocHw.__STATUS_CALIBRATING_BIT
-
-    def GetSpeed(self):
-        '''
-        '''
-        left_speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['LEFT_MEASURED_VELOCITY'])
-        right_speed = self._i2c_bus.ReadInt16(self._address, self.__REGISTER_MAP['RIGHT_MEASURED_VELOCITY'])
-        return millimeter_to_meter(left_speed), millimeter_to_meter(right_speed)
 
     def GetOdometry(self):
         # Each of the values is a floating point value
@@ -188,21 +177,21 @@ if __name__ == "__main__":
         print("Failed to create PsocHw instance")
 
     # Test speed minimum value
-    psoc.SetSpeed(200, 200)
-    left, right = psoc.GetSpeed()
-    print("psoc.GetSpeed: ", left, right)
+    psoc.SetSpeed(0.1, 0)
+    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == -100)
 
     # Test speed median value
-    psoc.SetSpeed(0)
-    left, right = psoc.GetSpeed()
-    print("psoc.GetSpeed: ", left, right)
+    psoc.SetSpeed(0, 0)
+    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == 0)
 
     # Test speed maximum value
-    psoc.SetSpeed(-200, -200)
-    left, right = psoc.GetSpeed()
-    print("psoc.GetSpeed: ", left, right)
+    psoc.SetSpeed(-0.1, 0)
+    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == 100)
 
     # Test read/write to calibration port

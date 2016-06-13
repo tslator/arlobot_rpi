@@ -36,19 +36,10 @@ class BaseHALProxy:
         # Note: We explicitly do not call wait_for_service below because once the HAL is determined to be ready via
         # wait_for_service('BaseHALServiceStatus'), all of the other services will also be ready
 
-    def SetSpeed(self, speeds):
+    def SetSpeed(self, linear, angular):
         set_speed = rospy.ServiceProxy('BaseHALSetSpeed', HALSetFloatArray)
-        left_speed = speeds['left']
-        right_speed = speeds['right']
-        response = set_speed([left_speed, right_speed])
+        response = set_speed([linear, angular])
         return response.success
-
-    def GetSpeed(self):
-        get_speed = rospy.ServiceProxy('BaseHALGetSpeed', HALGetFloatArray)
-        response = get_speed()
-        left_speed = response.values[0]
-        right_speed = response.values[1]
-        return {'left' : left_speed, 'right' : right_speed}
 
     def GetOdometry(self):
         get_odometry = rospy.ServiceProxy('BaseHALGetOdometry', HALGetFloatArray)

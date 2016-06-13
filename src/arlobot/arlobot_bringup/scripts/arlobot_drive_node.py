@@ -5,7 +5,9 @@ import rospy
 import tf
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
-from arlobot_diff_drive import ArlobotDifferentialDrive, ArlobotDifferentialDriveError
+from hal.hal_proxy import BaseHALProxy, BaseHALProxyError
+
+#from arlobot_diff_drive import ArlobotDifferentialDrive, ArlobotDifferentialDriveError
 import time
 
 
@@ -26,32 +28,17 @@ class ArlobotDriveNode:
 
         self._OdometryTransformBroadcaster = tf.TransformBroadcaster()
 
-        track_width = rospy.get_param("Track Width")
-        ticks_per_rev = rospy.get_param("Tick Per Revolution")
-        wheel_diameter = rospy.get_param("Wheel Diameter")
-        max_linear_speed = rospy.get_param("Max Linear Speed")
-        max_angular_speed = rospy.get_param("Max Angular Speed")
-        gains = rospy.get_param("Drive Node Gains")
         loop_rate = rospy.get_param("Drive Node Loop Rate")
         self._safety_timeout = rospy.get_param("Drive Node Safety Timeout", 0.5)
-        diff_drive_loop_rate = rospy.get_param("Diff Drive Loop Rate")
         self._odom_linear_scale_correction = rospy.get_param("odom_linear_scale_correction", 1.0)
         self._odom_angular_scale_correction = rospy.get_param("odom_angular_scale_correction", 1.0)
 
-        meter_per_tick = (math.pi * wheel_diameter) / ticks_per_rev
-        drive_type = rospy.get_param("Drive Node Drive Type", "ArlobotDifferential")
+        try:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
+            raise BaseHALProxyError("Unable to create BaseHALProxy")
 
-        if drive_type.lower() == "ArlobotDifferential".lower():
-            try:
-                self._drive = ArlobotDifferentialDrive(track_width=track_width,
-                                                       dist_per_count=meter_per_tick,
-                                                       max_linear_speed=max_linear_speed,
-                                                       max_angular_speed=max_angular_speed,
-                                                       drive_sample_rate=diff_drive_loop_rate,
-                                                       pid_params=gains)
-            except ArlobotDifferentialDriveError as err:
-                raise ArlobotDriveNodeError(err)
-
+        self._hal_proxy.SetSpeed(0, 0)
 
         self._loop_rate = rospy.Rate(loop_rate)
         self._safety_delta_time = rospy.Time.now()
@@ -68,6 +55,12 @@ class ArlobotDriveNode:
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
     def _apply_motion_profile(self):
+        '''
+        What's envisioned here is the ability to apply a motion profile, e.g., trapezoidal, S-curve, etc., to ensure
+        smooth motor motion.  However, this may already be handled inherently by ROS in how it sends twist messages, so
+        its not clear if it is necessary or how this could be applied.
+        :return:
+        '''
         pass
 
     def _twist_command_callback(self, command):
@@ -75,15 +68,9 @@ class ArlobotDriveNode:
         self._last_twist_time = rospy.Time.now()
 
         self._apply_motion_profile()
-        self._drive.SetSpeed(command.linear.x, command.angular.z)
+        self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
         rospy.logwarn("Twist command: {}".format(str(command)))
 
-    def Start(self):
-        rospy.loginfo("Arlobot Drive Node has started")
-
-        # Start the drive thread
-        self._drive.SetSpeed(0.0, 0.0)
-        self._drive.Start()
 
     def Loop(self):
         while not rospy.is_shutdown():
@@ -91,9 +78,9 @@ class ArlobotDriveNode:
             # Check that we are receiving Twist commands fast enough; otherwise, stop the motors
             if self._safety_delta_time.secs > self._safety_timeout:
                 rospy.logdebug("Safety Timeout invoked: no twist command for {} seconds".format(self._safety_timeout))
-                self._drive.SetSpeed(0.0, 0.0)
+                self._hal_proxy.SetSpeed(0, 0)
 
-            odometry = self._drive.GetOdometry()
+            odometry = self._hal_proxy.GetOdometry()
             #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(odometry['x_dist'],
             #                                                                                    odometry['y_dist'],
             #                                                                                    odometry['heading'],
@@ -118,8 +105,7 @@ class ArlobotDriveNode:
 
     def Shutdown(self):
         rospy.loginfo("Arlobot Drive Node has shutdown")
-        self._drive.SetSpeed(0.0, 0.0)
-        self._drive.Stop()
+        self._drive.SetSpeed(0, 0)
 
 
 if __name__ == "__main__":

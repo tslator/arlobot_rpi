@@ -61,6 +61,13 @@ class I2CBus:
                 values.append(value)
         return values
 
+    def _write_multiple_bytes(self, address, offset, bytes, use_i2c):
+        if use_i2c:
+            self._try(lambda: self._smbus.write_i2c_block_data(address, offset, bytes))
+        else:
+            for i in range(len(bytes)):
+                self._try(lambda: self._smbus.write_byte_data(address, offset + i, bytes[i]))
+
     def WriteUint8(self, address, offset, value):
         self._try(lambda : self._smbus.write_byte_data(address, offset, value))
 
@@ -83,19 +90,23 @@ class I2CBus:
         return value if value < (2**15 - 1) else value - 2**16
 
     def ReadUint32(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
+        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['L'], use_i2c)
         #return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
         return struct.unpack('L', str(bytearray(values)))[0]
 
     def ReadInt32(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
+        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['l'], use_i2c)
         #int_value = (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
         #return int_value if int_value < (2**31 - 1) else int_value - 2**32
         return struct.unpack('l', str(bytearray(values)))[0]
 
     def ReadFloat(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
+        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['f'], use_i2c)
         return struct.unpack('f', str(bytearray(values)))[0]
+
+    def WriteFloat(self, address, offset, value, use_i2c=False):
+        bytes = bytearray(struct.pack('f',value))
+        self._write_multiple_bytes(address, offset, bytes, use_i2c)
 
     def ReadArray(self, address, offset, num_values, type, use_i2c=False):
         # Create a format specifier based on the number of values requested.  
