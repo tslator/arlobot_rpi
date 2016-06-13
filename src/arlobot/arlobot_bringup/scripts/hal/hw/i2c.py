@@ -117,12 +117,11 @@ class I2CBus:
         #   - num_values is the number of values to read
         #   - num_bytes is num_values * size of each value
         num_bytes = num_values * I2CBus.__TYPE_SIZES[type]
-        values = []
         # It turns out that reading i2c block data is not supported on all Raspberry Pi's (probably a OS/driver difference)
         # The Pi 2 running Jessie doesn't support i2c (i2cget with no arguments shows no 'i' option)
         # The Pi 3 running Jessie does support i2c (i2cget with no argument shows 'i' option)
         # So, we need to support both options
-        self._read_multiple_bytes(address, offset, num_bytes, use_i2c)
+        values = self._read_multiple_bytes(address, offset, num_bytes, use_i2c)
         return list(struct.unpack(format, str(bytearray(values))))
 
 if __name__ == "__main__":
@@ -159,41 +158,71 @@ if __name__ == "__main__":
     except I2CBusError as err:
         print("Failed to open I2C device 0")
 
-    address = sys.argv[1]
+    address = int(sys.argv[1])
+    assert(address == 0x08)
 
+    print("Validate WriteUint8")
     i2c1.WriteUint8(address, 0, 0xff)
     value = i2c1.ReadUint8(address, 0)
     assert(value == 0xff)
+    print("Passed")
 
+    print("Validate WriteUint6")
     i2c1.WriteUint16(address, 2, 2000)
     value = i2c1.ReadUint16(address, 2)
-    assert(value == 0xffff)
-
+    assert(value == 2000)
+    print("Passed")
+ 
+    print("Validate WriteInt16")
     i2c1.WriteInt16(address, 4, -2000)
     value = i2c1.ReadInt16(address, 4)
     assert(value == -2000)
+    print("Passed")
 
+    print("Validate ReadUint32")
     value = i2c1.ReadUint32(address, 6)
     assert(value == 100000)
+    print("Passed")
 
+    print("Validate ReadInt32")
     value = i2c1.ReadInt32(address, 10)
     assert(value == -100000)
+    print("Passed")
 
+    print("Validate ReadFloat")
     value = i2c1.ReadFloat(address, 14)
-    assert(value == 3.14)
+    assert(round(value, 2) == 3.14)
+    print("Passed")
 
+    print("Validate ReadArray: 4 uint8")
     values = i2c1.ReadArray(address, 0, 4, 'B')
-    print(values)
+    assert(values == [255, 45, 208, 7])
+    print("Passed")
+
+    print("Validate ReadArray: 4 uint16")
     values = i2c1.ReadArray(address, 0, 4, 'H')
-    print(values)
+    assert(values == [11775, 2000, 63536, 34464])
+    print("Passed")
+    
+    print("Validate ReadArray: 4 int16")
     values = i2c1.ReadArray(address, 0, 4, 'h')
-    print(values)
+    assert(values == [11775, 2000, -2000, -31072])
+    print("Passed")
+
+    print("Validate ReadArray: 4 uint32")
     values = i2c1.ReadArray(address, 0, 4, 'L')
-    print(values)
+    assert(values == [131083775, 2258696240L, 2036334593, 4123262974L])
+    print("Passed")
+
+    print("Validate ReadArray: 4 int32")
     values = i2c1.ReadArray(address, 0, 4, 'l')
-    print(values)
+    assert(values == [131083775, -2036271056, 2036334593, -171704322])
+    print("Passed")
+
+    print("Validate ReadArray: 4 float")
     values = i2c1.ReadArray(address, 0, 4, 'f')
-    print(values)
+    assert(values == [3.132339567047409e-34, -6.05499895173445e-35, 7.269216097124774e+34, -4.969189579182135e+32])
+    print("Passed")
 
-
+    print("Validation Complete")
 
