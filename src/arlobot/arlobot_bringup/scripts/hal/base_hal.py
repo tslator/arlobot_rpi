@@ -211,6 +211,23 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
         return ranges, intensities, time_offset
 
+    def GetVoltage(self):
+        '''
+        Originally, the power pi was to be the source of current measurement, but it has not lived up to its reputation
+        so an alternate approach is needed
+
+        Consider using an A/D-based current/voltage sensor:
+            http://www.robotshop.com/en/current-voltage-sensors.html
+        '''
+        return 0.0
+
+    def GetCurrent(self):
+        '''
+        Originally, the power pi was to be the source of current measurement, but it has not lived up to its reputation
+        so an alternate approach is needed
+        '''
+        return 0.0
+
     def GetTemp(self):
         if self._simulated:
             temp = 0
