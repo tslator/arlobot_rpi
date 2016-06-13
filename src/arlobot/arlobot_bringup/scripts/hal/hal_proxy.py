@@ -43,13 +43,6 @@ class BaseHALProxy:
         response = set_speed([left_speed, right_speed])
         return response.success
 
-    def SetAccel(self, accels):
-        set_accel = rospy.ServiceProxy('BaseHALSetAccel', HALSetFloatArray)
-        left_accel = accels['left']
-        right_accel = accels['right']
-        response = set_accel([left_accel, right_accel])
-        return response.success
-
     def GetSpeed(self):
         get_speed = rospy.ServiceProxy('BaseHALGetSpeed', HALGetFloatArray)
         response = get_speed()

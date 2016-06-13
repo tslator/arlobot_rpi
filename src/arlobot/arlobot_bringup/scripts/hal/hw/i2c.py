@@ -13,7 +13,16 @@ class I2CBus:
     DEV_I2C_0 = 0
     DEV_I2C_1 = 1
 
-    __TYPE_SIZES = {'d': 8, 'f': 4, 'L': 4, 'l': 4, 'H': 2, 'h': 2, 'B': 1, 'b': 1}
+    # The following formatting is taken from struct
+    __TYPE_SIZES = {'d': 8, # double - 8 bytes
+                    'f': 4, # float - 4 bytes
+                    'L': 4, # uint32 - 4 bytes
+                    'l': 4, # int32 - 4 bytes
+                    'H': 2, # uint16 - 2 bytes
+                    'h': 2, # int16 - 2 bytes
+                    'B': 1, # uint8 - 1 byte
+                    'b': 1  # int8 - 1 byte
+                   }
 
     def __init__(self, device):
         self._device = device

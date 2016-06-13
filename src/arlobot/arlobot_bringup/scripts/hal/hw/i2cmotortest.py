@@ -5,54 +5,47 @@ import sys
 import time
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    print("i2cmotortest01")
-    #try:
-    #    i2c1 = I2CBus(I2CBus.DEV_I2C_1)
-    #except I2CBusError:
-    #    print("Error instantiating I2CBus")
+    print("i2cmotortest:")
+    print("This test will drive the motors at 200 mm/s for 5 seconds then read the odometry.  The following is expected:")
+    print("The motors will move 1 meter in the forward direction and be reflected in the x distance.")
+    print("The y distance will remain unchanged")
+    print("The heading will be 0")
+    print("The linear velocity will be 200 mm/s")
+    print("The angular velocity will be 0 mm/s")
 
-    #print("successfully created i2c bus")
-
-    #speed = int(sys.argv[1])
-
-    #print("speed: ", speed)
-    #right_start = i2c1.ReadInt32(0x08, 8)
-    #i2c1.WriteInt16(0x08, 2, speed)
-=======
     try:
         i2c1 = I2CBus(I2CBus.DEV_I2C_1)
+        print("successfully created i2c bus")
     except I2CBusError:
         print("Error instantiating I2CBus")
 
-    print("successfully created i2c bus")
-    speed = int(sys.argv[1])
+    speed = 200           # mm/s
+    psoc_addr = 0x08      # Psoc I2C device is as 0x08
+    control_offset = 0    # register 0 is the control register
+    clear_odometry = 0x02 # bit 1 clears odometry
+    odom_offset = 14      # odometry offset is 14
+    odom_num_bytes = 20   # each odometry field is a float (4 bytes) and there are 5 fields: x/y dist, heading,
+                          # linear/angular velocity
+    left_cmd_vel_offset = 2
+    right_cmd_vel_offset = 4
+    wait_time = 5
 
-    print("speed: ", speed)
-    right_start = i2c1.ReadFloat(0x08, 0)
-    left_start = i2c1.ReadInt32(0x08, )
-    #i2c1.WriteInt16(0x08, 2, speed)
-    #i2c1.WriteInt16(0x09, 2, speed)
->>>>>>> 12b5873b0859d610b664a64a0b5dcc66c8c6b016
+    print("Clearing the current odometry ...")
+    i2c1.WriteUint16(psoc_addr, control_offset, clear_odometry)
+    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_bytes, 'f'))
+    print("x dist: {}, y dist: {}, heading: {}, linear vel: {}, angular vel: {}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+    print("Odometry clear complete.")
 
-    #start_time = time.time()
+    print("Commanding motors to {} mm/s".format(speed))
+    i2c1.WriteInt16(psoc_addr, left_cmd_vel_offset, speed)
+    i2c1.WriteInt16(psoc_addr, right_cmd_vel_offset, speed)
+    print("Waiting for motion to complete ...")
 
-    #time.sleep(float(sys.argv[2]))
+    time.sleep(wait_time)
 
-    #right_velocity = int(i2c1.ReadInt16(0x08, 12))
-<<<<<<< HEAD
-    #i2c1.WriteInt16(0x08, 2, 0)
-    #end_time = time.time()
-    #right_end = i2c1.ReadInt32(0x08, 8)
-=======
-    #left_velocity = int(i2c1.ReadInt16(0x09, 12))
-    #i2c1.WriteInt16(0x08, 2, 0)
-    #i2c1.WriteInt16(0x09, 2, 0)
-    #end_time = time.time()
-    #right_end = i2c1.ReadInt32(0x08, 8)
-    #left_end = i2c1.ReadInt32(0x09, 8)
->>>>>>> 12b5873b0859d610b664a64a0b5dcc66c8c6b016
-    #print("distance(m): ", (right_end - right_start) * (end_time - start_time)/1000, " velocity(m/s): ", right_velocity)
-    #print("distance(m): ", (left_end - left_start) * (end_time - start_time)/1000, " velocity(m/s): ", left_velocity)
-    
+    print("Motion complete")
+
+    print("Reading odometry")
+    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_bytes, 'f'))
+    print("x dist: {}, y dist: {}, heading: {}, linear vel: {}, angular vel: {}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
 

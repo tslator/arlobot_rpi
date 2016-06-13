@@ -45,7 +45,6 @@ class BaseHALServiceNode(HALServiceNode):
 
     def _run(self):
         self._services['BaseHALSetSpeed'] = rospy.Service('BaseHALSetSpeed', HALSetFloatArray, self._hal_set_speed)
-        self._services['BaseHALSetAccel'] = rospy.Service('BaseHALSetAccel', HALSetFloatArray, self._hal_set_accel)
         self._services['BaseHALGetSpeed'] = rospy.Service('BaseHALGetSpeed', HALGetFloatArray, self._hal_get_speed)
         self._services['BaseHALGetOdometry'] = rospy.Service('BaseHALGetOdometry', HALGetFloatArray, self._hal_get_odometry)
         self._services['BaseHALGetInfrared'] = rospy.Service('BaseHALGetInfrared', HALGetFloatArray, self._hal_get_infrared)
@@ -65,17 +64,6 @@ class BaseHALServiceNode(HALServiceNode):
             success = True
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::SetSpeed")
-        return HALSetFloatArrayResponse(success=success)
-
-    def _hal_set_accel(self, request):
-        success = False
-        left = request.values[0]
-        right = request.values[1]
-        try:
-            self._hal.SetAccel(left, right)
-            success = True
-        except BaseHardwareAbstractionLayerError:
-            raise BaseHALServiceNodeError("Failure calling HAL::SetAccel")
         return HALSetFloatArrayResponse(success=success)
 
     def _hal_get_speed(self, request):

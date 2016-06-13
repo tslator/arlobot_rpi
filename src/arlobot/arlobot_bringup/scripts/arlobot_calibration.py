@@ -16,10 +16,10 @@ cal_values = []
 
 def download_calibration():
     # Send command to Psoc to start transfer of calibration data
-    psoc.SetControl(DOWNLOAD_CALIBRATION)
+    psoc.DownloadCalibration()
 
     # Wait for Psoc to acknowledge downloading request in the status register
-    while not psoc.GetStatus() & DOWNLOADING: pass
+    while not psoc.IsDownloading(): pass
 
     # Wait for the Psoc to issue a start transmission via the calibrate register
     while not psoc.GetCalibrate() is START_TRANSMIT: pass
@@ -32,23 +32,23 @@ def download_calibration():
         value = psoc.GetCalibrate()
 
     # Wait for Psoc to indicate downloading is complete
-    while psoc.GetStatus() & DOWNLOADING: pass
+    while psoc.IsDownloading(): pass
 
     print cal_values
 
 
 def initiate_calibration():
     # Send command to Psoc to start calibration
-    psoc.SetControl(START_CALIBRATION)
+    psoc.StartCalibration()
 
     # Wait for Psoc to acknowledge calibration request in the status register
-    while not psoc.GetStatus() & CALIBRATING: pass
+    while not psoc.IsCalibrating(): pass
 
     # Wait for Psoc to indicate calibration is complete in the status register
-    while psoc.GetStatus() & CALIBRATING: pass
+    while psoc.IsCalibrating(): pass
 
     # Wait for Psoc to indicate it is calibrated
-    while not psoc.GetStatus() & CALIBRATED: pass
+    while not psoc.IsCalibrated(): pass
 
 
 if __name__ == "__main__":

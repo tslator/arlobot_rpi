@@ -26,7 +26,7 @@ class PsocHw:
 
 
     __REGISTER_MAP = {#---------- READ/WRITE ------------
-                      'CONTROL_REGISTER': PsocHw.__CONTROL_REGISTER_OFFSET,
+                      'CONTROL_REGISTER': __CONTROL_REGISTER_OFFSET,
                             """
                             - Bit 0: enable / disable the HB25 motors
                             - Bit 1: clear encoder count
@@ -34,16 +34,16 @@ class PsocHw:
                             - Bit 3: upload calibration
                             - Bit 4: download calibration
                             """
-                      'LEFT_COMMANDED_VELOCITY': 2,
-                      'RIGHT_COMMANDED_VELOCITY': 4,
-                      'CALIBRATION_PORT' : 6,
+                      'LEFT_COMMANDED_VELOCITY': __LEFT_COMMANDED_VELOCITY_OFFSET,
+                      'RIGHT_COMMANDED_VELOCITY': __RIGHT_COMMANDED_VELOCITY_OFFSET,
+                      'CALIBRATION_PORT' : __CALIBRATION_PORT_OFFSET,
 
                       #----------------------------------
                       #------ READ/WRITE Boundary -------
                       #----------------------------------
 
                       #----------- READ ONLY ------------
-                      'DEVICE_STATUS' : 8,
+                      'DEVICE_STATUS' : __DEVICE_STATUS_OFFSET,
                             """
                             - Bit 0: HB25 Motor Controller Initialized
                             - Bit 1: Calibrated - indicates whether the calibration values
@@ -51,30 +51,26 @@ class PsocHw:
                             - Bit 2: Calibrating - indicates when the Psoc is in calibration;
                                      0 - no, 1 - yes
                             """
-                      'LEFT_MEASURED_VELOCITY': 10,
-                      'RIGHT_MEASURED_VELOCITY': 12,
-                      'ODOMETRY': 14,
-                      'FRONT_ULTRASONIC_DISTANCE': 34,
-                      'REAR_ULTRASONIC_DISTANCE': 42,
-                      'FRONT_INFRARED_DISTANCE': 50,
-                      'REAR_INFRARED_DISTANCE': 58,
-                      'HEARTBEAT': 66}
+                      'LEFT_MEASURED_VELOCITY': __LEFT_MEASURED_VELOCITY_OFFSET,
+                      'RIGHT_MEASURED_VELOCITY': __RIGHT_MEASURED_VELOCITY_OFFSET,
+                      'ODOMETRY': __ODOMETRY_OFFSET,
+                      'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
+                      'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
+                      'FRONT_INFRARED_DISTANCE': __FRONT_INFRARED_DISTANCE_OFFSET,
+                      'REAR_INFRARED_DISTANCE': __REAR_INFRARED_DISTANCE_OFFSET,
+                      'HEARTBEAT': __HEARTBEAT_OFFSET}
 
-    __MOTOR_CONTROLLER_BIT = 0x0001
-    __CLEAR_ENCODER_BIT = 0x0002
-    __CALIBRATE_BIT = 0x0004
-    __UPLOAD_CALIBRATION_BIT = 0x0008
-    __DOWNLOAD_CALIBRATION_BIT = 0x0010
+    __CONTROL_DISABLE_MOTORS_BIT = 0x0001
+    __CONTROL_CLEAR_ODOMETRY_BIT = 0x0002
+    __CONTROL_CALIBRATE_BIT = 0x0004
 
-    __MOTOR_CONTROLLER_INIT_BIT = 0x0001
-    __CALIBRATED_BIT = 0x0002
-    __CALIBRATING_BIT = 0x0004
+    __STATUS_MOTORS_INIT_BIT = 0x0001
+    __STATUS_CALIBRATED_BIT = 0x0002
+    __STATUS_CALIBRATING_BIT = 0x0004
 
-    MOTOR_CONTROLLER_ON = __MOTOR_CONTROLLER_BIT
-    CLEAR_ENCODER_COUNT = __CLEAR_ENCODER_BIT
-    PERFORM_CALIBRATION = __CALIBRATE_BIT
-    UPLOAD_CALIBRATION = __UPLOAD_CALIBRATION_BIT
-    DOWNLOAD_CALIBRATION = __DOWNLOAD_CALIBRATION_BIT
+    DISABLE_MOTORS = __CONTROL_DISABLE_MOTORS_BIT
+    CLEAR_ODOMETRY = __CONTROL_CLEAR_ODOMETRY_BIT
+    PERFORM_CALIBRATION = __CONTROL_CALIBRATE_BIT
 
     PSOC_ADDR = 0x08
 
@@ -84,13 +80,19 @@ class PsocHw:
 
     #------------ Read / Write ---------------
 
-    def SetControl(self, value):
+    def _set_control(self, value):
         '''
         Set or clear the bits in the control value based on the request
         :param value:
         :return:
         '''
         self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CONTROL_REGISTER'], value)
+
+    def DisableMotors(self):
+        self._set_control(PsocHw.DISABLE_MOTORS)
+
+    def ClearOdometry(self):
+        self._set_control(PsocHw.__CONTROL_CLEAR_ODOMETRY_BIT)
 
     def SetSpeed(self, left_speed, right_speed):
         '''
@@ -110,10 +112,28 @@ class PsocHw:
 
     #------------ Read Only ---------------
 
-    def GetStatus(self):
+    def _get_status(self):
         '''
         '''
         return self._i2c_bus.ReadUint16(self._address, self.__REGISTER_MAP['DEVICE_STATUS'])
+
+    def MotorsInitialized(self):
+        '''
+        '''
+        result = self._get_status()
+        return result & PsocHw.__STATUS_MOTORS_INIT_BIT
+
+    def MotorsCalibrated(self):
+        '''
+        '''
+        result = self._get_status()
+        return result & PsocHw.__STATUS_CALIBRATED_BIT
+
+    def MotorsCalibrating(self):
+        '''
+        '''
+        result = self._get_status()
+        return result & PsocHw.__STATUS_CALIBRATING_BIT
 
     def GetSpeed(self):
         '''
@@ -135,8 +155,8 @@ class PsocHw:
         '''
         '''
         # Each of the values is a short value
-        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 's')
-        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 's')
+        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 'H')
+        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 'H')
 
         return front + rear
 
@@ -144,8 +164,8 @@ class PsocHw:
         '''
         '''
         # Each of the values is a byte value
-        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'b')
-        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'b')
+        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'B')
+        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'B')
 
         return front + rear
 
@@ -190,7 +210,7 @@ if __name__ == "__main__":
     result = psoc.GetCalibrationPort()
 
     # Test read device status
-    result = psoc.GetStatus()
+    result = psoc._get_status()
 
     # Test read odometry
     odom = psoc.GetOdometry()
@@ -203,5 +223,5 @@ if __name__ == "__main__":
     distances = psoc.GetUlrasonicDistances()
     print(distances)
 
-    status = psoc.GetStatus()
+    status = psoc._get_status()
     print(status)

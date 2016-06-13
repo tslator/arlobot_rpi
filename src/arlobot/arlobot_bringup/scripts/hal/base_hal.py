@@ -127,7 +127,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             pass
         else:
             # Before shutting down, turn off the motor controllers
-            self._psoc.SetControl(self._psoc.MOTOR_CONTROLLER_OFF)
+            self._psoc.DisableMotors()
 
     def SetSpeed(self, left, right):
         if self._simulated:
@@ -138,12 +138,6 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
             self._psoc.SetSpeed(left, right)
 
         rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
-
-    def SetAccel(self, left, right):
-        if self._simulated:
-            pass
-        else:
-            self._psoc.SetAccel(left, right)
 
     def GetCount(self):
         if self._simulated:
