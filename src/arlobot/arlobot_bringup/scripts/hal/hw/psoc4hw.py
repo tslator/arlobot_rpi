@@ -18,8 +18,12 @@ class Psoc4Hw:
                             - Bit 3: upload calibration
                             - Bit 4: download calibration
                             """
+<<<<<<< HEAD
+                      'COMMANDED_VELOCITY': 2,
+=======
                       'LEFT_COMMANDED_VELOCITY': 2,
                       'RIGHT_COMMANDED_VELOCITY': 4,
+>>>>>>> 12b5873b0859d610b664a64a0b5dcc66c8c6b016
                       'CALIBRATION_PORT' : 6,
 
                       #----------------------------------
