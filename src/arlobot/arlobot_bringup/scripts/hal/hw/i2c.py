@@ -13,6 +13,8 @@ class I2CBus:
     DEV_I2C_0 = 0
     DEV_I2C_1 = 1
 
+    __TYPE_SIZES = {'d': 8, 'f': 4, 'L': 4, 'l': 4, 'H': 2, 'h': 2, 'B': 1, 'b': 1}
+
     def __init__(self, device):
         self._device = device
         try:
@@ -40,6 +42,16 @@ class I2CBus:
 
         return result    
 
+    def _read_multiple_bytes(self, address, offset, num_bytes, use_i2c):
+        values = []
+        if use_i2c:
+            values = self._try(lambda: self._smbus.read_i2c_block_data(address, offset, num_bytes))
+        else:
+            for i in range(num_bytes):
+                value = self._try(lambda: self._smbus.read_byte_data(address, offset + i))
+                values.append(value)
+        return values
+
     def WriteUint8(self, address, offset, value):
         self._try(lambda : self._smbus.write_byte_data(address, offset, value))
 
@@ -61,25 +73,22 @@ class I2CBus:
         value = self._try(lambda : self._smbus.read_word_data(address, offset))
         return value if value < (2**15 - 1) else value - 2**16
 
-    def ReadUint32(self, address, offset):
-        values = self._try(lambda : self._smbus.read_i2c_block_data(address, offset, 4))
+    def ReadUint32(self, address, offset, use_i2c=False):
+        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
         #return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
-        return struct.unpack('L', str(bytearray(values)))
+        return struct.unpack('L', str(bytearray(values)))[0]
 
-    def ReadInt32(self, address, offset):
-        values = self._try(lambda : self._smbus.read_i2c_block_data(address, offset, 4))
+    def ReadInt32(self, address, offset, use_i2c=False):
+        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
         #int_value = (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
         #return int_value if int_value < (2**31 - 1) else int_value - 2**32
-        return struct.unpack('l', str(bytearray(values)))
+        return struct.unpack('l', str(bytearray(values)))[0]
 
-    def ReadFloat(self, address, offset):
-        values = self._try(lambda : self._smbus.read_i2c_block_data(address, offset, 4))
-        float_value = struct.unpack('f', str(bytearray(values)))
-        return float_value
+    def ReadFloat(self, address, offset, use_i2c=False):
+        values = self._read_multiple_bytes(address, offset, 4, use_i2c)
+        return struct.unpack('f', str(bytearray(values)))[0]
 
-    def ReadArray(self, address, offset, num_values, type):
-        type_sizes = {'d' : 8, 'f' : 4, 'L' : 4, 'l' : 4, 'H' : 2, 'h' : 2, 'B' : 1, 'b' : 1 }
-
+    def ReadArray(self, address, offset, num_values, type, use_i2c=False):
         # Create a format specifier based on the number of values requested.  
         # All of the values will be read as the same type, e.g., all floats, all long, etc
         # The format specifies the number of float values to convert
@@ -87,13 +96,34 @@ class I2CBus:
         # Calculate number of bytes to read
         #   - num_values is the number of values to read
         #   - num_bytes is num_values * size of each value
-        num_bytes = num_values * type_sizes[type]
-        values = self._try(lambda: self._smbus.read_i2c_block_data(address, offset, num_bytes))
-        return struct.unpack(format, str(bytearray(values)))
+        num_bytes = num_values * I2CBus.__TYPE_SIZES[type]
+        values = []
+        # It turns out that reading i2c block data is not supported on all Raspberry Pi's (probably a OS/driver difference)
+        # The Pi 2 running Jessie doesn't support i2c (i2cget with no arguments shows no 'i' option)
+        # The Pi 3 running Jessie does support i2c (i2cget with no argument shows 'i' option)
+        # So, we need to support both options
+        self._read_multiple_bytes(address, offset, num_bytes, use_i2c)
+        return list(struct.unpack(format, str(bytearray(values))))
 
 if __name__ == "__main__":
+    # Note: This test requires a compatible Psoc application that exposes an I2C device that can support the following:
+    #
+    #   Write/Read Uint8    (1 byte at offset 0)
+    #   Write/Read Uint16   (2 bytes at offset 2)
+    #   Write/Read Int16    (2 bytes at offset 4)
+    #   Write/Read Uint32   (4 bytes at offset 6)
+    #   Write/Read Int32    (4 bytes at offset 10)
+    #   Write/Read Float    (4 bytes at offset 14)
+    #   Write/Read Array of
+    #       Uint8 - 4 bytes at offset 0
+    #       Uint16 - 4 words at offset 0
+    #       Int16 - 4 words at offset 0
+    #       Uint32 - 4 longs at offset 0
+    #       Int32 - 4 longs at offset 0
+    #       Float - 4 floats at offset 0
+    #
+    #  Add a test project to the arlobot_freesoc workspace that will implement this i2c device
     import sys
-    import time
     '''
     Note: I2C device 0 is not supported on Raspberry Pi rev 2
     try:
@@ -109,29 +139,41 @@ if __name__ == "__main__":
     except I2CBusError as err:
         print("Failed to open I2C device 0")
 
+    address = sys.argv[1]
 
+    i2c1.WriteUint8(address, 0, 0xff)
+    value = i2c1.ReadUint8(address, 0)
+    assert(value == 0xff)
 
-    i2c1.WriteInt16(int(sys.argv[1]), 2, 100)
-    i2c1.WriteInt16(int(sys.argv[1]), 4, 110)
-    time.sleep(2)
-    left_speed = i2c1.ReadInt16(int(sys.argv[1]), 10)
-    right_speed = i2c1.ReadInt16(int(sys.argv[1]), 12)
-    print("ReadInt16 (left) returned: ", left_speed)
-    print("ReadInt16 (right) returned: ", right_speed)
+    i2c1.WriteUint16(address, 2, 2000)
+    value = i2c1.ReadUint16(address, 2)
+    assert(value == 0xffff)
 
-    x_dist = i2c1.ReadFloat(int(sys.argv[1]), 14)
-    y_dist = i2c1.ReadFloat(int(sys.argv[1]), 18)
-    heading = i2c1.ReadFloat(int(sys.argv[1]), 22)
-    linear = i2c1.ReadFloat(int(sys.argv[1]), 26)
-    angular = i2c1.ReadFloat(int(sys.argv[1]), 30)
-    print("x dist: ", x_dist)
-    print("y dist: ", y_dist)
-    print("heading: ", heading)
-    print("linear: ", linear)
-    print("angular: ", angular)
+    i2c1.WriteInt16(address, 4, -2000)
+    value = i2c1.ReadInt16(address, 4)
+    assert(value == -2000)
 
-    print("Reading 5 float values (20 bytes)")
-    float_values = i2c1.ReadArray(int(sys.argv[1]), 14, 20, 'f')
-    print(float_values)
+    value = i2c1.ReadUint32(address, 6)
+    assert(value == 100000)
+
+    value = i2c1.ReadInt32(address, 10)
+    assert(value == -100000)
+
+    value = i2c1.ReadFloat(address, 14)
+    assert(value == 3.14)
+
+    values = i2c1.ReadArray(address, 0, 4, 'B')
+    print(values)
+    values = i2c1.ReadArray(address, 0, 4, 'H')
+    print(values)
+    values = i2c1.ReadArray(address, 0, 4, 'h')
+    print(values)
+    values = i2c1.ReadArray(address, 0, 4, 'L')
+    print(values)
+    values = i2c1.ReadArray(address, 0, 4, 'l')
+    print(values)
+    values = i2c1.ReadArray(address, 0, 4, 'f')
+    print(values)
+
 
 
