@@ -50,9 +50,6 @@ class BaseHALProxy:
         right_speed = response.values[1]
         return {'left' : left_speed, 'right' : right_speed}
 
-    def GetCountsPerSecond(self):
-        pass
-
     def GetOdometry(self):
         get_odometry = rospy.ServiceProxy('BaseHALGetOdometry', HALGetFloatArray)
         response = get_odometry()

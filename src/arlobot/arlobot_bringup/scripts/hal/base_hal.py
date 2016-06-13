@@ -139,18 +139,6 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
 
         rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
 
-    def GetCount(self):
-        if self._simulated:
-            with self._lock:
-                # Note: This is a simulation of the encoder counts so quantize them to integer values
-                left = self._left_count
-                right = self._right_count
-        else:
-            left, right = self._psoc.GetCount()
-
-        rospy.logdebug("HAL.GetCount: {:6.2f}, {:6.2f}".format(left, right))
-        return left, right
-
     def GetSpeed(self):
         if self._simulated:
             with self._lock:
