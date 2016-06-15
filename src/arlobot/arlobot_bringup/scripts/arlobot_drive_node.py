@@ -69,8 +69,10 @@ class ArlobotDriveNode:
 
         self._apply_motion_profile()
         self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
-        rospy.logwarn("Twist command: {}".format(str(command)))
+        #rospy.logwarn("Twist command: {}".format(str(command)))
 
+    def Start(self):
+        pass
 
     def Loop(self):
         while not rospy.is_shutdown():
@@ -82,10 +84,10 @@ class ArlobotDriveNode:
 
             odometry = self._hal_proxy.GetOdometry()
             #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(odometry['x_dist'],
-            #                                                                                  odometry['y_dist'],
-            #                                                                                  odometry['heading'],
-            #                                                                                  odometry['linear'],
-            #                                                                                  odometry['angular']))
+             #                                                                                 odometry['y_dist'],
+             #                                                                                odometry['heading'],
+             #                                                                               odometry['linear'],
+             #                                                                                 odometry['angular']))
 
             # adjust linear and angular speed by calibration factor
             odometry['linear'] = odometry['linear'] * self._odom_linear_scale_correction

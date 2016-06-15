@@ -128,9 +128,6 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
     def _shutdown(self):
         if self._simulated:
             pass
-        else:
-            # Before shutting down, turn off the motor controllers
-            self._psoc.DisableMotors()
 
     def SetSpeed(self, linear, angular):
         if self._simulated:

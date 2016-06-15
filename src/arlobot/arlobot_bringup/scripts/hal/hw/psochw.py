@@ -141,7 +141,7 @@ class PsocHw:
         # around this is to qualify the values received.  Some values, like heading, linear and angular velocity have
         # known limits, but x and y distance are unbounded.  For these though, we still know the worst case increment
         # based on the largest possible linear velocity.
-        MAX_LINEAR_DIST = 0.7579
+        MAX_LINEAR_DIST = 100000000
         MIN_LINEAR_DIST = -MAX_LINEAR_DIST
         MAX_LINEAR_VEL = 0.7579
         MIN_LINEAR_VEL = -MAX_LINEAR_VEL
