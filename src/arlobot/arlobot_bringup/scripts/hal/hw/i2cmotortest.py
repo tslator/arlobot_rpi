@@ -19,7 +19,7 @@ if __name__ == "__main__":
     except I2CBusError:
         print("Error instantiating I2CBus")
 
-    speed = 0.2           # m/s
+    speed = 0.3           # m/s
     psoc_addr = 0x08      # Psoc I2C device is as 0x08
     control_offset = 0    # register 0 is the control register
     clear_odometry = 0x02 # bit 1 clears odometry
@@ -34,11 +34,11 @@ if __name__ == "__main__":
     i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, 0)
     i2c1.WriteFloat(psoc_addr, angular_cmd_vel_offset, 0)
 
-    print("Clearing the current odometry ...")
-    i2c1.WriteUint16(psoc_addr, control_offset, clear_odometry)
-    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_values, 'f'))
-    print("x dist: {}\ny dist: {}\nheading: {}\nlinear vel: {}\nangular vel: {}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+    start_x_dist, start_y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_values, 'f'))
+    print("x dist: {:.3f}\ny dist: {:.3f}\nheading: {:.3f}\nlinear vel: {:.3f}\nangular vel: {:.3f}".format(start_x_dist, start_y_dist, heading, linear_vel, angular_vel))
     print("Odometry clear complete.")
+    time.sleep(1.0)
+    
 
     print("Commanding motors to {} m/s".format(speed))
     i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, speed)
@@ -47,12 +47,14 @@ if __name__ == "__main__":
 
     time.sleep(wait_time)
 
-    i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, 0)
-    i2c1.WriteFloat(psoc_addr, angular_cmd_vel_offset, 0)
-
     print("Motion complete")
 
     print("Reading odometry")
-    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_values, 'f'))
-    print("x dist: {}\ny dist: {}\nheading: {}\nlinear vel: {}\nangular vel: {}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+    end_x_dist, end_y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_values, 'f'))
+    print("x dist: {:.3f}\ny dist: {:.3f}\nheading: {:.3f}\nlinear vel: {:.3f}\nangular vel: {:.3f}".format(end_x_dist, end_y_dist, heading, linear_vel, angular_vel))
 
+    print("\nDeltas:")
+    print("delta x dist: {:.3f}\ndelta y dist: {:.3f}\nheading: {:.3f}\nlinear: {:.3f}\nangular: {:.3f}".format(end_x_dist - start_x_dist, end_y_dist - start_y_dist, heading, linear_vel, angular_vel))
+
+    i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, 0)
+    i2c1.WriteFloat(psoc_addr, angular_cmd_vel_offset, 0)

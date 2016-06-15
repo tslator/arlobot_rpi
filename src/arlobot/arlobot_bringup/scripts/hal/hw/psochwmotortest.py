@@ -26,25 +26,53 @@ if __name__ == "__main__":
     except PsocHwError:
         print("Failed to create PsocHw instances")
 
-    speed = 200  # mm/s
+    linear_speed = 0.2  # m/s
+    angular_speed = 0   # r/s
     wait_time = 5
 
-    print("Clearing the current odometry ...")
-    psoc.ClearOdometry()
-    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(psoc.GetOdometry())
-    print("x dist: {}, y dist: {}, heading: {}, linear vel: {}, angular vel: {}".format(x_dist, y_dist, heading, linear_vel,
-                                                                                        angular_vel))
-    print("Odometry clear complete.")
+    print("Stopping motors")
+    psoc.SetSpeed(0, 0)
 
-    print("Commanding motors to {} mm/s".format(speed))
-    psoc.SetSpeed(speed, speed)
+    print("Commanding motors to {} m/s".format(linear_speed))
+    psoc.SetSpeed(linear_speed, angular_speed)
     print("Waiting for motion to complete ...")
 
-    time.sleep(wait_time)
+    time.sleep(2.0)
+
+    invalid_odom = True
+    while invalid_odom:
+        try:
+            x_dist, y_dist, heading, linear_vel, angular_vel = tuple(psoc.GetOdometry())
+            print("x dist: {:.3f}, y dist: {:.3f}, heading: {:.3f}, linear vel: {:.3f}, angular vel: {:.3f}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+            invalid_odom = False
+        except PsocHwError, e:
+            print("Invalid odometry: {}".format(e))
+
+    
+    for i in range(wait_time*100):
+        time.sleep(0.01)
+        invalid_odom = True
+        while invalid_odom:
+            try:
+                x_dist, y_dist, heading, linear_vel, angular_vel = tuple(psoc.GetOdometry())
+                print("x dist: {:.3f}, y dist: {:.3f}, heading: {:.3f}, linear vel: {:.3f}, angular vel: {:.3f}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+                invalid_odom = False
+            except PsocHwError, e:
+                print("Invalid odometry: {}".format(e))
+
 
     print("Motion complete")
 
-    print("Reading odometry")
-    x_dist, y_dist, heading, linear_vel, angular_vel = tuple(psoc.GetOdometry())
-    print("x dist: {}, y dist: {}, heading: {}, linear vel: {}, angular vel: {}".format(x_dist, y_dist, heading, linear_vel,
-                                                                                        angular_vel))
+    psoc.SetSpeed(0,0)
+
+
+    invalid_odom = True
+    while invalid_odom:
+        try:
+            x_dist, y_dist, heading, linear_vel, angular_vel = tuple(psoc.GetOdometry())
+            print("x dist: {:.3f}, y dist: {:.3f}, heading: {:.3f}, linear vel: {:.3f}, angular vel: {:.3f}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+            invalid_odom = False
+        except PsocHwError, e:
+            print("Invalid odometry: {}".format(e))
+
+

@@ -1,8 +1,7 @@
 from __future__ import print_function
 
 import time
-from utils import meter_to_millimeter, millimeter_to_meter
-
+import math
 
 class PsocHwError(Exception):
     pass
@@ -12,9 +11,9 @@ class PsocHw:
 
     __CONTROL_REGISTER_OFFSET = 0
     __LINEAR_COMMANDED_VELOCITY_OFFSET = 2
-    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 4
-    __CALIBRATION_PORT_OFFSET = 6
-    __DEVICE_STATUS_OFFSET = 8
+    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 6
+    __CALIBRATION_PORT_OFFSET = 10
+    __DEVICE_STATUS_OFFSET = 12
     __ODOMETRY_OFFSET = 14
     __FRONT_ULTRASONIC_DISTANCE_OFFSET = 34
     __REAR_ULTRASONIC_DISTANCE_OFFSET = 42
@@ -25,13 +24,10 @@ class PsocHw:
 
     __REGISTER_MAP = {#---------- READ/WRITE ------------
                       'CONTROL_REGISTER': __CONTROL_REGISTER_OFFSET,
-                            """
-                            - Bit 0: enable / disable the HB25 motors
-                            - Bit 1: clear encoder count
-                            - Bit 2: calibrate - requests the Psoc to start calibrating
-                            - Bit 3: upload calibration
-                            - Bit 4: download calibration
-                            """
+                      #      - Bit 0: enable / disable the HB25 motors
+                      #      - Bit 1: clear odometry
+                      #      - Bit 2: calibrate - requests the Psoc to start calibrating
+                      
                       'LINEAR_COMMANDED_VELOCITY': __LINEAR_COMMANDED_VELOCITY_OFFSET,
                       'ANGULAR_COMMANDED_VELOCITY': __ANGULAR_COMMANDED_VELOCITY_OFFSET,
                       'CALIBRATION_PORT' : __CALIBRATION_PORT_OFFSET,
@@ -42,13 +38,12 @@ class PsocHw:
 
                       #----------- READ ONLY ------------
                       'DEVICE_STATUS' : __DEVICE_STATUS_OFFSET,
-                            """
-                            - Bit 0: HB25 Motor Controller Initialized
-                            - Bit 1: Calibrated - indicates whether the calibration values
-                                     have been loaded; 0 - no, 1 - yes
-                            - Bit 2: Calibrating - indicates when the Psoc is in calibration;
-                                     0 - no, 1 - yes
-                            """
+                      #      - Bit 0: HB25 Motor Controller Initialized
+                      #      - Bit 1: Calibrated - indicates whether the calibration values
+                      #               have been loaded; 0 - no, 1 - yes
+                      #      - Bit 2: Calibrating - indicates when the Psoc is in calibration;
+                      #               0 - no, 1 - yes
+                      
                       'ODOMETRY': __ODOMETRY_OFFSET,
                       'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
                       'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
@@ -73,6 +68,8 @@ class PsocHw:
     def __init__(self, i2cbus, address):
         self._address = address
         self._i2c_bus = i2cbus
+        self._last_x_dist = 0
+        self._last_y_dist = 0
 
     #------------ Read / Write ---------------
 
@@ -82,7 +79,7 @@ class PsocHw:
         :param value:
         :return:
         '''
-        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CONTROL_REGISTER'], value)
+        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['CONTROL_REGISTER'], value)
 
     def DisableMotors(self):
         self._set_control(PsocHw.DISABLE_MOTORS)
@@ -93,25 +90,25 @@ class PsocHw:
     def SetSpeed(self, linear_speed, angular_speed):
         '''
         '''
-        self._i2c_bus.WriteFloat(self._address, self.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
-        self._i2c_bus.WriteFloat(self._address, self.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
+        self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
+        self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
 
     def SetCalibrationPort(self, value):
         '''
         '''
-        self._i2c_bus.WriteUint16(self._address, self.__REGISTER_MAP['CALIBRATION_PORT'], value)
+        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['CALIBRATION_PORT'], value)
 
     def GetCalibrationPort(self):
         '''
         '''
-        return self._i2c_buf.ReadUint16(self._address, self.__REGISTER_MAP['CALIBRATION_PORT'])
+        return self._i2c_bus.ReadUint16(self._address, PsocHw.__REGISTER_MAP['CALIBRATION_PORT'])
 
     #------------ Read Only ---------------
 
     def _get_status(self):
         '''
         '''
-        return self._i2c_bus.ReadUint16(self._address, self.__REGISTER_MAP['DEVICE_STATUS'])
+        return self._i2c_bus.ReadUint16(self._address, PsocHw.__REGISTER_MAP['DEVICE_STATUS'])
 
     def MotorsInitialized(self):
         '''
@@ -138,14 +135,45 @@ class PsocHw:
         #  - heading
         #  - linear velocity
         #  - angular velocity
-        return self._i2c_bus.ReadArray(self._address, self._REGISTER_MAP['ODOMETRY'], 5, 'f')
+
+        # Note: There is an issue with the I2C data where sometimes the values are incredibly large.  Comparing the I2C
+        # output simultaneously with the RS-232 output, it appears this is an aberation of the I2C bus.  A simple way
+        # around this is to qualify the values received.  Some values, like heading, linear and angular velocity have
+        # known limits, but x and y distance are unbounded.  For these though, we still know the worst case increment
+        # based on the largest possible linear velocity.
+        MAX_LINEAR_DIST = 0.7579
+        MIN_LINEAR_DIST = -MAX_LINEAR_DIST
+        MAX_LINEAR_VEL = 0.7579
+        MIN_LINEAR_VEL = -MAX_LINEAR_VEL
+        MAX_ANGULAR_VEL = (2 * 0.7579)/0.403
+        MIN_ANGULAR_VEL = -MAX_ANGULAR_VEL
+
+        x_dist, y_dist, heading, linear_vel, angular_vel = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['ODOMETRY'], 5, 'f')
+
+        delta_x_dist = self._last_x_dist - x_dist
+        self._last_x_dist = x_dist
+        delta_y_dist = self._last_y_dist - y_dist
+        self._last_y_dist = y_dist
+   
+        if delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST:
+            raise PsocHwError("x dist out-of-range: {}".format(x_dist))
+        if delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST:
+            raise PsocHwError("y dist out-of-range: {}".format(y_dist))
+        if heading < -math.pi or heading > math.pi:
+            raise PsocHwError("heading out-of-range: {}".format(heading))
+        if linear_vel < MIN_LINEAR_VEL or linear_vel > MAX_LINEAR_VEL:
+            raise PsocHwError("linear vel out-of-range: {}".format(linear_vel))
+        if angular_vel < MIN_ANGULAR_VEL or angular_vel > MAX_ANGULAR_VEL:
+            raise PsocHwError("angular vel out-of-range: {}".format(angular_vel))
+     
+        return x_dist, y_dist, heading, linear_vel, angular_vel
 
     def GetUlrasonicDistances(self):
         '''
         '''
         # Each of the values is a short value
-        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 'H')
-        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 'H')
+        front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 'H')
+        rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 'H')
 
         return front + rear
 
@@ -153,15 +181,15 @@ class PsocHw:
         '''
         '''
         # Each of the values is a byte value
-        front = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'B')
-        rear = self._i2c_bus.ReadArray(self._address, self.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'B')
+        front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'B')
+        rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'B')
 
         return front + rear
 
     def GetHeartbeat(self):
         '''
         '''
-        return self._i2c_bus.ReadUint32(self._address, self.__REGISTER_MAP['HEARTBEAT'])
+        return self._i2c_bus.ReadUint32(self._address, PsocHw.__REGISTER_MAP['HEARTBEAT'])
 
 
 if __name__ == "__main__":
@@ -178,31 +206,36 @@ if __name__ == "__main__":
 
     # Test speed minimum value
     psoc.SetSpeed(0.1, 0)
+    time.sleep(2.0)
     x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
     print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == -100)
 
+    
     # Test speed median value
     psoc.SetSpeed(0, 0)
+    time.sleep(2.0)
     x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
     print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == 0)
 
     # Test speed maximum value
     psoc.SetSpeed(-0.1, 0)
+    time.sleep(2.0)
     x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
     print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
     #assert(result == 100)
 
-    # Test read/write to calibration port
-    psoc.SetCalibrationPort(0xff)
-    result = psoc.GetCalibrationPort()
+    psoc.SetSpeed(0, 0)
+
 
     # Test read device status
     result = psoc._get_status()
+    print("{:x}".format(result))
 
     # Test read odometry
     odom = psoc.GetOdometry()
+    print(odom)
 
     # Test getting infrared distances
     distances = psoc.GetInfraredDistances()
@@ -213,4 +246,4 @@ if __name__ == "__main__":
     print(distances)
 
     status = psoc._get_status()
-    print(status)
+    print("{:x}".format(status))
