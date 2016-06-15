@@ -81,11 +81,11 @@ class ArlobotDriveNode:
                 self._hal_proxy.SetSpeed(0, 0)
 
             odometry = self._hal_proxy.GetOdometry()
-            #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, ls: {:6.3f}, as: {:6.3f}".format(odometry['x_dist'],
-            #                                                                                    odometry['y_dist'],
-            #                                                                                    odometry['heading'],
-            #                                                                                    odometry['linear'],
-            #                                                                                    odometry['angular']))
+            #rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(odometry['x_dist'],
+            #                                                                                  odometry['y_dist'],
+            #                                                                                  odometry['heading'],
+            #                                                                                  odometry['linear'],
+            #                                                                                  odometry['angular']))
 
             # adjust linear and angular speed by calibration factor
             odometry['linear'] = odometry['linear'] * self._odom_linear_scale_correction

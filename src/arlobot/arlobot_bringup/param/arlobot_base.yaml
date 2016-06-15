@@ -13,7 +13,7 @@ Max Angular Speed: 1.0 # rad/sec
 
 # Node parameters
 Base Node Loop Rate: 1     # Hz
-Drive Node Loop Rate: 20   # Hz
+Drive Node Loop Rate: 10   # Hz
 Sensors Node Loop Rate: 1  # Hz
 
 # Safety Timeout that stop the motors if no command is received within defined period
