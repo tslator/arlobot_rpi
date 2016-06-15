@@ -68,8 +68,16 @@ class PsocHw:
     def __init__(self, i2cbus, address):
         self._address = address
         self._i2c_bus = i2cbus
+
+        # The following are needed as a workaround for the I2C bus issue that returns wildly large values for the odometry
+        # values.  A comparison between I2C and serial and only the I2C bus shows these odd values.  The workaround is to
+        # use the last value in the case where the new value is unusable.  It should be pretty close and it can't really
+        # be worse.
         self._last_x_dist = 0
         self._last_y_dist = 0
+        self._last_heading = 0
+        self._last_linear_vel = 0
+        self._last_angular_vel = 0
 
     #------------ Read / Write ---------------
 
@@ -155,17 +163,31 @@ class PsocHw:
         delta_y_dist = self._last_y_dist - y_dist
         self._last_y_dist = y_dist
    
-        if delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST:
-            raise PsocHwError("x dist out-of-range: {}".format(x_dist))
-        if delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST:
-            raise PsocHwError("y dist out-of-range: {}".format(y_dist))
+        if x_dist > 0 and (delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST):
+            x_dist = self._last_x_dist
+        else:
+            self._last_x_dist = x_dist
+
+        if y_dist > 0 and (delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST):
+            y_dist = self._last_y_dist
+        else:
+            self._last_y_dist = y_dist
+
         if heading < -math.pi or heading > math.pi:
-            raise PsocHwError("heading out-of-range: {}".format(heading))
+            heading = self._last_heading
+        else:
+            self._last_heading = heading
+
         if linear_vel < MIN_LINEAR_VEL or linear_vel > MAX_LINEAR_VEL:
-            raise PsocHwError("linear vel out-of-range: {}".format(linear_vel))
+            linear_vel = self._last_linear_vel
+        else:
+            self._last_linear_vel = linear_vel
+
         if angular_vel < MIN_ANGULAR_VEL or angular_vel > MAX_ANGULAR_VEL:
-            raise PsocHwError("angular vel out-of-range: {}".format(angular_vel))
-     
+            angular_vel = self._last_angular_vel
+        else:
+            self._last_angular_vel = angular_vel
+
         return x_dist, y_dist, heading, linear_vel, angular_vel
 
     def GetUlrasonicDistances(self):
