@@ -1,7 +1,11 @@
 <launch>
     <node name="keyboard_teleop" pkg="arlobot_teleop" type="keyboard_teleop.py" output="screen">
+<!--
         <param name="scale_linear" value="0.5" type="double"/>
         <param name="scale_angular" value="1.5" type="double"/>
-        <remap from="turtlebot_teleop_keyboard/cmd_vel" to="/cmd_vel"/>
+
+    <remap from="arlobot_teleop_keyboard/cmd_vel" to="cmd_vel_mux/input/teleop"/>
+-->
+        <remap from="arlobot_teleop_keyboard/cmd_vel" to="/cmd_vel"/>
     </node>
 </launch>
