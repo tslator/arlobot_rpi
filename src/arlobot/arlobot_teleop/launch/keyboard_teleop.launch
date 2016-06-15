@@ -1,10 +1,9 @@
 <launch>
     <node name="keyboard_teleop" pkg="arlobot_teleop" type="keyboard_teleop.py" output="screen">
-<!--
+<!--  I'm not sure if these are used or not.  In ROS learning book, it talks about calibrating the linear/angular
+      velocity, I wonder if this is the proper place for such a calibration
         <param name="scale_linear" value="0.5" type="double"/>
         <param name="scale_angular" value="1.5" type="double"/>
-
-    <remap from="arlobot_teleop_keyboard/cmd_vel" to="cmd_vel_mux/input/teleop"/>
 -->
         <remap from="arlobot_teleop_keyboard/cmd_vel" to="/cmd_vel"/>
     </node>
