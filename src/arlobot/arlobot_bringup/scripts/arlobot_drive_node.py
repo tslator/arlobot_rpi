@@ -95,7 +95,7 @@ class ArlobotDriveNode:
         linear_time_to_move = linear_delta/linear_accel
         angular_time_to_move = angular_delta/angular_accel
 
-        # limit the move to 75 ms in length.  our throttle is set to 100 ms.
+        # limit the move to 80 ms in length.  our throttle is set to 100 ms.
         delta_time = min(max(linear_time_to_move, angular_time_to_move), self._velocity_profile_max_time)
         num_time_increments = delta_time / self._time_slice # 0.01
 
