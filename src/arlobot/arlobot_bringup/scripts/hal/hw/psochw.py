@@ -98,8 +98,10 @@ class PsocHw:
     def SetSpeed(self, linear_speed, angular_speed):
         '''
         '''
-        self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
-        self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
+        #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
+        #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
+        # Note:  We can save some I2C protocol overhead by sending both values together as a multi-byte transaction
+        self._i2c_bus.WriteArray(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], [linear_speed, angular_speed])
 
     def SetCalibrationPort(self, value):
         '''
