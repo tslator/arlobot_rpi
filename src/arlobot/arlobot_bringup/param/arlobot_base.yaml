@@ -19,6 +19,17 @@ Sensors Node Loop Rate: 1  # Hz
 # Safety Timeout that stop the motors if no command is received within defined period
 Drive Node Safety Timeout: 1.0
 
+# Drive Node Velocity Profile parameters
+Drive Node Velocity Profile Linear Accel: 3
+Drive Node Velocity Profile Angular Accel: 0.1
+Drive Node Velocity Profile Time Slice: 0.01
+# Note: the rate is a throttle of twist messages which samples the twist messages at the give rate.  The resulting
+# sample time is maximum amount of time available to acheive the change in velocity.
+Drive Node Velocity Profile Rate: 10
+# Note: The Max Time must be less than the resulting sample time from "Drive Note Velocity Profile Rate".  The code will
+# raise an exception if this is not the case
+Drive Node Velocity Profile Max Time: 0.08
+
 # Ultrasonic range sensors
 Ultrasonic Field Of View:  0.523599
 Ultrasonic Min Range: 0.02 # meters

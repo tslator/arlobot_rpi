@@ -36,13 +36,27 @@ class ArlobotDriveNode:
         try:
             self._hal_proxy = BaseHALProxy()
         except BaseHALProxyError:
-            raise BaseHALProxyError("Unable to create BaseHALProxy")
+            raise ArlobotDriveNodeError("Unable to create BaseHALProxy")
 
         self._hal_proxy.SetSpeed(0, 0)
 
         self._loop_rate = rospy.Rate(loop_rate)
         self._safety_delta_time = rospy.Time.now()
         self._last_twist_time = rospy.Time.now()
+
+        self._last_linear = 0
+        self._last_angular = 0
+        self._linear_acceleration = rospy.get_param("Drive Node Velocity Profile Linear Accel", 3)
+        self._angular_acceleration = rospy.get_param("Drive Node Velocity Profile Angular Accel", 0.1)
+        self._time_slice = rospy.get_param("Drive Node Velocity Profile Time Slice", 0.01)
+        velocity_profile_rate = rospy.get_param("Drive Node Velocity Profile Rate", 10)
+        self._velocity_profile_max_time = rospy.get_param("Drive Node Velocity Profile Max Time", 0.08)
+        self._velocity_profile_sample_time = 1.0/velocity_profile_rate
+
+        if self._velocity_profile_max_time < self._velocity_profile_sample_time:
+            raise ArlobotDriveNodeError(
+                    "Velocity profile sample time {} must be less than velocity profile max time {}"
+                    .format(self._velocity_profile_sample_time, self._velocity_profile_max_time))
 
         # Subscriptions
 
@@ -54,22 +68,68 @@ class ArlobotDriveNode:
         # Publishes the Odometry message
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
-    def _apply_motion_profile(self):
+    def _apply_motion_profile(self, new_linear, new_angular):
         '''
-        What's envisioned here is the ability to apply a motion profile, e.g., trapezoidal, S-curve, etc., to ensure
-        smooth motor motion.  However, this may already be handled inherently by ROS in how it sends twist messages, so
-        its not clear if it is necessary or how this could be applied.
+        Calculate the time needed to achieve the
+        t = (v - vo)/a, where tmax is 50ms
+
         :return:
         '''
-        pass
+        linear_delta = new_linear - self._last_linear
+        angular_delta = new_angular - self._last_angular
+        self._last_linear = new_linear
+        self._last_angular = new_angular
+
+        # Set accel or deccel
+        linear_accel = self._linear_acceleration
+        angular_accel = self._angular_acceleration
+        if linear_delta < 0:
+            linear_accel = -self._linear_acceleration
+        if angular_delta < 0:
+            angular_accel = -self._angular_acceleration
+
+        if linear_delta == 0 and angular_delta == 0:
+            # What should be do if this happens?
+            pass
+
+        linear_time_to_move = linear_delta/linear_accel
+        angular_time_to_move = angular_delta/angular_accel
+
+        # limit the move to 75 ms in length.  our throttle is set to 100 ms.
+        delta_time = min(max(linear_time_to_move, angular_time_to_move), self._velocity_profile_max_time)
+        num_time_increments = delta_time / self._time_slice # 0.01
+
+        linear_increment = linear_delta / num_time_increments
+        angular_increment = angular_delta / num_time_increments
+
+        linear = self._last_linear
+        angular = self._last_angular
+
+        for i in range(num_time_increments):
+            # Note: Since we are capping the delta time to the max between linear and angular, we need to make
+            # sure that we only increment as much as needed for each
+            if linear <= new_linear:
+                linear += linear_increment
+            if angular <= new_angular:
+                angular += angular_increment
+
+            self._hal_proxy.SetSpeed(linear, angular)
+            time.sleep(self._time_slice)
+
 
     def _twist_command_callback(self, command):
-        self._safety_delta_time = rospy.Time.now() - self._last_twist_time
-        self._last_twist_time = rospy.Time.now()
+        '''
+        Throttle the twist commands down to 10 Hz and apply a constant acceleration velocity profile
+        :param command:
+        :return:
+        '''
+        delta = rospy.Time.now() - self._last_twist_time
 
-        self._apply_motion_profile()
-        self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
-        #rospy.logwarn("Twist command: {}".format(str(command)))
+        if (delta > self._velocity_profile_sample_time):
+            self._last_twist_time = rospy.Time.now()
+
+            self._apply_motion_profile(command.linear.x, command.angular.z)
+            #rospy.logwarn("Twist command: {}".format(str(command)))
 
     def Start(self):
         pass
