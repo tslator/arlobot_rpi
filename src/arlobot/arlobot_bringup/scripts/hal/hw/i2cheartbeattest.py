@@ -17,15 +17,11 @@ if __name__ == "__main__":
         print("Error instantiating I2CBus")
 
     psoc_addr = 0x08
-    heartbeat_offset = 66      # hearbeat offset is 66
+    heartbeat_offset = 66      # heartbeat offset is 66
 
-    start = time.time()
     for i in range(100):
         value = i2c1.ReadUint32(psoc_addr, heartbeat_offset, True)
+        print("Time: {} - Heartbeat: {}".format(time.time(), value))
+        time.sleep(0.5)
 
-    end = time.time()
-
-    byte_per_sec = 4 * 100 / (end - start)
-    bit_per_sec = byte_per_sec * 8
-    print("Throughput: byte/sec {}, bit/sec {}".format(byte_per_sec, bit_per_sec))
 
