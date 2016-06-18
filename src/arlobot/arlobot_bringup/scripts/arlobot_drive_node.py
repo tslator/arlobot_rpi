@@ -79,23 +79,16 @@ class ArlobotDriveNode:
     def Loop(self):
         while not rospy.is_shutdown():
 
-            odometry = self._hal_proxy.GetOdometry()
-            rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(odometry['x_dist'],
-                                                                                              odometry['y_dist'],
-                                                                                             odometry['heading'],
-                                                                                            odometry['linear'],
-                                                                                              odometry['angular']))
+            x_dist, y_dist, heading, linear, angular = self._hal_proxy.GetOdometry()
+            rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(
+                x_dist, y_dist, heading, linear, angular))
 
             # adjust linear and angular speed by calibration factor
             #odometry['linear'] = odometry['linear'] * self._odom_linear_scale_correction
             #odometry['angular'] = odometry['angular'] * self._odom_angular_scale_correction
 
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
-                                           odometry['heading'],
-                                           odometry['x_dist'],
-                                           odometry['y_dist'],
-                                           odometry['linear'],
-                                           odometry['angular'])
+                                           heading, x_dist, y_dist, linear, angular)
 
             self._loop_rate.sleep()
 
