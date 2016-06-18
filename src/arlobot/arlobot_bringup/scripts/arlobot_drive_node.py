@@ -67,10 +67,55 @@ class ArlobotDriveNode:
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
     def _apply_motion_profile(self, new_linear, new_angular):
-        pass
+        '''
+        Apply an acceleration profile to the motion
+        :param new_linear:
+        :param new_angular:
+        :return:
+        '''
+
+        linear_time = abs(new_linear - self._last_linear_velocity) / self._linear_accel
+        angular_time = abs(new_angular - self._last_angular_velocity) / self._angular_accel
+
+        linear_accel = self._linear_accel
+        if new_linear < self._last_linear_velocity:
+            linear_accel = -linear_accel
+
+        angular_accel = self._angular_accel
+        if new_angular < self._last_angular_velocity:
+            angular_accel = -angular_accel
+
+        velocity_time = max(linear_time, angular_time)
+        time_increment = velocity_time / 100
+
+        linear = self._last_linear_velocity
+        angular = self._last_angular_velocity
+        delta_time = 0
+
+        while delta_time < velocity_time:
+            if linear < new_linear:
+                linear = linear_accel * delta_time
+            if angular < new_angular:
+                angular = angular_accel * delta_time
+            self._hal_proxy.SetSpeed(linear, angular)
+            time.sleep(delta_time)
+            delta_time += time_increment
 
     def _twist_command_callback(self, command):
-        self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
+        '''
+
+        :param command:
+        :return:
+        '''
+
+        # Think about applying an acceleration profile here:
+        #   v = v0 + at
+        #
+        # Where we specify the acceleration as a parameter and therefore limit how quickly the velocity will change
+        #
+
+        self._apply_accel_profile(self, command.linear.x, command.angular.z)
+
         #rospy.logwarn("Twist command: {}".format(str(command)))
 
     def Start(self):
