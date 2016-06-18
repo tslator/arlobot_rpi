@@ -41,11 +41,12 @@ if __name__ == "__main__":
     
 
     print("Commanding motors to {} m/s".format(speed))
-    i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, speed)
-    i2c1.WriteFloat(psoc_addr, angular_cmd_vel_offset, 0)
     print("Waiting for motion to complete ...")
 
-    time.sleep(wait_time)
+    for i in range(wait_time * 4):    
+        i2c1.WriteFloat(psoc_addr, linear_cmd_vel_offset, speed)
+        i2c1.WriteFloat(psoc_addr, angular_cmd_vel_offset, 0)
+        time.sleep(0.25)
 
     print("Motion complete")
 

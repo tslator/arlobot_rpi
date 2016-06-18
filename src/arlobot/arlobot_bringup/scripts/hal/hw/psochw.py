@@ -161,55 +161,27 @@ class PsocHw:
 
         x_dist, y_dist, heading, linear_vel, angular_vel = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['ODOMETRY'], 5, 'f')
 
-        #delta_x_dist = self._last_x_dist - x_dist
-        #self._last_x_dist = x_dist
-        #delta_y_dist = self._last_y_dist - y_dist
-        #self._last_y_dist = y_dist
-   
-        #if x_dist > 0 and (delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST):
-        #    x_dist = self._last_x_dist
-        #else:
-        #    self._last_x_dist = x_dist
-
-        #if y_dist > 0 and (delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST):
-        #    y_dist = self._last_y_dist
-        #else:
-        #    self._last_y_dist = y_dist
-
-        #if heading < -math.pi or heading > math.pi:
-        #    heading = self._last_heading
-        #else:
-        #    self._last_heading = heading
-
-        #if linear_vel < MIN_LINEAR_VEL or linear_vel > MAX_LINEAR_VEL:
-        #    linear_vel = self._last_linear_vel
-        #else:
-        #    self._last_linear_vel = linear_vel
-
-        #if angular_vel < MIN_ANGULAR_VEL or angular_vel > MAX_ANGULAR_VEL:
-        #    angular_vel = self._last_angular_vel
-        #else:
-        #    self._last_angular_vel = angular_vel
-
         return x_dist, y_dist, heading, linear_vel, angular_vel
 
     def GetUlrasonicDistances(self):
         '''
         '''
         # Each of the values is a short value
-        front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 'H')
-        rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 'H')
+        #front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_INFRARED_DISTANCE'], 8, 'H')
+        #rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_INFRARED_DISTANCE'], 8, 'H')
 
-        return front + rear
+        #return front + rear
+        return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def GetInfraredDistances(self):
         '''
         '''
         # Each of the values is a byte value
-        front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'B')
-        rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'B')
+        #front = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['FRONT_ULTRASONIC_DISTANCE'], 8, 'B')
+        #rear = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['REAR_ULTRASONIC_DISTANCE'], 8, 'B')
 
-        return front + rear
+        #return front + rear
+        return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def GetHeartbeat(self):
         '''

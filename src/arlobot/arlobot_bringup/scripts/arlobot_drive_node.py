@@ -42,19 +42,12 @@ class ArlobotDriveNode:
         self._safety_delta_time = rospy.Time.now()
         self._last_twist_time = rospy.Time.now()
 
-        self._last_linear = 0
-        self._last_angular = 0
-        self._linear_acceleration = rospy.get_param("Drive Node Velocity Profile Linear Accel", 3)
-        self._angular_acceleration = rospy.get_param("Drive Node Velocity Profile Angular Accel", 0.1)
-        self._time_slice = rospy.get_param("Drive Node Velocity Profile Time Slice", 0.01)
-        velocity_profile_rate = rospy.get_param("Drive Node Velocity Profile Rate", 10)
-        self._velocity_profile_max_time = rospy.get_param("Drive Node Velocity Profile Max Time", 0.08)
-        self._velocity_profile_sample_time = 1.0/velocity_profile_rate
-
-        if self._velocity_profile_max_time > self._velocity_profile_sample_time:
-            raise ArlobotDriveNodeError(
-                    "Velocity profile sample time {} must be less than velocity profile max time {}"
-                    .format(self._velocity_profile_sample_time, self._velocity_profile_max_time))
+        self._last_linear_velocity = 0
+        self._last_angular_velocity = 0
+        self._linear_accel = rospy.get_param("Drive Node Velocity Profile Linear Accel", 3)
+        self._angular_accel = rospy.get_param("Drive Node Velocity Profile Angular Accel", 0.1)
+        self._linear_accel = 10
+        self._angular_accel = 1
 
         # Subscriptions
 
@@ -66,7 +59,7 @@ class ArlobotDriveNode:
         # Publishes the Odometry message
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
-    def _apply_motion_profile(self, new_linear, new_angular):
+    def _apply_accel_profile(self, new_linear, new_angular):
         '''
         Apply an acceleration profile to the motion
         :param new_linear:
@@ -74,8 +67,16 @@ class ArlobotDriveNode:
         :return:
         '''
 
-        linear_time = abs(new_linear - self._last_linear_velocity) / self._linear_accel
-        angular_time = abs(new_angular - self._last_angular_velocity) / self._angular_accel
+        linear_delta = new_linear - self._last_linear_velocity
+        angular_delta = new_angular - self._last_angular_velocity
+
+        if abs(linear_delta) < 0.001:
+            linear_delta = 0
+        if abs(angular_delta) < 0.001:
+            angular_delta = 0
+
+        linear_time = abs(linear_delta) / self._linear_accel
+        angular_time = abs(angular_delta) / self._angular_accel
 
         linear_accel = self._linear_accel
         if new_linear < self._last_linear_velocity:
@@ -86,7 +87,11 @@ class ArlobotDriveNode:
             angular_accel = -angular_accel
 
         velocity_time = max(linear_time, angular_time)
-        time_increment = velocity_time / 100
+        time_increment = velocity_time / 20
+        linear_vel_incr = linear_delta / 20
+        angular_vel_incr = angular_delta / 20
+
+        rospy.logwarn("nl {}, na{}, lt {}, at {}, vt {}, ti {}".format(new_linear, new_angular, linear_time, angular_time, velocity_time, time_increment))
 
         linear = self._last_linear_velocity
         angular = self._last_angular_velocity
@@ -94,12 +99,17 @@ class ArlobotDriveNode:
 
         while delta_time < velocity_time:
             if linear < new_linear:
-                linear = linear_accel * delta_time
+                linear = linear + linear_accel * delta_time
             if angular < new_angular:
-                angular = angular_accel * delta_time
+                angular = angular + angular_accel * delta_time
             self._hal_proxy.SetSpeed(linear, angular)
+            rospy.logwarn("profile: {:6.3f}, {:6.3f}".format(linear, angular))
             time.sleep(delta_time)
             delta_time += time_increment
+        self._hal_proxy.SetSpeed(new_linear, new_angular)
+
+        self._last_linear_velocity = new_linear
+        self._last_angular_velocity = new_angular
 
     def _twist_command_callback(self, command):
         '''
@@ -114,8 +124,8 @@ class ArlobotDriveNode:
         # Where we specify the acceleration as a parameter and therefore limit how quickly the velocity will change
         #
 
-        self._apply_accel_profile(self, command.linear.x, command.angular.z)
-
+        #self._apply_accel_profile(command.linear.x, command.angular.z)
+        self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
         #rospy.logwarn("Twist command: {}".format(str(command)))
 
     def Start(self):
@@ -124,16 +134,15 @@ class ArlobotDriveNode:
     def Loop(self):
         while not rospy.is_shutdown():
 
-            x_dist, y_dist, heading, linear, angular = self._hal_proxy.GetOdometry()
-            rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(
-                x_dist, y_dist, heading, linear, angular))
+            odometry = self._hal_proxy.GetOdometry()
+            rospy.logwarn("x: {:6.3f}, y: {:6.3f}, h: {:6.3f}, l: {:6.3f}, a: {:6.3f}".format(odometry['x_dist'], odometry['y_dist'], odometry['heading'], odometry['linear'], odometry['angular']))
 
             # adjust linear and angular speed by calibration factor
             #odometry['linear'] = odometry['linear'] * self._odom_linear_scale_correction
             #odometry['angular'] = odometry['angular'] * self._odom_angular_scale_correction
 
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
-                                           heading, x_dist, y_dist, linear, angular)
+                                           odometry['heading'], odometry['x_dist'], odometry['y_dist'], odometry['linear'], odometry['angular'])
 
             self._loop_rate.sleep()
 
