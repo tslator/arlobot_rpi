@@ -23,7 +23,6 @@ if __name__ == "__main__":
 
     for i in range(100):
         x_dist, y_dist, heading, linear_vel, angular_vel = tuple(i2c1.ReadArray(psoc_addr, odom_offset, odom_num_values, 'f'))
-        if abs(x_dist) < 1000000 and abs(y_dist) < 1000000 and abs(heading) < math.pi and abs(linear_vel) < 0.700 and abs(angular_vel) < 3.5:
-            print("x: {:.3f}, y: {:.3f}, h: {:.3f}, l: {:.3f}, a: {:.3f}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
+        print("x: {:.3f}, y: {:.3f}, h: {:.3f}, l: {:.3f}, a: {:.3f}".format(x_dist, y_dist, heading, linear_vel, angular_vel))
         time.sleep(0.05)
     

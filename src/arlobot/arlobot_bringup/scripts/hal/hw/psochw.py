@@ -101,7 +101,8 @@ class PsocHw:
         #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
         #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
         # Note:  We can save some I2C protocol overhead by sending both values together as a multi-byte transaction
-        self._i2c_bus.WriteArray(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], [linear_speed, angular_speed])
+        self._i2c_bus.WriteArray(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], [linear_speed, angular_speed], 'f')
+        print("{}: PsocHw SetSpeed({}, {})".format(time.time(), linear_speed, angular_speed))
 
     def SetCalibrationPort(self, value):
         '''
@@ -160,35 +161,35 @@ class PsocHw:
 
         x_dist, y_dist, heading, linear_vel, angular_vel = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['ODOMETRY'], 5, 'f')
 
-        delta_x_dist = self._last_x_dist - x_dist
-        self._last_x_dist = x_dist
-        delta_y_dist = self._last_y_dist - y_dist
-        self._last_y_dist = y_dist
+        #delta_x_dist = self._last_x_dist - x_dist
+        #self._last_x_dist = x_dist
+        #delta_y_dist = self._last_y_dist - y_dist
+        #self._last_y_dist = y_dist
    
-        if x_dist > 0 and (delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST):
-            x_dist = self._last_x_dist
-        else:
-            self._last_x_dist = x_dist
+        #if x_dist > 0 and (delta_x_dist > MAX_LINEAR_DIST or delta_x_dist < MIN_LINEAR_DIST):
+        #    x_dist = self._last_x_dist
+        #else:
+        #    self._last_x_dist = x_dist
 
-        if y_dist > 0 and (delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST):
-            y_dist = self._last_y_dist
-        else:
-            self._last_y_dist = y_dist
+        #if y_dist > 0 and (delta_y_dist > MAX_LINEAR_DIST or delta_y_dist < MIN_LINEAR_DIST):
+        #    y_dist = self._last_y_dist
+        #else:
+        #    self._last_y_dist = y_dist
 
-        if heading < -math.pi or heading > math.pi:
-            heading = self._last_heading
-        else:
-            self._last_heading = heading
+        #if heading < -math.pi or heading > math.pi:
+        #    heading = self._last_heading
+        #else:
+        #    self._last_heading = heading
 
-        if linear_vel < MIN_LINEAR_VEL or linear_vel > MAX_LINEAR_VEL:
-            linear_vel = self._last_linear_vel
-        else:
-            self._last_linear_vel = linear_vel
+        #if linear_vel < MIN_LINEAR_VEL or linear_vel > MAX_LINEAR_VEL:
+        #    linear_vel = self._last_linear_vel
+        #else:
+        #    self._last_linear_vel = linear_vel
 
-        if angular_vel < MIN_ANGULAR_VEL or angular_vel > MAX_ANGULAR_VEL:
-            angular_vel = self._last_angular_vel
-        else:
-            self._last_angular_vel = angular_vel
+        #if angular_vel < MIN_ANGULAR_VEL or angular_vel > MAX_ANGULAR_VEL:
+        #    angular_vel = self._last_angular_vel
+        #else:
+        #    self._last_angular_vel = angular_vel
 
         return x_dist, y_dist, heading, linear_vel, angular_vel
 

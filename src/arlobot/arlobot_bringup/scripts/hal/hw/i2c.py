@@ -63,10 +63,10 @@ class I2CBus:
 
     def _write_multiple_bytes(self, address, offset, byte_values, use_i2c):
         if use_i2c:
-            self._try(lambda: self._smbus.write_i2c_block_data(address, offset, bytes))
+            self._try(lambda: self._smbus.write_i2c_block_data(address, offset, bytearray(byte_values)))
         else:
-            for i in range(len(bytes)):
-                self._try(lambda: self._smbus.write_byte_data(address, offset + i, bytes[i]))
+            for i, value in enumerate(byte_values):
+                self._try(lambda: self._smbus.write_byte_data(address, offset + i, value))
 
     def WriteUint8(self, address, offset, value):
         self._try(lambda : self._smbus.write_byte_data(address, offset, value))
@@ -125,11 +125,11 @@ class I2CBus:
         return list(struct.unpack(format, str(bytearray(values))))
 
     def WriteArray(self, address, offset, values, type, use_i2c=False):
-        byte_values = []
-        for i in range(len(values)):
-            byte_values += struct.pack("%s" % type, values[i])
+        byte_values = bytearray()
+        for value in values:
+            byte_values += bytearray(struct.pack(type, value))
 
-        self._write_multiple_bytes(address, offset, bytes(byte_values), use_i2c)
+        self._write_multiple_bytes(address, offset, byte_values, use_i2c)
 
 if __name__ == "__main__":
     # Note: This test requires a compatible Psoc application that exposes an I2C device that can support the following:
