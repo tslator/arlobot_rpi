@@ -60,73 +60,10 @@ class ArlobotDriveNode:
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
     def _apply_accel_profile(self, new_linear, new_angular):
-        '''
-        Apply an acceleration profile to the motion
-        :param new_linear:
-        :param new_angular:
-        :return:
-        '''
-
-        linear_delta = new_linear - self._last_linear_velocity
-        angular_delta = new_angular - self._last_angular_velocity
-
-        if abs(linear_delta) < 0.001:
-            linear_delta = 0
-        if abs(angular_delta) < 0.001:
-            angular_delta = 0
-
-        linear_time = abs(linear_delta) / self._linear_accel
-        angular_time = abs(angular_delta) / self._angular_accel
-
-        linear_accel = self._linear_accel
-        if new_linear < self._last_linear_velocity:
-            linear_accel = -linear_accel
-
-        angular_accel = self._angular_accel
-        if new_angular < self._last_angular_velocity:
-            angular_accel = -angular_accel
-
-        velocity_time = max(linear_time, angular_time)
-        time_increment = velocity_time / 20
-        linear_vel_incr = linear_delta / 20
-        angular_vel_incr = angular_delta / 20
-
-        rospy.logwarn("nl {}, na{}, lt {}, at {}, vt {}, ti {}".format(new_linear, new_angular, linear_time, angular_time, velocity_time, time_increment))
-
-        linear = self._last_linear_velocity
-        angular = self._last_angular_velocity
-        delta_time = 0
-
-        while delta_time < velocity_time:
-            if linear < new_linear:
-                linear = linear + linear_accel * delta_time
-            if angular < new_angular:
-                angular = angular + angular_accel * delta_time
-            self._hal_proxy.SetSpeed(linear, angular)
-            rospy.logwarn("profile: {:6.3f}, {:6.3f}".format(linear, angular))
-            time.sleep(delta_time)
-            delta_time += time_increment
-        self._hal_proxy.SetSpeed(new_linear, new_angular)
-
-        self._last_linear_velocity = new_linear
-        self._last_angular_velocity = new_angular
+        pass
 
     def _twist_command_callback(self, command):
-        '''
-
-        :param command:
-        :return:
-        '''
-
-        # Think about applying an acceleration profile here:
-        #   v = v0 + at
-        #
-        # Where we specify the acceleration as a parameter and therefore limit how quickly the velocity will change
-        #
-
-        #self._apply_accel_profile(command.linear.x, command.angular.z)
         self._hal_proxy.SetSpeed(command.linear.x, command.angular.z)
-        #rospy.logwarn("Twist command: {}".format(str(command)))
 
     def Start(self):
         pass
