@@ -8,29 +8,30 @@ class PsocHwError(Exception):
 
 
 class PsocHw:
-
-    __CONTROL_REGISTER_OFFSET = 0
-    __LINEAR_COMMANDED_VELOCITY_OFFSET = 2
-    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 6
-    __CALIBRATION_PORT_OFFSET = 10
+    __DEVICE_CONTROL_OFFSET = 0
+    __DEBUG_CONTROL_OFFSET = 2
+    __LINEAR_COMMANDED_VELOCITY_OFFSET = 4
+    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 8
     __DEVICE_STATUS_OFFSET = 12
-    __ODOMETRY_OFFSET = 14
-    __FRONT_ULTRASONIC_DISTANCE_OFFSET = 34
-    __REAR_ULTRASONIC_DISTANCE_OFFSET = 50
-    __FRONT_INFRARED_DISTANCE_OFFSET = 66
-    __REAR_INFRARED_DISTANCE_OFFSET = 74
-    __HEARTBEAT_OFFSET = 82
+    __CALIBRATION_STATUS_OFFSET = 14
+    __ODOMETRY_OFFSET = 16
+    __FRONT_ULTRASONIC_DISTANCE_OFFSET = 40
+    __REAR_ULTRASONIC_DISTANCE_OFFSET = 56
+    __FRONT_INFRARED_DISTANCE_OFFSET = 72
+    __REAR_INFRARED_DISTANCE_OFFSET = 80
+    __HEARTBEAT_OFFSET = 88
 
 
     __REGISTER_MAP = {#---------- READ/WRITE ------------
-                      'CONTROL_REGISTER': __CONTROL_REGISTER_OFFSET,
+                      'DEVICE_CONTROL': __DEVICE_CONTROL_OFFSET,
                       #      - Bit 0: enable / disable the HB25 motors
                       #      - Bit 1: clear odometry
-                      #      - Bit 2: calibrate - requests the Psoc to start calibrating
-                      
+                      'DEBUG_CONTROL': __DEBUG_CONTROL_OFFSET,
+                      #      - Bit 0: enable / disable the HB25 motors
+                      #      - Bit 1: clear odometry
+
                       'LINEAR_COMMANDED_VELOCITY': __LINEAR_COMMANDED_VELOCITY_OFFSET,
                       'ANGULAR_COMMANDED_VELOCITY': __ANGULAR_COMMANDED_VELOCITY_OFFSET,
-                      'CALIBRATION_PORT' : __CALIBRATION_PORT_OFFSET,
 
                       #----------------------------------
                       #------ READ/WRITE Boundary -------
@@ -39,11 +40,11 @@ class PsocHw:
                       #----------- READ ONLY ------------
                       'DEVICE_STATUS' : __DEVICE_STATUS_OFFSET,
                       #      - Bit 0: HB25 Motor Controller Initialized
-                      #      - Bit 1: Calibrated - indicates whether the calibration values
-                      #               have been loaded; 0 - no, 1 - yes
-                      #      - Bit 2: Calibrating - indicates when the Psoc is in calibration;
-                      #               0 - no, 1 - yes
-                      
+                      'CALIBRATION_STATUS': __CALIBRATION_STATUS_OFFSET,
+                      #      - Bit 0: Wheel Velocity, i.e., Count/Sec-to-PWM
+                      #      - Bit 1: PID
+                      #      - Bit 2: Linear Bias
+                      #      - Bit 3: Angular Bias
                       'ODOMETRY': __ODOMETRY_OFFSET,
                       'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
                       'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
@@ -53,15 +54,32 @@ class PsocHw:
 
     __CONTROL_DISABLE_MOTORS_BIT = 0x0001
     __CONTROL_CLEAR_ODOMETRY_BIT = 0x0002
-    __CONTROL_CALIBRATE_BIT = 0x0004
 
-    __STATUS_MOTORS_INIT_BIT = 0x0001
-    __STATUS_CALIBRATED_BIT = 0x0002
-    __STATUS_CALIBRATING_BIT = 0x0004
+    __DEVICE_STATUS_MOTORS_INIT_BIT = 0x0001
+
+    __DBG_ENCODERS_BIT = 0x0001
+    __DBG_PIDS_BIT = 0x0002
+    __DBG_MOTORS_BIT = 0x0004
+    __DBG_ODOM_BIT = 0x0008
+    __CAL_SAMPLE_BIT = 0x0010
+
+    __CAL_MOTORS_BIT = 0x0001
+    __CAL_PID_GAINS_BIT = 0x0002
+    __CAL_LINEAR_BIAS_BIT = 0x0004
+    __CAL_ANGULAR_BIAS_BIT = 0x0008
+
+    __CAL_MOTORS_CONTROL_BIT = __CAL_MOTORS_BIT
+    __CAL_PID_GAINS_CONTROL_BIT = __CAL_PID_GAINS_BIT
+    __CAL_LINEAR_BIAS_CONTROL_BIT = __CAL_LINEAR_BIAS_BIT
+    __CAL_ANGULAR_BIAS_CONTROL_BIT = __CAL_ANGULAR_BIAS_BIT
+
+    __CAL_MOTORS_STATUS_BIT = __CAL_MOTORS_BIT
+    __CAL_PID_GAINS_STATUS_BIT = __CAL_PID_GAINS_BIT
+    __CAL_LINEAR_BIAS_STATUS_BIT = __CAL_LINEAR_BIAS_BIT
+    __CAL_ANGULAR_BIAS_STATUS_BIT = __CAL_ANGULAR_BIAS_BIT
 
     DISABLE_MOTORS = __CONTROL_DISABLE_MOTORS_BIT
     CLEAR_ODOMETRY = __CONTROL_CLEAR_ODOMETRY_BIT
-    PERFORM_CALIBRATION = __CONTROL_CALIBRATE_BIT
 
     PSOC_ADDR = 0x08
 
@@ -81,19 +99,52 @@ class PsocHw:
 
     #------------ Read / Write ---------------
 
-    def _set_control(self, value):
+    def _set_device_control(self, value):
         '''
         Set or clear the bits in the control value based on the request
         :param value:
         :return:
         '''
-        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['CONTROL_REGISTER'], value)
+        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['DEVICE_CONTROL'], value)
+
+    def _set_debug_control(self, value):
+        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['DEBUG_CONTROL'], value)
 
     def DisableMotors(self):
-        self._set_control(PsocHw.DISABLE_MOTORS)
+        self._set_device_control(PsocHw.DISABLE_MOTORS)
 
     def ClearOdometry(self):
-        self._set_control(PsocHw.__CONTROL_CLEAR_ODOMETRY_BIT)
+        self._set_device_control(PsocHw.__CONTROL_CLEAR_ODOMETRY_BIT)
+
+    def EncoderDebug(self, value=True):
+        bitmask = PsocHw.__DBG_ENCODERS_BIT
+        if not value:
+            bitmask = ~PsocHw.__DBG_ENCODERS_BIT
+        self._set_calibration_control(bitmask)
+
+    def PidDebug(self, value=True):
+        bitmask = PsocHw.__DBG_PIDS_BIT
+        if not value:
+            bitmask = ~PsocHw.__DBG_PIDS_BIT
+        self._set_calibration_control(bitmask)
+
+    def MotorDebug(self, value=True):
+        bitmask = PsocHw.__DBG_MOTORS_BIT
+        if not value:
+            bitmask = ~PsocHw.__DBG_MOTORS_BIT
+        self._set_calibration_control(bitmask)
+
+    def OdometryDebug(self, value=True):
+        bitmask = PsocHw.__DBG_ODOM_BIT
+        if not value:
+            bitmask = ~PsocHw.__DBG_ODOM_BIT
+        self._set_calibration_control(bitmask)
+
+    def SampleDebug(self, value=True):
+        bitmask = PsocHw.__CAL_SAMPLE_BIT
+        if not value:
+            bitmask = ~PsocHw.__CAL_SAMPLE_BIT
+        self._set_calibration_control(bitmask)
 
     def SetSpeed(self, linear_speed, angular_speed):
         '''
@@ -104,40 +155,51 @@ class PsocHw:
         self._i2c_bus.WriteArray(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], [linear_speed, angular_speed], 'f')
         print("{}: PsocHw SetSpeed({}, {})".format(time.time(), linear_speed, angular_speed))
 
-    def SetCalibrationPort(self, value):
-        '''
-        '''
-        self._i2c_bus.WriteUint16(self._address, PsocHw.__REGISTER_MAP['CALIBRATION_PORT'], value)
-
-    def GetCalibrationPort(self):
-        '''
-        '''
-        return self._i2c_bus.ReadUint16(self._address, PsocHw.__REGISTER_MAP['CALIBRATION_PORT'])
-
     #------------ Read Only ---------------
 
-    def _get_status(self):
+    def _get_device_status(self):
         '''
         '''
         return self._i2c_bus.ReadUint16(self._address, PsocHw.__REGISTER_MAP['DEVICE_STATUS'])
 
+    def _get_calibration_status(self):
+        '''
+        '''
+        return self._i2c_bus.ReadUint16(self._address, PsocHw.__REGISTER_MAP['CALIBRATION_STATUS'])
+
+    def GetCalibrationStatus(self):
+        '''
+        '''
+        return self._get_calibration_status()
+
     def MotorsInitialized(self):
         '''
         '''
-        result = self._get_status()
-        return result & PsocHw.__STATUS_MOTORS_INIT_BIT
+        result = self._get_device_status()
+        return result & PsocHw.__DEVICE_STATUS_MOTORS_INIT_BIT
 
     def MotorsCalibrated(self):
         '''
         '''
-        result = self._get_status()
-        return result & PsocHw.__STATUS_CALIBRATED_BIT
+        result = self._get_calibration_status()
+        return result & PsocHw.__CAL_MOTORS_STATUS_BIT
 
-    def MotorsCalibrating(self):
-        '''
-        '''
-        result = self._get_status()
-        return result & PsocHw.__STATUS_CALIBRATING_BIT
+    def PidsCalibrated(self):
+        result = self._get_calibration_status()
+        return result & PsocHw.__CAL_PID_GAINS_STATUS_BIT
+
+    def LinearBiasCalibrated(self):
+        result = self._get_calibration_status()
+        return result & PsocHw.__CAL_LINEAR_BIAS_STATUS_BIT
+
+    def AngularBiasCalibrated(self):
+        result = self._get_calibration_status()
+        return result & PsocHw.__CAL_ANGULAR_BIAS_STATUS_BIT
+
+    def IsCalibrated(self):
+        result = self._get_calibration_status()
+        return result == PsocHw.__CAL_MOTORS_STATUS_BIT | PsocHw.__CAL_PID_GAINS_STATUS_BIT | \
+                         PsocHw.__CAL_LINEAR_BIAS_STATUS_BIT | PsocHw.__CAL_ANGULAR_BIAS_STATUS_BIT
 
     def GetOdometry(self):
         # Each of the values is a floating point value
