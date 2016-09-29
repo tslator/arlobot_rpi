@@ -5,8 +5,18 @@ Tick Per Revolution: 144  # encoder tick or count
 Wheel Diameter: 0.1524   # meter
 
 # Speed constraints
+Max Motor RPM: 95 # rpm
 Max Linear Speed: 1.0  # meter/sec
 Max Angular Speed: 1.0 # rad/sec
+
+# Tracking PID Gains
+Linear Tracking Kp: 10.0
+Linear Tracking Ki: 0.0
+Linear Tracking Kd: 0.0
+
+Angular Tracking Kp: 10.0
+Angular Tracking Ki: 0.0
+Angluar Tracking Kd: 0.0
 
 # Node parameters
 Base Node Loop Rate: 1     # Hz

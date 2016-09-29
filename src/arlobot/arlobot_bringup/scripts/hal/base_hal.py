@@ -129,25 +129,25 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
         if self._simulated:
             pass
 
-    def SetSpeed(self, linear, angular):
+    def SetSpeed(self, left, right):
         if self._simulated:
             with self._lock:
-                self._left_speed = linear - (angular * self._track_width) / 2
-                self._right_speed = linear + (angular * self._track_width) / 2
+                self._left_speed = left
+                self._right_speed = right
         else:
-            self._psoc.SetSpeed(linear, angular)
+            self._psoc.SetSpeed(left, right)
 
-        rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(linear, angular))
+        rospy.logdebug("HAL.SetSpeed: {:6.2f}, {:6.2f}".format(left, right))
 
     def GetOdometry(self):
         if self._simulated:
             with self._lock:
-                x_dist = 0
-                y_dist = 0
+                left_speed = 0
+                right_speed = 0
+                left_delta_distance = 0
+                right_delta_distance = 0
                 heading = 0
-                linear_speed = (self._right_speed + self._left_speed) / 2
-                angular_speed = (self._right_speed - self._left_speed) / self._track_width
-                return [x_dist, y_dist, heading, linear_speed, angular_speed]
+                return [left_speed, right_speed, left_delta_distance, right_delta_distance, heading]
         else:
             return self._psoc.GetOdometry()
 

@@ -56,10 +56,10 @@ class BaseHALServiceNode(HALServiceNode):
 
     def _hal_set_speed(self, request):
         success = False
-        linear = request.values[0]
-        angular = request.values[1]
+        left = request.values[0]
+        right = request.values[1]
         try:
-            self._hal.SetSpeed(linear, angular)
+            self._hal.SetSpeed(left, right)
             success = True
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::SetSpeed")

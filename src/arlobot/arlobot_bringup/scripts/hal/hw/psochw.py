@@ -10,8 +10,8 @@ class PsocHwError(Exception):
 class PsocHw:
     __DEVICE_CONTROL_OFFSET = 0
     __DEBUG_CONTROL_OFFSET = 2
-    __LINEAR_COMMANDED_VELOCITY_OFFSET = 4
-    __ANGULAR_COMMANDED_VELOCITY_OFFSET = 8
+    __LEFT_WHEEL_VELOCITY_OFFSET = 4
+    __RIGHT_WHEEL_VELOCITY_OFFSET = 8
     __DEVICE_STATUS_OFFSET = 12
     __CALIBRATION_STATUS_OFFSET = 14
     __ODOMETRY_OFFSET = 16
@@ -26,12 +26,17 @@ class PsocHw:
                       'DEVICE_CONTROL': __DEVICE_CONTROL_OFFSET,
                       #      - Bit 0: enable / disable the HB25 motors
                       #      - Bit 1: clear odometry
-                      'DEBUG_CONTROL': __DEBUG_CONTROL_OFFSET,
-                      #      - Bit 0: enable / disable the HB25 motors
-                      #      - Bit 1: clear odometry
+                      #      - Bit 2: clear calibration
 
-                      'LINEAR_COMMANDED_VELOCITY': __LINEAR_COMMANDED_VELOCITY_OFFSET,
-                      'ANGULAR_COMMANDED_VELOCITY': __ANGULAR_COMMANDED_VELOCITY_OFFSET,
+                      'DEBUG_CONTROL': __DEBUG_CONTROL_OFFSET,
+                      #      - Bit 0: Enable/Disable Encoder Debug
+                      #      - Bit 1: Enable/Disable PID debug
+                      #      - Bit 2: Enable/Disable Motor debug
+                      #      - Bit 3: Enable/Disable Odometry debug
+                      #       - Bit 4: Enable/Disable Sample debug
+
+                      'LEFT_WHEEL_VELOCITY': __LEFT_WHEEL_VELOCITY_OFFSET,
+                      'RIGHT_WHEEL_VELOCITY': __RIGHT_WHEEL_VELOCITY_OFFSET,
 
                       #----------------------------------
                       #------ READ/WRITE Boundary -------
@@ -43,8 +48,6 @@ class PsocHw:
                       'CALIBRATION_STATUS': __CALIBRATION_STATUS_OFFSET,
                       #      - Bit 0: Wheel Velocity, i.e., Count/Sec-to-PWM
                       #      - Bit 1: PID
-                      #      - Bit 2: Linear Bias
-                      #      - Bit 3: Angular Bias
                       'ODOMETRY': __ODOMETRY_OFFSET,
                       'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
                       'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
@@ -54,6 +57,7 @@ class PsocHw:
 
     __CONTROL_DISABLE_MOTORS_BIT = 0x0001
     __CONTROL_CLEAR_ODOMETRY_BIT = 0x0002
+    __CONTROL_CLEAR_CALIBRATION_BIT = 0x0004
 
     __DEVICE_STATUS_MOTORS_INIT_BIT = 0x0001
 
@@ -65,21 +69,16 @@ class PsocHw:
 
     __CAL_MOTORS_BIT = 0x0001
     __CAL_PID_GAINS_BIT = 0x0002
-    __CAL_LINEAR_BIAS_BIT = 0x0004
-    __CAL_ANGULAR_BIAS_BIT = 0x0008
 
     __CAL_MOTORS_CONTROL_BIT = __CAL_MOTORS_BIT
     __CAL_PID_GAINS_CONTROL_BIT = __CAL_PID_GAINS_BIT
-    __CAL_LINEAR_BIAS_CONTROL_BIT = __CAL_LINEAR_BIAS_BIT
-    __CAL_ANGULAR_BIAS_CONTROL_BIT = __CAL_ANGULAR_BIAS_BIT
 
     __CAL_MOTORS_STATUS_BIT = __CAL_MOTORS_BIT
     __CAL_PID_GAINS_STATUS_BIT = __CAL_PID_GAINS_BIT
-    __CAL_LINEAR_BIAS_STATUS_BIT = __CAL_LINEAR_BIAS_BIT
-    __CAL_ANGULAR_BIAS_STATUS_BIT = __CAL_ANGULAR_BIAS_BIT
 
     DISABLE_MOTORS = __CONTROL_DISABLE_MOTORS_BIT
     CLEAR_ODOMETRY = __CONTROL_CLEAR_ODOMETRY_BIT
+    CLEAR_CALIBRATION = __CONTROL_CLEAR_CALIBRATION_BIT
 
     PSOC_ADDR = 0x08
 
@@ -116,6 +115,9 @@ class PsocHw:
     def ClearOdometry(self):
         self._set_device_control(PsocHw.__CONTROL_CLEAR_ODOMETRY_BIT)
 
+    def ClearCalibration(self):
+        self._set_device_control(PsocHw.__CONTROL_CLEAR_CALIBRATION_BIT)
+
     def EncoderDebug(self, value=True):
         bitmask = PsocHw.__DBG_ENCODERS_BIT
         if not value:
@@ -146,14 +148,15 @@ class PsocHw:
             bitmask = ~PsocHw.__CAL_SAMPLE_BIT
         self._set_calibration_control(bitmask)
 
-    def SetSpeed(self, linear_speed, angular_speed):
+    def SetSpeed(self, left_speed, right_speed):
         '''
         '''
-        #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], linear_speed)
-        #self._i2c_bus.WriteFloat(self._address, PsocHw.__REGISTER_MAP['ANGULAR_COMMANDED_VELOCITY'], angular_speed)
         # Note:  We can save some I2C protocol overhead by sending both values together as a multi-byte transaction
-        self._i2c_bus.WriteArray(self._address, PsocHw.__REGISTER_MAP['LINEAR_COMMANDED_VELOCITY'], [linear_speed, angular_speed], 'f')
-        print("{}: PsocHw SetSpeed({}, {})".format(time.time(), linear_speed, angular_speed))
+        self._i2c_bus.WriteArray(self._address,
+                                 PsocHw.__REGISTER_MAP['LEFT_WHEEL_VELOCITY'],
+                                 [left_speed, right_speed],
+                                 'f')
+        print("{}: PsocHw SetSpeed({}, {})".format(time.time(), left_speed, right_speed))
 
     #------------ Read Only ---------------
 
@@ -188,42 +191,14 @@ class PsocHw:
         result = self._get_calibration_status()
         return result & PsocHw.__CAL_PID_GAINS_STATUS_BIT
 
-    def LinearBiasCalibrated(self):
-        result = self._get_calibration_status()
-        return result & PsocHw.__CAL_LINEAR_BIAS_STATUS_BIT
-
-    def AngularBiasCalibrated(self):
-        result = self._get_calibration_status()
-        return result & PsocHw.__CAL_ANGULAR_BIAS_STATUS_BIT
-
     def IsCalibrated(self):
         result = self._get_calibration_status()
-        return result == PsocHw.__CAL_MOTORS_STATUS_BIT | PsocHw.__CAL_PID_GAINS_STATUS_BIT | \
-                         PsocHw.__CAL_LINEAR_BIAS_STATUS_BIT | PsocHw.__CAL_ANGULAR_BIAS_STATUS_BIT
+        return result == PsocHw.__CAL_MOTORS_STATUS_BIT | PsocHw.__CAL_PID_GAINS_STATUS_BIT
 
     def GetOdometry(self):
-        # Each of the values is a floating point value
-        #  - x distance
-        #  - y distance
-        #  - heading
-        #  - linear velocity
-        #  - angular velocity
+        odometry = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['ODOMETRY'], 5, 'f')
 
-        # Note: There is an issue with the I2C data where sometimes the values are incredibly large.  Comparing the I2C
-        # output simultaneously with the RS-232 output, it appears this is an aberation of the I2C bus.  A simple way
-        # around this is to qualify the values received.  Some values, like heading, linear and angular velocity have
-        # known limits, but x and y distance are unbounded.  For these though, we still know the worst case increment
-        # based on the largest possible linear velocity.
-        MAX_LINEAR_DIST = 100000000
-        MIN_LINEAR_DIST = -MAX_LINEAR_DIST
-        MAX_LINEAR_VEL = 0.7579
-        MIN_LINEAR_VEL = -MAX_LINEAR_VEL
-        MAX_ANGULAR_VEL = (2 * 0.7579)/0.403
-        MIN_ANGULAR_VEL = -MAX_ANGULAR_VEL
-
-        x_dist, y_dist, heading, linear_vel, angular_vel = self._i2c_bus.ReadArray(self._address, PsocHw.__REGISTER_MAP['ODOMETRY'], 5, 'f')
-
-        return x_dist, y_dist, heading, linear_vel, angular_vel
+        return odometry
 
     def GetUlrasonicDistances(self):
         '''
@@ -266,23 +241,23 @@ if __name__ == "__main__":
     # Test speed minimum value
     psoc.SetSpeed(0.1, 0)
     time.sleep(2.0)
-    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
-    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
+    odometry = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: {} {} {} {}".format(*odometry))
     #assert(result == -100)
 
     
     # Test speed median value
     psoc.SetSpeed(0, 0)
     time.sleep(2.0)
-    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
-    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
+    odometry = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: {} {} {} {}".format(*odometry))
     #assert(result == 0)
 
     # Test speed maximum value
     psoc.SetSpeed(-0.1, 0)
     time.sleep(2.0)
-    x_dist, y_dist, heading, linear, angular = tuple(psoc.GetOdometry())
-    print("psoc.GetOdometry: ", x_dist, y_dist, heading, linear, angular)
+    odometry = tuple(psoc.GetOdometry())
+    print("psoc.GetOdometry: {} {} {} {}".format(*odometry))
     #assert(result == 100)
 
     psoc.SetSpeed(0, 0)

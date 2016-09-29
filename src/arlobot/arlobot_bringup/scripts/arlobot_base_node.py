@@ -42,6 +42,11 @@ class ArlobotBaseNode:
 
         # Subscribes to battery status message received from ArlobotSafetyNode
         #rospy.Subscriber("battery_state", BatteryState, self._safety_callback)
+
+        # Consider applying the skirt abstraction at this level.  We probably don't care about the manner in which
+        # distance information is gathered, just that it is distance data that needs to be processed.  A skirt node
+        # might be more appropriate then ultrasonic and infrared subscribers
+
         rospy.Subscriber("ultrasonic_array", Range, self._distance_callback)
         rospy.Subscriber("infrared_array", Range, self._distance_callback)
 
@@ -97,6 +102,12 @@ class ArlobotBaseNode:
         rospy.loginfo("Arlobot Base Node entering loop")
         while not rospy.is_shutdown():
             self._update_state(ArlobotBaseNodeStates.STATE_RUNNING)
+
+            # Consider implementing basic fundamental behaviors associated with robot safety and operation
+            # at this level, i.e., obstacle avoidance, charging, etc
+            # At this level (running on the raspberry pi) we have enough abstractions to implement behaviors and the
+            # ability to switch between those behaviors as needed.
+
             self._loop_rate.sleep()
         else:
             rospy.logwarn("Arlobot Base Node: shutdown invoked, exiting")
