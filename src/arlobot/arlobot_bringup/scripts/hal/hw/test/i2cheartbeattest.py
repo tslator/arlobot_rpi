@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from i2c import I2CBus, I2CBusError
+from src.arlobot.arlobot_bringup.scripts.hal.hw.i2c import I2CBus, I2CBusError
 import sys
 import time
 import math

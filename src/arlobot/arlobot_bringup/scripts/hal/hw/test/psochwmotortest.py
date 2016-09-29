@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
-from i2c import I2CBus, I2CBusError
-from psochw import PsocHw, PsocHwError
+from src.arlobot.arlobot_bringup.scripts.hal.hw.i2c import I2CBus, I2CBusError
+from src.arlobot.arlobot_bringup.scripts.hal.hw.psochw import PsocHw, PsocHwError
 import time
 import sys
 
