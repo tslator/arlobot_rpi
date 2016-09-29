@@ -28,8 +28,9 @@ from __future__ import print_function
 
 import RPi.GPIO as GPIO
 import os
+import time
 
-M4_ON_OFF_PIN = 5
+M4_ON_OFF_PIN = 40 # Pin 40, GPIO21
 
 def OnOffChanged(channel):
     '''
@@ -38,10 +39,13 @@ def OnOffChanged(channel):
     :return:
     '''
     print("OnOff pin changed: ", GPIO.input(channel))
-    os.system("sudo shutdown -h now")
+    #os.system("sudo shutdown -h now")
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(M4_ON_OFF_PIN, GPIO.IN)
 GPIO.add_event_detect(M4_ON_OFF_PIN, GPIO.BOTH, callback=OnOffChanged, bouncetime=200)
+
+while 1:
+    time.sleep(1)
 
 

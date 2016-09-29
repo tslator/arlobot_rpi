@@ -1,6 +1,12 @@
 from __future__ import print_function
-from i2c import I2CBus, I2CBusError
 import sys
+import os
+
+# In order to invoke this directly as a test, it is necessary to add the parent directory to the path
+# before importing modules to test
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from i2c import I2CBus, I2CBusError
 import time
 import math
  
