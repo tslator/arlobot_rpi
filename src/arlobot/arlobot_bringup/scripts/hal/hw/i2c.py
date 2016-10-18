@@ -31,105 +31,70 @@ class I2CBus:
         except RuntimeError:
             raise I2CBusError("Unable to open SMBus")
 
-    def _try(self, call, tries=10):
-        assert tries > 0
-        error = None
-        result = None
+    def _read_multiple_bytes(self, address, offset, num_bytes):
+        return self._smbus.read_i2c_block_data(address, offset, num_bytes)
 
-        while tries:
-            try:
-                result = call()
-            except IOError as e:
-                error = e
-                tries -= 1
-            else:
-                break
-
-        if not tries:
-            print("failure after {} tries".format(20 - tries))
-            raise error
-
-        return result    
-
-    def _read_multiple_bytes(self, address, offset, num_bytes, use_i2c):
-        values = []
-        if use_i2c:
-            values = self._try(lambda: self._smbus.read_i2c_block_data(address, offset, num_bytes))
-        else:
-            for i in range(num_bytes):
-                value = self._try(lambda: self._smbus.read_byte_data(address, offset + i))
-                values.append(value)
-        return values
-
-    def _write_multiple_bytes(self, address, offset, byte_values, use_i2c):
-        if use_i2c:
-            self._try(lambda: self._smbus.write_i2c_block_data(address, offset, bytearray(byte_values)))
-        else:
-            for i, value in enumerate(byte_values):
-                self._try(lambda: self._smbus.write_byte_data(address, offset + i, value))
+    def _write_multiple_bytes(self, address, offset, byte_values:
+        self._smbus.write_i2c_block_data(address, offset, list(byte_values)))
 
     def WriteUint8(self, address, offset, value):
-        self._try(lambda : self._smbus.write_byte_data(address, offset, value))
+        self._smbus.write_byte_data(address, offset, value)
 
     def ReadUint8(self, address, offset):
-        value = self._try(lambda : self._smbus.read_byte_data(address, offset))
-        return value
+        return self._smbus.read_byte_data(address, offset)
 
     def WriteUint16(self, address, offset, value):
-        self._try(lambda : self._smbus.write_word_data(address, offset, value))
+        self._smbus.write_word_data(address, offset, value)
 
     def ReadUint16(self, address, offset):
-        value = self._try(lambda : self._smbus.read_word_data(address, offset))
-        return value
+        return self._smbus.read_word_data(address, offset)
 
     def WriteInt16(self, address, offset, value):
-        self._try(lambda : self._smbus.write_word_data(address, offset, value))
+        self._smbus.write_word_data(address, offset, value)
 
     def ReadInt16(self, address, offset):
-        value = self._try(lambda : self._smbus.read_word_data(address, offset))
-        return value if value < (2**15 - 1) else value - 2**16
+        return self._smbus.read_word_data(address, offset)
 
     def ReadUint32(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['L'], use_i2c)
-        #return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
-        return struct.unpack('L', str(bytearray(values)))[0]
+        bytes = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['L'])
+        return struct.unpack('L', str(bytesarray(bytes)))[0]
 
     def ReadInt32(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['l'], use_i2c)
-        #int_value = (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | (value[3])
-        #return int_value if int_value < (2**31 - 1) else int_value - 2**32
-        return struct.unpack('l', str(bytearray(values)))[0]
+        bytes = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['l'])
+        return struct.unpack('l', str(bytearray(bytes)))[0]
 
     def ReadFloat(self, address, offset, use_i2c=False):
-        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['f'], use_i2c)
+        values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['f'])
         return struct.unpack('f', str(bytearray(values)))[0]
 
     def WriteFloat(self, address, offset, value, use_i2c=False):
         bytes = bytearray(struct.pack('f',value))
-        self._write_multiple_bytes(address, offset, bytes, use_i2c)
+        self._write_multiple_bytes(address, offset, bytes)
 
-    def ReadArray(self, address, offset, num_values, type, use_i2c=False):
+    def ReadArray(self, address, offset, num_values, type):
         # Create a format specifier based on the number of values requested.  
         # All of the values will be read as the same type, e.g., all floats, all long, etc
         # The format specifies the number of float values to convert
         format = '%s%s' % (num_values, type)
+        
         # Calculate number of bytes to read
         #   - num_values is the number of values to read
         #   - num_bytes is num_values * size of each value
         num_bytes = num_values * I2CBus.__TYPE_SIZES[type]
+        
         # It turns out that reading i2c block data is not supported on all Raspberry Pi's (probably a OS/driver difference)
         # The Pi 2 running Jessie doesn't support i2c (i2cget with no arguments shows no 'i' option)
         # The Pi 3 running Jessie does support i2c (i2cget with no argument shows 'i' option)
         # So, we need to support both options
-        values = self._read_multiple_bytes(address, offset, num_bytes, use_i2c)
-        return list(struct.unpack(format, str(bytearray(values))))
+        bytes = self._read_multiple_bytes(address, offset, num_bytes)
+        
+        return list(struct.unpack(format, str(bytearray(bytes))))
 
-    def WriteArray(self, address, offset, values, type, use_i2c=False):
-        byte_values = bytearray()
-        for value in values:
-            byte_values += bytearray(struct.pack(type, value))
-
-        self._write_multiple_bytes(address, offset, byte_values, use_i2c)
+    def WriteArray(self, address, offset, values, type):
+        # Convert each value to its byte representation and place into a bytearray
+        # before writing to the bus
+        byte_values = bytearray([struct.pack(type, value) for value in values])
+        self._write_multiple_bytes(address, offset, byte_values)
 
 if __name__ == "__main__":
     # Note: This test requires a compatible Psoc application that exposes an I2C device that can support the following:
