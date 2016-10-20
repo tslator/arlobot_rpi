@@ -1,3 +1,9 @@
+"""
+This module provides an interface for reading and writing to the i2c bus via the smbus module
+It creates an abstraction that supports reading/writing numeric types and arrays of 
+numeric types
+"""
+
 from __future__ import print_function
 
 from smbus import SMBus
@@ -10,10 +16,11 @@ class I2CBusError(Exception):
 
 class I2CBus:
 
+    # The device ids supported
     DEV_I2C_0 = 0
     DEV_I2C_1 = 1
 
-    # The following formatting is taken from struct
+    # The following formatting is taken from struct and maps the character designations to number of bytes in the type
     __TYPE_SIZES = {'d': 8, # double - 8 bytes
                     'f': 4, # float - 4 bytes
                     'L': 4, # uint32 - 4 bytes
@@ -25,11 +32,10 @@ class I2CBus:
                    }
 
     def __init__(self, device):
-        self._device = device
         try:
-            self._smbus = SMBus(self._device)
+            self._smbus = SMBus(device)
         except RuntimeError:
-            raise I2CBusError("Unable to open SMBus")
+            raise I2CBusError("Unable to open SMBus using {}".format(device))
 
     def _read_multiple_bytes(self, address, offset, num_bytes):
         return self._smbus.read_i2c_block_data(address, offset, num_bytes)
@@ -39,9 +45,6 @@ class I2CBus:
 
     def WriteUint8(self, address, offset, value):
         self._smbus.write_byte_data(address, offset, value)
-
-    def ReadUint8(self, address, offset):
-        return self._smbus.read_byte_data(address, offset)
 
     def WriteUint16(self, address, offset, value):
         self._smbus.write_word_data(address, offset, value)
@@ -69,6 +72,9 @@ class I2CBus:
 
     def ReadUint16(self, address, offset):
         return self._smbus.read_word_data(address, offset)
+
+    def ReadUint8(self, address, offset):
+        return self._smbus.read_byte_data(address, offset)
 
     def ReadInt16(self, address, offset):
         return self._smbus.read_word_data(address, offset)
@@ -104,9 +110,12 @@ class I2CBus:
         
         return list(struct.unpack(format, str(bytearray(bytes))))
 
-
+#-----------------------------------------------------------------------------------------------------------------------------
+# Module Test
+#-----------------------------------------------------------------------------------------------------------------------------
 
 def test(i2c, address):
+    indent = ' '*4
     def dump_i2c_counters():
         print("rd1_busy: {}".format(i2c.ReadUint32(address, 8) ))
         print("busy    : {}".format(i2c.ReadUint32(address, 12) ))
@@ -115,22 +124,23 @@ def test(i2c, address):
         print("wr1_busy: {}".format(i2c.ReadUint32(address, 24) ))
         print("write1  : {}".format(i2c.ReadUint32(address, 28) ))
 
-    def test_read_write_bytes(indent=4):
-        print("{}Write 8 bytes one at a time ...".format(' '*indent))
+    def test_read_write_bytes():
+        print("{}Write 8 bytes one at a time ...".format(indent))
         for i in range(8):
             writes = i+128
             i2c.WriteUint8(address, i, writes)
             reads = i2c.ReadUint8(address, i)
+            print(reads, writes)
             assert(reads == writes)
 
-        print("{}Write 8 bytes as an array ...".format(' '*indent))
+        print("{}Write 8 bytes as an array ...".format(indent))
         writes = [i for i in range(128, 128+8)]
         i2c.WriteArray(address, 0, writes, 'B')
         reads = i2c.ReadArray(address, 0, 8, 'B')
         assert(reads == writes)
 
-    def test_read_write_words(indent=4):
-        print("{}Write 4 words one at a time ...".format(' '*indent))
+    def test_read_write_words():
+        print("{}Write 4 words one at a time ...".format(indent))
         for i in range(4):
             writes = i+32768
             offset = i * 2
@@ -138,14 +148,14 @@ def test(i2c, address):
             reads = i2c.ReadUint16(address, offset)
             assert(reads == writes)
 
-        print("{}Write 4 words as an array ...".format(' '*indent))
+        print("{}Write 4 words as an array ...".format(indent))
         writes = [i for i in range(32768, 32768+4)]
         i2c.WriteArray(address, 0, writes, 'H')
         reads = i2c.ReadArray(address, 0, 4, 'H')
         assert(reads == writes)
 
-    def test_read_write_longs(indent=4):
-        print("{}Write 2 longs one at a time ...".format(' '*indent))
+    def test_read_write_longs():
+        print("{}Write 2 longs one at a time ...".format(indent))
         for i in range(2):
             writes = i+2147483648
             offset = i * 4
@@ -153,14 +163,14 @@ def test(i2c, address):
             reads = i2c.ReadUint32(address, offset)
             assert(reads == writes)
 
-        print("{}Write 2 longs as an array ...".format(' '*indent))
+        print("{}Write 2 longs as an array ...".format(indent))
         writes = [i for i in range(2147483648, 2147483648+2)]
         i2c.WriteArray(address, 0, writes, 'L')
         reads = i2c.ReadArray(address, 0, 2, 'L')
         assert(reads == writes)
 
-    def test_read_write_floats(indent=4):
-        print("{}Write 2 floats one at a time ...".format(' '*indent))
+    def test_read_write_floats():
+        print("{}Write 2 floats one at a time ...".format(indent))
         for i in range(2):
             writes = i+3.14
             offset = i * 4
@@ -168,7 +178,7 @@ def test(i2c, address):
             reads = i2c.ReadFloat(address, offset)
             assert( "{:.2f}".format(reads) == "{:.2f}".format(writes) )
 
-        print("{}Write 2 floats as an array ...".format(' '*indent))
+        print("{}Write 2 floats as an array ...".format(indent))
         writes = [i*3.14 for i in range(1,3)]
         i2c.WriteArray(address, 0, writes, 'f')
         reads = i2c.ReadArray(address, 0, 2, 'f')
@@ -249,6 +259,11 @@ if __name__ == "__main__":
     #------------------------------------------------------------------------------------------------------------------------------
 
     import sys
+
+    print("!!!!NOTE!!!! YOU MUST ENABLE TEST_I2C IN THE PSOC SOFTWARE TO RUN THIS TEST")
+    answer = raw_input("Continue? Y/n: ")
+    if answer.lower() == 'n':
+        sys.exit(1)
     
     try:
         i2c1 = I2CBus(I2CBus.DEV_I2C_1)
