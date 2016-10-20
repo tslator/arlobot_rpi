@@ -106,7 +106,7 @@ class I2CBus:
 
 
 
-def main(i2c, address):
+def test(i2c, address):
     def dump_i2c_counters():
         print("rd1_busy: {}".format(i2c.ReadUint32(address, 8) ))
         print("busy    : {}".format(i2c.ReadUint32(address, 12) ))
@@ -261,11 +261,11 @@ if __name__ == "__main__":
     assert(address == 0x08)
  
     print("Execute single pass ...")
-    main(i2c1, address)
+    test(i2c1, address)
 
     print("Execute stress ...")
     for i in range(10):
-        main(i2c1, address)
+        test(i2c1, address)
 
     print("Validation Complete")
 
