@@ -149,7 +149,7 @@ class PsocHw:
                                  PsocHw.__REGISTER_MAP['LEFT_WHEEL_VELOCITY'],
                                  [left_speed, right_speed],
                                  'f')
-        print("{}: PsocHw SetSpeed({}, {})".format(time.time(), left_speed, right_speed))
+        #print("{}: PsocHw SetSpeed({}, {})".format(time.time(), left_speed, right_speed))
 
     #------------ Read Only ---------------
 

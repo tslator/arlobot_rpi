@@ -15,11 +15,14 @@ This module supports the following high-level motions:
         - 360 degrees
 """
 from __future__ import print_function
-from src.arlobot.arlobot_bringup.scripts.hal.hw.i2c import I2CBus, I2CBusError
-from src.arlobot.arlobot_bringup.scripts.hal.hw.psochw import PsocHw, PsocHwError
-import time
 import sys
+import time
 import argparse
+import math
+sys.path.append("../")
+from i2c import I2CBus, I2CBusError
+from psochw import PsocHw, PsocHwError
+
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -44,13 +47,16 @@ def parse():
 def DoForwardMove(psoc, distance):
     # Use fixed velocity: 0.200
 
-    _, _, left_dist, right_dist, _ = psoc.GetOdometry()
-    left_end_dist = left_dist + distance
-    right_end_dist = right_dist + distance
+    left_dist = 0.0
+    right_dist = 0.0
+    left_end_dist = distance
+    right_end_dist = distance
 
     while left_dist < left_end_dist and right_dist < right_end_dist:
         psoc.SetSpeed(0.2, 0.2)
-        _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+        _, _, left_delta_dist, right_delta_dist, _ = psoc.GetOdometry()
+        left_dist += left_delta_dist
+        right_dist += right_delta_dist
         time.sleep(0.1)
 
     psoc.SetSpeed(0.0, 0.0)
@@ -58,13 +64,16 @@ def DoForwardMove(psoc, distance):
 def DoBackwardMove(psoc, distance):
     # Use fixed velocity: 0.200
 
-    _, _, left_dist, right_dist, _ = psoc.GetOdometry()
-    left_end_dist = left_dist - distance
-    right_end_dist = right_dist - distance
+    left_dist = 0.0
+    right_dist = 0.0
+    left_end_dist = -distance
+    right_end_dist = -distance
 
     while left_dist > left_end_dist and right_dist > right_end_dist:
         psoc.SetSpeed(-0.2, -0.2)
-        _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+        _, _, left_delta_dist, right_delta_dist, _ = psoc.GetOdometry()
+        left_dist += left_delta_dist
+        right_dist += right_delta_dist
         time.sleep(0.1)
 
     psoc.SetSpeed(0.0, 0.0)
@@ -77,50 +86,71 @@ def Uni2Diff(linear, angular):
 
     return left, right
 
+def ToDegrees(radians):
+    return (radians/math.pi)*360.0
+
+def ToRadians(degrees):
+    return (degrees/360.0)*math.pi
+
 def DoCwRotate(psoc, degrees):
     # Use fixed angular velocity
 
-    left, right = Uni2Diff(0.0, 0.05)
+    left, right = Uni2Diff(0.0, -0.035)
 
-    _, _, _, _, heading = psoc.GetOdometry()
-
-    end_heading = heading - (degrees/360.0)*3.14
+    _,_,_,_,heading = psoc.GetOdometry()    
+    desired_heading = heading - ToRadians(degrees)
+   
+    end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
+    print(ToDegrees(heading), ToDegrees(desired_heading), ToDegrees(end_heading))
 
     while heading > end_heading:
         psoc.SetSpeed(left, right)
-        _, _, _, _, heading = psoc.GetOdometry()
-        time.sleep(0.1)
+        _,_,_,_,heading = psoc.GetOdometry()
+        #print(heading, end_heading)
+        time.sleep(0.05)
 
     psoc.SetSpeed(0.0, 0.0)
-
+    print("Ending Heading: ", ToDegrees(heading), heading)
 
 def DoCcwRotate(psoc, degrees):
-    left, right = Uni2Diff(0.0, 0.05)
+    left, right = Uni2Diff(0.0, 0.035)
+
     _, _, _, _, heading = psoc.GetOdometry()
+    desired_heading = heading + ToRadians(degrees)
 
-    end_heading = heading + (degrees/360.0)*3.14
-
+    end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
+    print(ToDegrees(heading), ToDegrees(desired_heading), ToDegrees(end_heading))
+    
     while heading < end_heading:
         psoc.SetSpeed(left, right)
-        _, _, _, _, heading = psoc.GetOdometry()
-        time.sleep(0.1)
+        _,_,_,_,heading = psoc.GetOdometry()
+        #print(heading, end_heading)
+        time.sleep(0.05)
 
     psoc.SetSpeed(0.0, 0.0)
+    print("Ending Heading: ", ToDegrees(heading), heading)
 
 
 def main(psoc, args):
-    if args.forward:
-        DoForwardMove(psoc, args.distance)
+    if args.which == 'forward':
+        distance = max(min(float(args.distance), 2.0), 0.001)
+            
+        DoForwardMove(psoc, distance)
 
-    elif args.backward:
-        DoBackwardMove(psoc, args.distance)
+    elif args.which == 'backward':
+        distance = max(min(float(args.distance), 2.0), 0.001)
 
-    elif args.rotate:
+        DoBackwardMove(psoc, float(args.distance))
+
+    elif args.which == 'rotate':
+        degrees = max(min(float(args.degrees), 0.1), 360.0)
+
         if args.direction == 'cw':
-            DoCwRotate(psoc, args.degrees)
+            DoCwRotate(psoc, float(degrees))
         elif args.direction == 'ccw':
-            DoCcwRotate(psoc, args.degrees)
-
+            DoCcwRotate(psoc, float(degrees))
+    else:
+        print("which which?")
 
 if __name__ == "__main__":
     print("{}:".format(sys.argv[0]))
