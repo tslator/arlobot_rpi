@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from ..hal_proxy import BaseHALProxy, BaseHALProxyError
-from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
+from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError
+from ..hal_protocol import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from std_msgs.msg import Header
 from sensor_msgs.msg import Imu
 from arlobot_exception import ArlobotError

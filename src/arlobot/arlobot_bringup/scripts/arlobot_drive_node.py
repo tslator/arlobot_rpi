@@ -5,7 +5,7 @@ import rospy
 import tf
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
-from hal.hal_proxy import BaseHALProxy, BaseHALProxyError
+from hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 
 import time
 

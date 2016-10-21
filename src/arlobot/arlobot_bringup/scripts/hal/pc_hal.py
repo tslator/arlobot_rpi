@@ -2,19 +2,19 @@
 from __future__ import print_function
 
 import rospy
-from hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
-from hw.m4atxhw import M4AtxHw, M4AtxHwError
-from hw.kinectauxhw import KinectAuxHw, KinectAuxHwError
+from hal_protocol import HALProtocol, HALProtocolError
+from hal.hw.m4atxhw import M4AtxHw, M4AtxHwError
+from hal.hw.kinectauxhw import KinectAuxHw, KinectAuxHwError
 
 
-class PCHardwareAbstractionLayerError(HardwareAbstractionLayerError):
+class PCHardwareAbstractionLayerError(HALProtocolError):
     pass
 
 
-class PCHardwareAbstractionLayer(HardwareAbstractionLayer):
+class PCHardwareAbstractionLayer(HALProtocol):
 
     def __init__(self):
-        HardwareAbstractionLayer.__init__(self, "PC HAL")
+        HALProtocol.__init__(self, "PC HAL")
 
         #try:
         #    self._m4atx = M4AtxHw()

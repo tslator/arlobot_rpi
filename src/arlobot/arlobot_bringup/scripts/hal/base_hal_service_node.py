@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
 import rospy
+from arlobot_msgs.srv import *
 from hal_service_node import HALServiceNode, HALServiceNodeError
 from base_hal import BaseHardwareAbstractionLayer, BaseHardwareAbstractionLayerError
-from arlobot_msgs.srv import *
 
 
 class BaseHALServiceNodeError(HALServiceNodeError):

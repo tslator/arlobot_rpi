@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from ..hal_proxy import BaseHALProxy, BaseHALProxyError, PCHALProxy, PCHALProxyError
+from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError, PCHALProxy, PCHALProxyError
 # Import some standard message for reporting power, battery etc
 from arlobot_msgs.msg import BasePower
 

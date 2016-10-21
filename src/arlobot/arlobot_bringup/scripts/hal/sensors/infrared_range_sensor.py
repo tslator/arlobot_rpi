@@ -1,10 +1,9 @@
 from __future__ import print_function
 
 import rospy
-from ..hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import Range
 from range_array_sensor import RangeArraySensor, RangeArraySensorError
-from ..hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
+from ..hal_protocol.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 
 
 class InfraredRangeArraySensorError(Exception):

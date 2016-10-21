@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-from arlobot_base_status_pub import ArlobotBaseStatusPublisher
 from std_srvs.srv import Trigger, TriggerResponse
 from sensor_msgs.msg import Range
+from arlobot_base_status_pub import ArlobotBaseStatusPublisher
 
 
 class ArlobotBaseNodeError(Exception):
@@ -86,6 +86,7 @@ class ArlobotBaseNode:
 
         # Note: a little bit of sleep seems to be necessary to ensure that the INITIAL message is received.
         # Not sure why, but there is no harm in delaying the start of this node.
+        # Q: Is there a way to poll rather than sleep?
         rospy.sleep(1)
 
         self._update_state(ArlobotBaseNodeStates.STATE_INITIAL)

@@ -1,27 +1,26 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-import time
-import math
-import random
+from time import time, sleep
+from math import pi
+from random import randrange
 import rospy
 
-from hal import HardwareAbstractionLayer, HardwareAbstractionLayerError
-from hw.imuhw import ImuHw, ImuHwError
-from hw.psochw import PsocHw, PsocHwError
-from hw.xv11hw import Xv11Hw, Xv11HwError
-from hw.i2c import I2CBus
+from hal_protocol import HALProtocol, HALProtocolError
+from hal.hw.imuhw import ImuHw
+from hal.hw.psochw import PsocHw, PsocHwError
+from hal.hw.i2c import I2CBus
 from utils import Worker
 from threading import RLock
 
 
-class BaseHardwareAbstractionLayerError(HardwareAbstractionLayerError):
+class BaseHardwareAbstractionLayerError(HALProtocolError):
     pass
 
 
-class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
+class BaseHardwareAbstractionLayer(HALProtocol):
     def __init__(self, simulated=True):
-        HardwareAbstractionLayer.__init__(self, "Base HAL")
+        HALProtocol.__init__(self, "Base HAL")
 
         self._simulated = simulated
 
@@ -32,9 +31,6 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
         imu_mag_addr = rospy.get_param("IMU Mag I2C Address", ImuHw.MAG_ADDR)
         imu_acc_addr = rospy.get_param("IMU Acc I2C Address", ImuHw.ACC_ADDR)
 
-        xv11_port = rospy.get_param("XV11 Port", Xv11Hw.PORT)
-        xv11_baud = rospy.get_param("XV11 Baud", Xv11Hw.BAUD)
-
         # In the simulated mode, the HAL launches two threads (one for left and right wheels) that act independently
         # like an actual robot would in that each wheel calculates and sends an encoder count.  Unlike the real robot,
         # the count is derived from the commanded speed, but its reasonably effective and exercises the entire Arlobot
@@ -42,7 +38,7 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
         if self._simulated:
             # Parameters need to calculate encoder counts
             self._diameter = rospy.get_param("Wheel Diameter")
-            self._circumference = math.pi * self._diameter
+            self._circumference = pi * self._diameter
             self._tick_per_revolution = rospy.get_param("Tick Per Revolution")
             self._meter_per_revolution = self._circumference
             self._tick_per_meter = self._tick_per_revolution / self._meter_per_revolution
@@ -83,15 +79,8 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
             '''
 
-            '''
-            try:
-                self._xv11 = Xv11Hw(xv11_port, xv11_baud)
-            except Xv11HwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate Xv11Hw")
-            '''
-
     def __left_wheel_work(self):
-        now = time.time()
+        now = time()
         delta = now - self._last_left_time
         with self._lock:
             self._left_count += self._left_speed * delta * self._tick_per_meter
@@ -154,8 +143,8 @@ class BaseHardwareAbstractionLayer(HardwareAbstractionLayer):
     def GetInfrared(self):
         distances = []
         if self._simulated:
-            front = [float(random.randrange(10,81,1))/100 for _ in range (8)]
-            rear = [float(random.randrange(10,81,1))/100 for _ in range (8)]
+            front = [float(randrange(10,81,1))/100 for _ in range (8)]
+            rear = [float(randrange(10,81,1))/100 for _ in range (8)]
             distances = front + rear
         else:
             distances = self._psoc.GetInfraredDistances()
@@ -234,7 +223,7 @@ if __name__ == "__main__":
     print("Setting speed - left: 0.5, right: 0.5")
     base_hal.SetSpeed(0.5,0.5)
     print("Wait 10 seconds")
-    time.sleep(10)
+    sleep(10)
     print("Setting speed - left: 0, right: 0")
     base_hal.SetSpeed(0,0)
     print("Base HAL Shutting down")
