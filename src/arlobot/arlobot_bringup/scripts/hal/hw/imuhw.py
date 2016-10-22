@@ -12,15 +12,16 @@ class ImuHw:
     __SENSITIVITY_ACC = 0.06103515625   # LSB/mg
     __SENSITIVITY_MAG = 0.00048828125   # LSB/Ga
 
-    ACC_ADDR = 0x1d
-    MAG_ADDR = 0x1e
+    ACC_ADDR = ACCELEROMETER_I2C_ADDRESS
+    MAG_ADDR = MAGNOTOMETER_I2C_ADDRESS
+
+    __AXES = ['x', 'y', 'z']
 
     def __init__(self, i2cbus, mag_address, acc_address):
         self._mag_address = mag_address
         self._acc_address = acc_address
 
         self._i2c_bus = i2cbus
-
         self._initialize()
 
     def _read_mag_reg(self, reg):
@@ -35,14 +36,19 @@ class ImuHw:
     def _write_acc_reg(self, reg, value):
         self._i2c_bus.WriteUint8(self._acc_address, reg, value)
 
-    def _config_magnetometer(self):
-        '''
-        MAG_ReadReg(0x0F, &value);
-        //print("MAG Who Am I: %02x\n", value);
-        '''
-        value = self._read_mag_reg(0x0f)
-        #print("MAG Who Am I: {02:x}".format(value))
+    def _read_acc_values(self):
+        # Note: You may have to resolve endianness by adding a parameter to ReadArray method
+        values = self._i2c_bus.ReadArray(self._acc_address, ACC_OUT_X_H, 6, 'h', endian='big')
+        return [value * self.__SENSITIVITY_ACC for value in values]
 
+    def _read_mag_values(self):
+        # Note: You may have to resolve endianness by adding a parameter to ReadArray method
+        values = self._i2c_bus.ReadArray(self._mag_address, MAG_OUTX_H, 6, 'h', endian='big')
+        return [value * self.__SENSITIVITY_ACC for value in values]
+
+    def _config_magnetometer(self):
+        value = self._read_mag_reg(MAG_WHO_AM_I_REG)
+        print("MAG Who Am I: {02:x}".format(value))
 
         '''
         //successes += MAG_SetODR(modr);
@@ -54,7 +60,7 @@ class ImuHw:
         //print("\t\t%02x == %02x -> %s\n", value, test_value, value == test_value ? "TRUE" : "FALSE");
         '''
         value = self._read_mag_reg(MAG_CTRL_REG1)
-        value &= ~(MAG_DO_80_Hz) | 0x03
+        value &= ~MAG_DO_80_Hz | 0x03
         value |= MAG_DO_40_Hz
         self._write_mag_reg(MAG_CTRL_REG1, value)
 
@@ -69,7 +75,7 @@ class ImuHw:
         value = self._read_mag_reg(MAG_CTRL_REG2)
         value &= ~MAG_FS_16_Ga
         value |= MAG_FS_16_Ga
-        value = self._write_mag_reg(MAG_CTRL_REG2, value)
+        self._write_mag_reg(MAG_CTRL_REG2, value)
 
         '''
         // Enabling block data updating
@@ -87,7 +93,7 @@ class ImuHw:
         self._write_mag_reg(MAG_CTRL_REG5, value)
 
         '''
-        // Initialize magnetometer X/Y axes ouput data rate
+        // Initialize magnetometer X/Y axes output data rate
         //successes += MAG_XY_AxOperativeMode(mxyodr);
         MAG_ReadReg(MAG_CTRL_REG1, &value);
         value &= ~MAG_OMXY_ULTRA_HIGH_PERFORMANCE; //mask
@@ -127,6 +133,10 @@ class ImuHw:
         self._write_mag_reg(MAG_CTRL_REG3, value)
 
     def _config_accelerometer(self):
+
+        value = self._read_acc_reg(ACC_WHO_AM_I_REG)
+        print("ACC Who Am I: {02:x}".format(value))
+
         '''
         ////////// Initialize Accelerometer //////////
         // Initialize acceleration full scale
@@ -217,6 +227,13 @@ class ImuHw:
         imu = {'accel' : {}, 'mag' : {}, 'temp' : {}}
 
         '''
+        Consider changing below to read the block of bytes as 16-bit values
+        Q: Are these signed values?
+        A: According to the datasheet, the magnatometer values are 2's complement.  The datasheet doesn't say for
+        the accelerometer, but why wouldn't acceleration also be 2'c complement.
+        '''
+
+        '''
         ACC_ReadReg(ACC_OUT_X_H, &valueH);
         ACC_ReadReg(ACC_OUT_X_L, &valueL);
         temp_value = (valueH << 8) | valueL;
@@ -245,6 +262,13 @@ class ImuHw:
         valueH = self._read_acc_reg(ACC_OUT_Z_H)
         valueL = self._read_acc_reg(ACC_OUT_Z_L)
         imu['accel']['z'] =  ( (valueH << 8) | valueL) * self.__SENSITIVITY_ACC
+
+
+        # Instead of 6 byte reads an combining, do a single 6 byte array read which will convert the bytes into the
+        # specified format
+        values = self._read_acc_values()
+        imu['accel'] = dict(zip(self.__AXES, values))
+
 
         '''
         MAG_ReadReg(MAG_OUTX_L, &valueL);
@@ -277,6 +301,11 @@ class ImuHw:
         imu['mag']['z'] = ( (valueH << 8) | valueL) * self.__SENSITIVITY_ACC
 
 
+        # Instead of 6 byte reads an combining, do a single 6 byte array read which will convert the bytes into the
+        # specified format
+        values = self._read_mag_values()
+        imu['mag'] = dict(zip(self.__AXES, values))
+
         '''
         #MAG_ReadReg(MAG_TEMP_OUT_L, &valueL);
         #MAG_ReadReg(MAG_TEMP_OUT_H, &valueH);
@@ -290,8 +319,14 @@ class ImuHw:
         valueH = self._read_mag_reg(MAG_TEMP_OUT_H)
         valueL = self._read_mag_reg(MAG_TEMP_OUT_L)
         temp = (valueH << 8) | valueL
+
+        # Alternative
+        temp = self._i2c_bus.ReadInt16(self.MAG_ADDR, MAG_TEMP_OUT_H)
+
         imu['temp']['f'] = (temp * 9.0 / 5.0) + 32.0
-        imu['temp']['c'] = temp/8.0 + 25.0
+        imu['temp']['c'] = (temp - 32) * (5.0 / 9.0)
+        # ???? imu['temp']['c'] = temp / 8.0 + 25.0
+
 
         '''
         Returns a dictionary: { 'accel' : {'x': 0.0, 'y': 0.0, 'z': 0.0},

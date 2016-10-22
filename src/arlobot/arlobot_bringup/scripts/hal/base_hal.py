@@ -7,7 +7,7 @@ from random import randrange
 import rospy
 
 from hal_protocol import HALProtocol, HALProtocolError
-from hal.hw.imuhw import ImuHw
+from hal.hw.imuhw import ImuHw, ImuHwError
 from hal.hw.psochw import PsocHw, PsocHwError
 from hal.hw.i2c import I2CBus
 from utils import Worker
@@ -24,12 +24,10 @@ class BaseHardwareAbstractionLayer(HALProtocol):
 
         self._simulated = simulated
 
-        i2c_device = rospy.get_param("I2C Device", I2CBus.DEV_I2C_1)
+        psoc_i2c_device = rospy.get_param("Psoc I2C Device", I2CBus.DEV_I2C_1)
+        imu_i2c_device = rospy.get_param("Imu I2C Device", I2CBus.DEV_I2C_2)
 
         psoc_addr = rospy.get_param("Psoc I2C Address", PsocHw.PSOC_ADDR)
-
-        imu_mag_addr = rospy.get_param("IMU Mag I2C Address", ImuHw.MAG_ADDR)
-        imu_acc_addr = rospy.get_param("IMU Acc I2C Address", ImuHw.ACC_ADDR)
 
         # In the simulated mode, the HAL launches two threads (one for left and right wheels) that act independently
         # like an actual robot would in that each wheel calculates and sends an encoder count.  Unlike the real robot,
@@ -62,22 +60,26 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             self._right_worker = Worker("Right Wheel", self.__right_wheel_work)
         else:
             try:
-                self._i2c_bus = I2CBus(i2c_device)
+                self._i2c_bus_1 = I2CBus(psoc_i2c_device)
             except RuntimeError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus")
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(psoc_i2c_device))
 
             # Instantiate Psoc class
             try:
-                self._psoc = PsocHw(self._i2c_bus, psoc_addr)
+                self._psoc = PsocHw(self._i2c_bus_1, psoc_addr)
             except PsocHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw")
 
-            '''
             try:
-                self._imu = ImuHw(self._i2c_bus, imu_mag_addr, imu_acc_addr)
+                self._i2c_bus_2 = I2CBus(imu_i2c_device)
+            except RuntimeError:
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(imu_i2c_device))
+
+            try:
+                self._imu = ImuHw(self._i2c_bus_2)
             except ImuHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
-            '''
+
 
     def __left_wheel_work(self):
         now = time()

@@ -6,8 +6,10 @@ numeric types
 
 from __future__ import print_function
 
+from sys import byteorder
 from smbus import SMBus
 import struct
+
 
 
 class I2CBusError(Exception):
@@ -19,6 +21,7 @@ class I2CBus:
     # The device ids supported
     DEV_I2C_0 = 0
     DEV_I2C_1 = 1
+    DEV_I2C_2 = 2
 
     # The following formatting is taken from struct and maps the character designations to number of bytes in the type
     __TYPE_SIZES = {'d': 8, # double - 8 bytes
@@ -70,11 +73,11 @@ class I2CBus:
             byte_values += struct.pack(type, value)
         self._write_multiple_bytes(address, offset, bytearray(byte_values))
 
-    def ReadUint16(self, address, offset):
-        return self._smbus.read_word_data(address, offset)
-
     def ReadUint8(self, address, offset):
         return self._smbus.read_byte_data(address, offset)
+
+    def ReadUint16(self, address, offset):
+        return self._smbus.read_word_data(address, offset)
 
     def ReadInt16(self, address, offset):
         return self._smbus.read_word_data(address, offset)
@@ -91,7 +94,7 @@ class I2CBus:
         values = self._read_multiple_bytes(address, offset, I2CBus.__TYPE_SIZES['f'])
         return struct.unpack('f', str(bytearray(values)))[0]
 
-    def ReadArray(self, address, offset, num_values, type):
+    def ReadArray(self, address, offset, num_values, type, endian=sys.byteorder):
         # Create a format specifier based on the number of values requested.  
         # All of the values will be read as the same type, e.g., all floats, all long, etc
         # The format specifies the number of float values to convert
@@ -107,7 +110,14 @@ class I2CBus:
         # The Pi 3 running Jessie does support i2c (i2cget with no argument shows 'i' option)
         # So, we need to support both options
         bytes = self._read_multiple_bytes(address, offset, num_bytes)
-        
+
+        # Match the endianess of the request.  Default is platform endianess
+        # struct provides a format specifier for endianess
+        if endian == 'little':
+            format = '<'+format
+        else:
+            format = '>'+format
+
         return list(struct.unpack(format, str(bytearray(bytes))))
 
 #-----------------------------------------------------------------------------------------------------------------------------

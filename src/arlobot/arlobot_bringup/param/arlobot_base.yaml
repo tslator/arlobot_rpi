@@ -63,9 +63,6 @@ Infrared Scan Enable: True
 Base HAL Service Timeout Rate: 1 # Hz
 Base HAL Service Timeout: 5 # seconds
 Base HAL Simulate: False
-I2C Device: 1
+Psoc I2C Device: 1
+Imu I2C Device: 2
 Psoc I2C Address: 0x08
-IMU Mag I2C Address: 0x1e
-IMU Acc I2C Address: 0x1d
-XV11 Port: "/dev/ttyACM0"
-XV11 Baud: 115200
