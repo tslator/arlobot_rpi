@@ -99,18 +99,21 @@ def DoCwRotate(psoc, degrees):
 
     _,_,_,_,heading = psoc.GetOdometry()    
     desired_heading = heading - ToRadians(degrees)
-   
-    end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
-    print(ToDegrees(heading), ToDegrees(desired_heading), ToDegrees(end_heading))
 
-    while heading > end_heading:
+    end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
+    print("Start Heading (deg): ", ToDegrees(heading))
+    print("Target Heading (deg): ", ToDegrees(desired_heading))
+    print("Expected Final Heading (deg): ", ToDegrees(end_heading))
+
+    while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
         _,_,_,_,heading = psoc.GetOdometry()
-        #print(heading, end_heading)
-        time.sleep(0.05)
+        #print(heading, end_heading, abs(end_heading - heading))
+        time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
-    print("Ending Heading: ", ToDegrees(heading), heading)
+    print("Actual Final Heading (deg): ", ToDegrees(heading))
+
 
 def DoCcwRotate(psoc, degrees):
     left, right = Uni2Diff(0.0, 0.035)
@@ -119,16 +122,18 @@ def DoCcwRotate(psoc, degrees):
     desired_heading = heading + ToRadians(degrees)
 
     end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
-    print(ToDegrees(heading), ToDegrees(desired_heading), ToDegrees(end_heading))
+    print("Start Heading (deg): ", ToDegrees(heading))
+    print("Target Heading (deg): ", ToDegrees(desired_heading))
+    print("Expected Final Heading (deg): ", ToDegrees(end_heading))
     
-    while heading < end_heading:
+    while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
         _,_,_,_,heading = psoc.GetOdometry()
-        #print(heading, end_heading)
-        time.sleep(0.05)
+        #print(heading, end_heading, abs(end_heading - heading))
+        time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
-    print("Ending Heading: ", ToDegrees(heading), heading)
+    print("Actual Final Heading (deg): ", ToDegrees(heading))
 
 
 def main(psoc, args):
@@ -143,8 +148,8 @@ def main(psoc, args):
         DoBackwardMove(psoc, float(args.distance))
 
     elif args.which == 'rotate':
-        degrees = max(min(float(args.degrees), 0.1), 360.0)
-
+        degrees = min(max(float(args.degrees), 0.1), 360.0)
+        
         if args.direction == 'cw':
             DoCwRotate(psoc, float(degrees))
         elif args.direction == 'ccw':
