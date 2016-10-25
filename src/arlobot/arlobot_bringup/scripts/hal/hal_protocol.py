@@ -3,11 +3,11 @@ from __future__ import print_function
 
 import rospy
 
-class HardwareAbstractionLayerError(Exception):
+class HALProtocolError(Exception):
     pass
 
 
-class HardwareAbstractionLayer:
+class HALProtocol:
 
     __HAL_STATE_INITIAL = "INITIAL"
     __HAL_STATE_STOPPED = "STOPPED"
@@ -16,13 +16,14 @@ class HardwareAbstractionLayer:
 
     def __init__(self, name):
         self._name = name
-        self._state = HardwareAbstractionLayer.__HAL_STATE_INITIAL
+        self._state = HALProtocol.__HAL_STATE_INITIAL
 
     def _init(self):
         """
         Override this function to perform any initialization needed on startup
         :return:
         """
+        pass
 
     def _start(self):
         """
@@ -46,21 +47,25 @@ class HardwareAbstractionLayer:
         pass
 
     def Startup(self):
-        '''
+        """
         Calls to startup are ignore if the HAL is already running.
-        The HAL start life in the INITIAL state and can perform additional initialization outside of the class __init__
+
+        The HAL starts life in the INITIAL state and can perform additional initialization outside of the class __init__
         before transitioning to the STOPPED state
-        Once in the STOPPED state, the HAL can perform any work necessary prior to transitioning to the RUNNING state, e.g.,
-        in simulated mode, start the left/right wheel threads
-        Once the HAL transitions to the RUNNING state is can be used by clients
+
+        Once in the STOPPED state, the HAL can perform any work necessary prior to transitioning to the RUNNING state,
+        e.g., in simulated mode, start the left/right wheel threads.
+
+        Once the HAL transitions to the RUNNING state it can be used by clients
         :return:
-        '''
-        if self._state is HardwareAbstractionLayer.__HAL_STATE_RUNNING:
+        """
+
+        if self._state is HALProtocol.__HAL_STATE_RUNNING:
             rospy.logwarn("Attempt to startup {} while it is running - No action taken".format(self._name))
             return
 
         # Handle case when state is INITIAL - the shared object state needs to be setup
-        if self._state is HardwareAbstractionLayer.__HAL_STATE_INITIAL:
+        if self._state is HALProtocol.__HAL_STATE_INITIAL:
 
             rospy.loginfo("{} is initializing ...".format(self._name))
 
@@ -74,16 +79,16 @@ class HardwareAbstractionLayer:
             # Called to perform any processing needed for stopping
             self._stop()
 
-            self._state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
+            self._state = HALProtocol.__HAL_STATE_STOPPED
             rospy.loginfo("{} is stopped".format(self._name))
 
-        # Handle case when the shared object state is initialize and ready for the next level of startup
-        if self._state is HardwareAbstractionLayer.__HAL_STATE_STOPPED:
+        # Handle case when the shared object state is initialized and ready for the next level of startup
+        if self._state is HALProtocol.__HAL_STATE_STOPPED:
 
             # Called to perform any processing needed for startup
             self._start()
 
-            self._state = HardwareAbstractionLayer.__HAL_STATE_RUNNING
+            self._state = HALProtocol.__HAL_STATE_RUNNING
             rospy.loginfo("{} is running".format(self._name))
 
     def Ready(self, startup_shutdown):
@@ -93,9 +98,9 @@ class HardwareAbstractionLayer:
         :return:
         '''
         if startup_shutdown:
-            return self._state == HardwareAbstractionLayer.__HAL_STATE_RUNNING
+            return self._state == HALProtocol.__HAL_STATE_RUNNING
         else:
-            return self._state == HardwareAbstractionLayer.__HAL_STATE_SHUTDOWN
+            return self._state == HALProtocol.__HAL_STATE_SHUTDOWN
 
     def Shutdown(self):
         '''
@@ -110,7 +115,7 @@ class HardwareAbstractionLayer:
         # Called to perform any processing needed for stopping
         self._stop()
 
-        self._state = HardwareAbstractionLayer.__HAL_STATE_STOPPED
+        self._state = HALProtocol.__HAL_STATE_STOPPED
         rospy.loginfo("{} is stopped".format(self._name))
 
         rospy.loginfo("{} is shutting down ...".format(self._name))
@@ -118,5 +123,5 @@ class HardwareAbstractionLayer:
         # Called to perform any processing needed for shutdown
         self._shutdown()
 
-        self._state = HardwareAbstractionLayer.__HAL_STATE_SHUTDOWN
+        self._state = HALProtocol.__HAL_STATE_SHUTDOWN
         rospy.loginfo("{} is shutdown".format(self._name))

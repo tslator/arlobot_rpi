@@ -5,7 +5,7 @@ import rospy
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from arlobot_base_node import ArlobotBaseNodeStates
-from hal.hal_proxy import PCHALProxy, PCHALProxyError
+from hal.pc_hal_proxy import PCHALProxy, PCHALProxyError
 
 
 class ArlobotNodeError(Exception):

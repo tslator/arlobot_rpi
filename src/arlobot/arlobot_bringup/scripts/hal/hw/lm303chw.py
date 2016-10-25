@@ -1,6 +1,7 @@
+ACCELEROMETER_I2C_ADDRESS = 0x1d
+MAGNOTOMETER_I2C_ADDRESS = 0x1e
 
-
-MAG_WHO_AM_I   = 0x0F
+MAG_WHO_AM_I_REG = 0x0F
 MAG_CTRL_REG1  = 0x20
 MAG_CTRL_REG2  = 0x21
 MAG_CTRL_REG3  = 0x22
@@ -25,9 +26,9 @@ MAG_INT_THS_H  = 0x33
 #------------------------------------
 ACC_TEMP_L       = 0x0B
 ACC_TEMP_H       = 0x0C
-ACC_ACT_TSH      = 0x1E
+ACC_WHO_AM_I_REG = 0x0F
+ACC_ACT_THS      = 0x1E
 ACC_ACT_DUR      = 0x1F
-ACC_WHO_AM_I     = 0x0F
 ACC_CTRL1        = 0x20
 ACC_CTRL2        = 0x21
 ACC_CTRL3        = 0x22

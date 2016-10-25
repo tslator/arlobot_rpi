@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from rospy import Publisher, Time, get_time, get_param
-from ..hal_proxy import BaseHALProxy, BaseHALProxyError
+from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import LaserScan
 from math import pi
 

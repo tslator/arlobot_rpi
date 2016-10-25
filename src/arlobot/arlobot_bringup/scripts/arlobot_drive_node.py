@@ -5,7 +5,7 @@ import rospy
 import tf
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
-from hal.hal_proxy import BaseHALProxy, BaseHALProxyError
+from hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 
 import time
 
@@ -221,19 +221,17 @@ class ArlobotDriveNode:
     def CalculeOdometry(self):
 
         odometry = self._hal_proxy.GetOdometry()
-        rospy.logwarn("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f}".format(*odometry))
+        rospy.logwarn("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
 
-        left_speed, right_speed, left_delta_dist, right_delta_dist, delta_heading = odometry
+        left_speed, right_speed, left_delta_dist, right_delta_dist, heading = odometry
 
         delta_time = self._last_odom_time - time.time()
         self._last_odom_time = time.time()
 
-        # Calculate the heading
-        # Note: How does the heading received from Psoc compare to this heading calculation?  Is this one necessary?
-        # Maybe here is the place to choose between the heading received from Psoc and the heading received from an IMU
-        # or GPS?
-        self._theta += delta_time * (right_delta_dist - left_delta_dist) / self._track_width
-        rospy.logwarn("psoc heading: {:6.3f}, drive node heading: {:6.3f}".format(delta_heading, self._theta))
+        # Compare the heading
+        # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
+        imu = self._hal_proxy.GetImu()
+        rospy.logwarn("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['heading']))
 
         self._theta = math.atan2(math.sin(self._theta), math.cos(self._theta))
 

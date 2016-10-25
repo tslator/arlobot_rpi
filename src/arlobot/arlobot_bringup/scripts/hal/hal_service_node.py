@@ -109,7 +109,7 @@ class HALServiceNode:
 
     def Start(self):
         rospy.loginfo("{} Service Node starting ...".format(self._hal_name))
-        if not self._startup(5):
+        if not self._startup():
             raise HALServiceNodeError("Failed to start {}".format(self._hal_name))
         rospy.loginfo("{} Service node started".format(self._hal_name))
 
