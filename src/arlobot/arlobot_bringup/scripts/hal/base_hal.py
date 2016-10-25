@@ -80,7 +80,6 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             except ImuHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
 
-
     def __left_wheel_work(self):
         now = time()
         delta = now - self._last_left_time
@@ -168,12 +167,14 @@ class BaseHardwareAbstractionLayer(HALProtocol):
         if self._simulated:
             imu_data = { 'accel' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
                          'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                         'temp': {'f':0.0, 'c':0.0}}
+                         'temp': {'f':0.0, 'c':0.0},
+                         'heading': {'r': 0.0, 'd': 0.0} }
         else:
             #imu_data = self._imu.GetImuData()
             imu_data = { 'accel' : {'x' : 0.0, 'y' : 0.0, 'z' : 0.0},
                          'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                         'temp' : {'f': 0.0, 'c': 0.0}}
+                         'temp' : {'f': 0.0, 'c': 0.0},
+                         'heading': {'r':0.0, 'd': 0.0}}
 
         return imu_data
 

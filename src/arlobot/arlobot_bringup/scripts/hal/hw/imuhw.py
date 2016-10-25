@@ -1,6 +1,8 @@
 from __future__ import print_function
 
+import math
 from lm303chw import *
+
 
 
 class ImuHwError(Exception):
@@ -219,6 +221,39 @@ class ImuHw:
         self._config_accelerometer()
         self._enable_temperature()
 
+    def _calc_heading(self, x, y):
+        """
+        The magnetic compass heading can be determined( in degrees) from the magnetometer’s x and y readings by using
+        the following set of equations:
+            Direction(y > 0) = 90 - [arcTAN(x / y)] * 180 /pi
+            Direction(y < 0) = 270 - [arcTAN(x / y)] * 180 /pi
+            Direction(y=0, x < 0) = 180.0
+            Direction(y=0, x > 0) = 0.0
+        """
+        heading = {'r': 0.0, 'd': 0.0}
+
+        atan_xy = math.atan2(x / y)
+        pi_over_4 = math.pi / 4
+
+        if y > 0.0:
+            heading['r'] = pi_over_4 - atan_xy
+            heading['d'] = heading['r'] * 180 / math.pi
+            #heading = 90 - (atan_xy * 180) / math.pi
+
+        elif y < 0.0:
+            heading['r'] = 3 * pi_over_4 - atan_xy
+            #heading = 270 - (math.atan2(x/y) * 180) / math.pi
+            heading['d'] = heading['r'] * 180 / math.pi
+
+        elif y == 0.0:
+            if x < 0.0:
+                heading['r'] = 2 * math.pi
+                heading['d'] = 180
+            elif x > 0.0:
+                heading['r'] = heading['d'] = 0.0
+
+        return heading
+
     def _read_imu(self):
         temp_value = 0
         valueH = 0
@@ -327,11 +362,13 @@ class ImuHw:
         imu['temp']['c'] = (temp - 32) * (5.0 / 9.0)
         # ???? imu['temp']['c'] = temp / 8.0 + 25.0
 
+        imu['heading'] = self._calc_heading(imu['mag']['x'], imu['mag']['y'])
 
         '''
         Returns a dictionary: { 'accel' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
                                 'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                                'temp': {'f':0.0, 'c':0.0}}
+                                'temp': {'f':0.0, 'c':0.0}
+                                'heading': {'r':0.0, 'd':0.0}}
         '''
         return imu
 

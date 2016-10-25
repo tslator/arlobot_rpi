@@ -61,7 +61,8 @@ class BaseHALProxy:
         response = get_imu()
         return { 'accel' : {'x' : response.accel[0], 'y' : response.accel[1], 'z' : response.accel[2]},
                  'mag' : {'x' : response.mag[0], 'y' : response.mag[1], 'z' : response.mag[2]},
-                 'temp' : {'f' : response.temp[0], 'c' : response.temp[1]}}
+                 'temp' : {'f' : response.temp[0], 'c' : response.temp[1]},
+                 'heading' : {'r': response.heading[0], 'd': response.heading[1]}}
 
     def GetVoltage(self):
         get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetFloatArray)

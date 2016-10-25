@@ -103,14 +103,16 @@ class BaseHALServiceNode(HALServiceNode):
         accel = []
         mag = []
         temp = []
+        heading = []
         try:
             results = self._hal.GetImuSensor()
             accel = [ results['accel']['x'], results['accel']['y'], results['accel']['z'] ]
             mag = [ results['mag']['x'], results['mag']['y'], results['mag']['z'] ]
             temp = [ results['temp']['f'], results['temp']['c'] ]
+            heading = [ results['heading']['r'], results['heading']['d'] ]
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetImuSensor")
-        return HALGetImuResponse(accel=accel, mag=mag, temp=temp)
+        return HALGetImuResponse(accel=accel, mag=mag, temp=temp, heading=heading)
 
     def _hal_get_voltage(self, request):
         values = []
