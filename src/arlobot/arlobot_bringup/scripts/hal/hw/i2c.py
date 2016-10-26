@@ -6,7 +6,7 @@ numeric types
 
 from __future__ import print_function
 
-from sys import byteorder
+import sys
 from smbus import SMBus
 import struct
 
