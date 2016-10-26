@@ -47,34 +47,28 @@ def parse():
 def DoForwardMove(psoc, distance):
     # Use fixed velocity: 0.200
 
-    left_dist = 0.0
-    right_dist = 0.0
-    left_end_dist = distance
-    right_end_dist = distance
+    _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+    left_end_dist = left_dist + distance
+    right_end_dist = right_dist + distance
 
     while left_dist < left_end_dist and right_dist < right_end_dist:
         psoc.SetSpeed(0.2, 0.2)
-        _, _, left_delta_dist, right_delta_dist, _ = psoc.GetOdometry()
-        left_dist += left_delta_dist
-        right_dist += right_delta_dist
-        time.sleep(0.1)
+        _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+        #time.sleep(0.1)
 
     psoc.SetSpeed(0.0, 0.0)
 
 def DoBackwardMove(psoc, distance):
     # Use fixed velocity: 0.200
 
-    left_dist = 0.0
-    right_dist = 0.0
-    left_end_dist = -distance
-    right_end_dist = -distance
+    _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+    left_end_dist = left_dist - distance
+    right_end_dist = right_dist -distance
 
     while left_dist > left_end_dist and right_dist > right_end_dist:
         psoc.SetSpeed(-0.2, -0.2)
-        _, _, left_delta_dist, right_delta_dist, _ = psoc.GetOdometry()
-        left_dist += left_delta_dist
-        right_dist += right_delta_dist
-        time.sleep(0.1)
+        _, _, left_dist, right_dist, _ = psoc.GetOdometry()
+        #time.sleep(0.1)
 
     psoc.SetSpeed(0.0, 0.0)
 
@@ -107,9 +101,9 @@ def DoCwRotate(psoc, degrees):
 
     while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
-        _,_,_,_,heading = psoc.GetOdometry()
+        _, _, _, _, heading = psoc.GetOdometry()
         #print(heading, end_heading, abs(end_heading - heading))
-        time.sleep(0.001)
+        #time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
     print("Actual Final Heading (deg): ", ToDegrees(heading))
@@ -128,9 +122,9 @@ def DoCcwRotate(psoc, degrees):
     
     while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
-        _,_,_,_,heading = psoc.GetOdometry()
+        _, _, _, _, heading = psoc.GetOdometry()
         #print(heading, end_heading, abs(end_heading - heading))
-        time.sleep(0.001)
+        #time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
     print("Actual Final Heading (deg): ", ToDegrees(heading))

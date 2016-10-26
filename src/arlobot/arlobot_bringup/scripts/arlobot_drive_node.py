@@ -107,6 +107,8 @@ class ArlobotDriveNode:
         self._angular_accel = 1
 
         self._theta = 0
+        self._last_left_dist = 0
+        self._last_right_dist = 0
         self._min_linear_velocity = 0
         self._min_angular_velocity = 0
 
@@ -196,6 +198,8 @@ class ArlobotDriveNode:
 
         v, w = self.diff2uni(l_v, r_v)
 
+        return v,w
+
     def _twist_command_callback(self, command):
         """
         Within this callback it is necessary to enforce velocity limits specific to preventing motor stalling and
@@ -216,6 +220,7 @@ class ArlobotDriveNode:
         self._angular_tracking.SetTarget(w)
 
     def Start(self):
+        _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
         pass
 
     def CalculeOdometry(self):
@@ -223,7 +228,7 @@ class ArlobotDriveNode:
         odometry = self._hal_proxy.GetOdometry()
         rospy.logwarn("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
 
-        left_speed, right_speed, left_delta_dist, right_delta_dist, heading = odometry
+        left_speed, right_speed, left_dist, right_dist, heading = odometry
 
         delta_time = self._last_odom_time - time.time()
         self._last_odom_time = time.time()
@@ -235,6 +240,12 @@ class ArlobotDriveNode:
 
         self._theta = math.atan2(math.sin(self._theta), math.cos(self._theta))
 
+        left_delta_dist = self._last_left_dist - left_dist
+        right_delta_dist = self._last_right_dist - right_dist
+
+        self._last_left_dist = left_dist
+        self._last_right_dist = right_dist
+
         c_dist = (left_delta_dist + right_delta_dist)/2
         x_dist = c_dist*math.cos(self._theta)*delta_time
         y_dist = c_dist*math.cos(self._theta)*delta_time
@@ -245,7 +256,6 @@ class ArlobotDriveNode:
 
     def Loop(self):
         while not rospy.is_shutdown():
-
 
             odometry = self._CalculateOdometry()
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
