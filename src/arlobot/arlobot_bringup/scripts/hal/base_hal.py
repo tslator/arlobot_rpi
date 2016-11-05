@@ -165,16 +165,15 @@ class BaseHardwareAbstractionLayer(HALProtocol):
 
     def GetImuSensor(self):
         if self._simulated:
-            imu_data = { 'accel' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                         'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                         'temp': {'f':0.0, 'c':0.0},
-                         'heading': {'r': 0.0, 'd': 0.0} }
+            imu_data = { 'orientation': {'x': 0.0, 'y': 0.0, 'z': 0.0, 'w': 0.0},
+                         'linear_accel':  {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                         'angular_velocity': {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                         'magnetic_field': {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                         'euler': {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0},
+                         'temp': {'f':0.0, 'c':0.0}
+                         }
         else:
-            #imu_data = self._imu.GetImuData()
-            imu_data = { 'accel' : {'x' : 0.0, 'y' : 0.0, 'z' : 0.0},
-                         'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                         'temp' : {'f': 0.0, 'c': 0.0},
-                         'heading': {'r':0.0, 'd': 0.0}}
+            imu_data = self._imu.GetImuData()
 
         return imu_data
 
@@ -212,8 +211,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
         if self._simulated:
             temp = 0
         else:
-            #temp = self._imu.GetTemp()
-            temp = 0
+            temp = self._imu.GetTemp()
         return temp
 
 

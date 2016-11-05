@@ -33,23 +33,23 @@ class ImuSensor:
 
         imu_msg.header = h
         imu_msg.orientation_covariance = (-1., )*9
-        imu_msg.angular_velocity_covariance = (-1., )*9
         imu_msg.linear_acceleration_covariance = (-1., )*9
+        imu_msg.angular_velocity_covariance = (-1., )*9
 
-        imu_msg.orientation.w = imu_data['']
+        imu_msg.orientation.w = imu_data['orientation']['w']
+        imu_msg.orientation.x = imu_data['orientation']['x']
+        imu_msg.orientation.y = imu_data['orientation']['y']
+        imu_msg.orientation.z = imu_data['orientation']['z']
 
-        imu_msg.orientation.x = imu_data["accel"]["x"]
-        imu_msg.orientation.y = imu_data["accel"]["y"]
-        imu_msg.orientation.z = imu_data["accel"]["z"]
+        imu_msg.linear_acceleration.x = imu_data['linear_accel']['x']
+        imu_msg.linear_acceleration.y = imu_data['linear_accel']['y']
+        imu_msg.linear_acceleration.z = imu_data['linear_accel']['z']
+
+        imu_msg.angular_velocity.x = imu_data['angular_velocity']['x']
+        imu_msg.angular_velocity.y = imu_data['angular_velocity']['y']
+        imu_msg.angular_velocity.z = imu_data['angular_velocity']['z']
 
         # Read the x, y, z and heading
-        x = imu_data["mag"]["x"]
-        y = imu_data["mag"]["y"]
-        z = imu_data["mag"]["z"]
-        heading = imu_data['heading']
-
-        imu_msg.orientation.w = heading
-
         self._publisher.publish(imu_msg)
 
 if __name__ == "__main__":
