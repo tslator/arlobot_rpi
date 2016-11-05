@@ -1,3 +1,5 @@
+import math
+
 ACCELEROMETER_I2C_ADDRESS = 0x1d
 MAGNOTOMETER_I2C_ADDRESS = 0x1e
 
@@ -129,3 +131,207 @@ ACC_X_OVERRUN               = 0x10
 ACC_Y_OVERRUN               = 0x20
 ACC_Z_OVERRUN               = 0x40
 ACC_ZYX_OVERRUN             = 0x80
+
+
+__SENSITIVITY_ACC = 0.06103515625   # LSB/mg
+__SENSITIVITY_MAG = 0.00048828125   # LSB/Ga
+
+__AXES = ['x', 'y', 'z']
+
+_mag_address = MAGNOTOMETER_I2C_ADDRESS
+_acc_address = ACCELEROMETER_I2C_ADDRESS
+_i2c_bus = None
+
+
+def initialize(i2c=None):
+    _i2c_bus = i2c
+
+def test():
+    pass
+
+def _read_mag_reg(reg):
+    return _i2c_bus.ReadUint8(_mag_address, reg)
+
+def _write_mag_reg(reg, value):
+    _i2c_bus.WriteUint8(_mag_address, reg, value)
+
+def _read_acc_reg(reg):
+    return _i2c_bus.ReadUint8(_acc_address, reg)
+
+def _write_acc_reg(reg, value):
+    _i2c_bus.WriteUint8(_acc_address, reg, value)
+
+def _read_acc_values():
+    # Note: You may have to resolve endianness by adding a parameter to ReadArray method
+    values = _i2c_bus.ReadArray(_acc_address, ACC_OUT_X_H, 6, 'h', endian='big')
+    return [value * __SENSITIVITY_ACC for value in values]
+
+def _read_mag_values():
+    # Note: You may have to resolve endianness by adding a parameter to ReadArray method
+    values = _i2c_bus.ReadArray(_mag_address, MAG_OUTX_H, 6, 'h', endian='big')
+    return [value * __SENSITIVITY_ACC for value in values]
+
+def _config_magnetometer():
+    value = _read_mag_reg(MAG_WHO_AM_I_REG)
+    print("MAG Who Am I: {02:x}".format(value))
+
+    value = _read_mag_reg(MAG_CTRL_REG1)
+    value &= ~MAG_DO_80_Hz | 0x03
+    value |= MAG_DO_40_Hz
+    _write_mag_reg(MAG_CTRL_REG1, value)
+
+    value = _read_mag_reg(MAG_CTRL_REG2)
+    value &= ~MAG_FS_16_Ga
+    value |= MAG_FS_16_Ga
+    _write_mag_reg(MAG_CTRL_REG2, value)
+
+    value = _read_mag_reg(MAG_CTRL_REG5)
+    value &= ~MAG_BDU_ENABLE
+    value |= MAG_BDU_ENABLE
+    _write_mag_reg(MAG_CTRL_REG5, value)
+
+    value = _read_mag_reg(MAG_CTRL_REG1)
+    value &= ~MAG_OMXY_ULTRA_HIGH_PERFORMANCE
+    value |= MAG_OMXY_HIGH_PERFORMANCE
+    _write_mag_reg(MAG_CTRL_REG1, value)
+
+    value = _read_mag_reg(MAG_CTRL_REG4)
+    value &= ~MAG_OMZ_ULTRA_HIGH_PERFORMANCE
+    value |= MAG_OMZ_HIGH_PERFORMANCE
+    _write_mag_reg(MAG_CTRL_REG4, value)
+
+    value = _read_mag_reg(MAG_CTRL_REG3)
+    value &= ~MAG_MD_POWER_DOWN_2
+    value |= MAG_MD_CONTINUOUS
+    _write_mag_reg(MAG_CTRL_REG3, value)
+
+def _config_accelerometer():
+    value = _read_acc_reg(ACC_WHO_AM_I_REG)
+    print("ACC Who Am I: {02:x}".format(value))
+
+    value = _read_acc_reg(ACC_CTRL4)
+    value &= ~ACC_FS_8g
+    value |= ACC_FS_2g
+    _write_acc_reg(ACC_CTRL4, value)
+
+    value = _read_acc_reg(ACC_CTRL1)
+    value &= ~ACC_BDU_ENABLE
+    value |= ACC_BDU_ENABLE
+    _write_acc_reg(ACC_CTRL1, value)
+
+    value = _read_acc_reg(ACC_CTRL1)
+    value &= ~0x07
+    value |= ACC_X_ENABLE | ACC_Y_ENABLE | ACC_Z_ENABLE
+    _write_acc_reg(ACC_CTRL1, value)
+
+    value = _read_acc_reg(ACC_CTRL1)
+    value &= ~ACC_ODR_MASK
+    value |= ACC_ODR_100_Hz
+    _write_acc_reg(ACC_CTRL1, value)
+
+def _enable_temperature():
+    value = _read_mag_reg(MAG_CTRL_REG1)
+    value &= ~MAG_TEMP_EN_ENABLE
+    value |= MAG_TEMP_EN_ENABLE
+    _write_mag_reg(MAG_CTRL_REG1, value)
+
+def _calc_heading(x, y):
+    """
+    The magnetic compass heading can be determined( in degrees) from the magnetometer’s x and y readings by using
+    the following set of equations:
+        Direction(y > 0) = 90 - [arcTAN(x / y)] * 180 /pi
+        Direction(y < 0) = 270 - [arcTAN(x / y)] * 180 /pi
+        Direction(y=0, x < 0) = 180.0
+        Direction(y=0, x > 0) = 0.0
+    """
+    heading = {'r': 0.0, 'd': 0.0}
+
+    atan_xy = math.atan2(x / y)
+    pi_over_4 = math.pi / 4
+
+    if y > 0.0:
+        heading['r'] = pi_over_4 - atan_xy
+        heading['d'] = heading['r'] * 180 / math.pi
+        # heading = 90 - (atan_xy * 180) / math.pi
+
+    elif y < 0.0:
+        heading['r'] = 3 * pi_over_4 - atan_xy
+        # heading = 270 - (math.atan2(x/y) * 180) / math.pi
+        heading['d'] = heading['r'] * 180 / math.pi
+
+    elif y == 0.0:
+        if x < 0.0:
+            heading['r'] = 2 * math.pi
+            heading['d'] = 180
+        elif x > 0.0:
+            heading['r'] = heading['d'] = 0.0
+
+    return heading
+
+def read_imu():
+    temp_value = 0
+    valueH = 0
+    valueL = 0
+
+    imu = {'accel': {}, 'mag': {}, 'temp': {}}
+
+    '''
+    Consider changing below to read the block of bytes as 16-bit values
+    Q: Are these signed values?
+    A: According to the datasheet, the magnatometer values are 2's complement.  The datasheet doesn't say for
+    the accelerometer, but why wouldn't acceleration also be 2'c complement.
+    '''
+
+    valueH = _read_acc_reg(ACC_OUT_X_H)
+    valueL = _read_acc_reg(ACC_OUT_X_L)
+    imu['accel']['x'] = ((valueH << 8) | valueL) * __SENSITIVITY_ACC
+
+    valueH = _read_acc_reg(ACC_OUT_Y_H)
+    valueL = _read_acc_reg(ACC_OUT_Y_L)
+    imu['accel']['y'] = ((valueH << 8) | valueL) * __SENSITIVITY_ACC
+
+    valueH = _read_acc_reg(ACC_OUT_Z_H)
+    valueL = _read_acc_reg(ACC_OUT_Z_L)
+    imu['accel']['z'] = ((valueH << 8) | valueL) * __SENSITIVITY_ACC
+
+    # Instead of 6 byte reads an combining, do a single 6 byte array read which will convert the bytes into the
+    # specified format
+    values = _read_acc_values()
+    imu['accel'] = dict(zip(__AXES, values))
+
+    valueH = _read_mag_reg(MAG_OUTX_H)
+    valueL = _read_mag_reg(MAG_OUTX_L)
+    imu['mag']['x'] = ((valueH << 8) | valueL) * __SENSITIVITY_MAG
+
+    valueH = _read_mag_reg(MAG_OUTY_H)
+    valueL = _read_mag_reg(MAG_OUTY_L)
+    imu['mag']['y'] = ((valueH << 8) | valueL) * __SENSITIVITY_ACC
+
+    valueH = _read_mag_reg(MAG_OUTZ_H)
+    valueL = _read_mag_reg(MAG_OUTZ_L)
+    imu['mag']['z'] = ((valueH << 8) | valueL) *
+    # Instead of 6 byte reads an combining, do a single 6 byte array read which will convert the bytes into the
+    # specified format
+    values = _read_mag_values()
+    imu['mag'] = dict(zip(__AXES, values))
+
+    valueH = _read_mag_reg(MAG_TEMP_OUT_H)
+    valueL = _read_mag_reg(MAG_TEMP_OUT_L)
+    temp = (valueH << 8) | valueL
+
+    # Alternative
+    temp = _i2c_bus.ReadInt16(_mag_address, MAG_TEMP_OUT_H)
+
+    imu['temp']['f'] = (temp * 9.0 / 5.0) + 32.0
+    imu['temp']['c'] = (temp - 32) * (5.0 / 9.0)
+    # ???? imu['temp']['c'] = temp / 8.0 + 25.0
+
+    imu['heading'] = _calc_heading(imu['mag']['x'], imu['mag']['y'])
+
+    '''
+    Returns a dictionary: { 'accel' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                            'mag' : {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                            'temp': {'f':0.0, 'c':0.0}
+                            'heading': {'r':0.0, 'd':0.0}}
+    '''
+    return imu

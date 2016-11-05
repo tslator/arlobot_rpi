@@ -2,7 +2,6 @@
 
 import rospy
 from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError
-from ..hal_protocol import HardwareAbstractionLayer, HardwareAbstractionLayerError
 from std_msgs.msg import Header
 from sensor_msgs.msg import Imu
 from arlobot_exception import ArlobotError
@@ -37,15 +36,17 @@ class ImuSensor:
         imu_msg.angular_velocity_covariance = (-1., )*9
         imu_msg.linear_acceleration_covariance = (-1., )*9
 
+        imu_msg.orientation.w = imu_data['']
+
         imu_msg.orientation.x = imu_data["accel"]["x"]
         imu_msg.orientation.y = imu_data["accel"]["y"]
         imu_msg.orientation.z = imu_data["accel"]["z"]
 
-        # Read the x, y, z and calculate the header
+        # Read the x, y, z and heading
         x = imu_data["mag"]["x"]
         y = imu_data["mag"]["y"]
         z = imu_data["mag"]["z"]
-        heading = 0.0
+        heading = imu_data['heading']
 
         imu_msg.orientation.w = heading
 

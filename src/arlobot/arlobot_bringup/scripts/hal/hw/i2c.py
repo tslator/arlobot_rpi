@@ -19,6 +19,13 @@ class I2CBusError(Exception):
 class I2CBus:
 
     # The device ids supported
+    # Note: Under linux, the enumeration of the i2c devices is not guaranteed to match the BBB device id, i.e., i2c0 may
+    # not map to /dev/i2c-0.  Here is a link on this topic: https://datko.net/2013/11/03/bbb_i2c
+    # What is important from a software perspective is that pins and the device id match since we don't use the linux
+    # device name.  That is, we need to use an id, 0, 1, 2, which corresponds to a specific device connected on specific
+    # pins.
+    # Note: I2C device 0 is not enabled by default.  There is a way to enable it (see above) but there are also possible
+    # conflicts with existing capes.
     DEV_I2C_0 = 0
     DEV_I2C_1 = 1
     DEV_I2C_2 = 2
