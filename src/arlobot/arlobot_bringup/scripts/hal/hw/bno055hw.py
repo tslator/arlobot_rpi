@@ -1,11 +1,13 @@
 from __future__ import print_function
 
 import time
+import sys
 from Adafruit_BNO055 import BNO055
 
 # This is calibration data obtained by following the calibation routine below as part of the self test
 # This data is loaded by the BNO055Hw module when it is initialized.
 cal_data = [2, 0, 226, 255, 9, 0, 253, 255, 49, 0, 23, 255, 0, 0, 254, 255, 0, 0, 232, 3, 237, 3]
+
 
 class BNO055HwError(Exception):
     pass
@@ -24,7 +26,40 @@ class BNO055Hw:
         except ValueError:
             raise BNO055HwError("Calibration data is not in correct format: {}".format(cal_data))
 
-    def show_revision(self):
+        # Setting the calibration may take some time to take effect.  I don't have anything concrete to confirm or deny
+        # just trying to keep the module flexiblt
+        time.sleep(0.1)
+
+        if not self._confirm_calibration():
+            raise BNO055HwError("Failed to confirm device calibration")
+
+    def _wait_for_valid_status(self, key, timeout=10):
+        status = 0
+        count = 0
+        start_time = time.time()
+        delta_time = start_time
+        # Stay in the loop until there is a valid status for 5 seconds or the timeout expires
+        while status != 3 or count < 50 or delta_time > timeout:
+            status = self._bno.get_calibration_status()[key]
+            time.sleep(0.1)
+            if status != 3:
+                count = 0
+            else:
+                count += 1
+            delta_time = time.time() - start_time
+
+        if status == 3 and count < 50 and delta_time < timeout:
+            return True
+        else:
+            return False
+
+    def _confirm_calibration(self):
+        cal_status = self._bno.get_calibration_status()
+        if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
+            return self._wait_for_valid_status('sys')
+        return False
+
+    def show_revision(self, redirect=sys.stdout):
         """Return a tuple with revision information about the BNO055 chip.  Will
         return 5 values:
           - Software revision
@@ -34,14 +69,14 @@ class BNO055Hw:
           - Gyro ID
         """
         sw, bl, accel, mag, gyro = self._bno.get_revision()
-        print('Software version:   {0}'.format(sw))
-        print('Bootloader version: {0}'.format(bl))
-        print('Accelerometer ID:   0x{0:02X}'.format(accel))
-        print('Magnetometer ID:    0x{0:02X}'.format(mag))
-        print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
+        print('Software version:   {0}'.format(sw), file=redirect)
+        print('Bootloader version: {0}'.format(bl), file=redirect)
+        print('Accelerometer ID:   0x{0:02X}'.format(accel), file=redirect)
+        print('Magnetometer ID:    0x{0:02X}'.format(mag), file=redirect)
+        print('Gyroscope ID:       0x{0:02X}\n'.format(gyro), file=redirect)
 
 
-    def show_system_status(self, run_self_test=True):
+    def show_system_status(self, run_self_test=True, redirect=sys.stdout):
         """Return a tuple with status information.  Three values will be returned:
           - System status register value with the following meaning:
               0 = Idle
@@ -78,17 +113,17 @@ class BNO055Hw:
         """
         # Return the results as a tuple of all 3 values.
         status, self_test, error = self._bno.get_system_status(run_self_test)
-        print('System status: {0}'.format(status))
-        print('Self test result (0x0F is normal): 0x{0:02X}'.format(0 if not self_test else self_test))
+        print('System status: {0}'.format(status), file=redirect)
+        print('Self test result (0x0F is normal): 0x{0:02X}'.format(0 if not self_test else self_test), file=redirect)
         # Print out an error if system status is in error mode.
         if status == 0x01:
-            print('System error: {0}'.format(error))
-            print('See datasheet section 4.3.59 for the meaning.')
+            print('System error: {0}'.format(error), file=redirect)
+            print('See datasheet section 4.3.59 for the meaning.', file=redirect)
 
     def get_calibration_status(self):
         return dict(zip(['sys', 'gyro', 'accel', 'mag'], self._bno.get_calibration_status()))
 
-    def show_calibration_status(self):
+    def show_calibration_status(self, redirect=sys.stdout):
         """Read the calibration status of the sensors and return a 4 tuple with
         calibration status as follows:
           - System, 3=fully calibrated, 0=not calibrated
@@ -97,10 +132,10 @@ class BNO055Hw:
           - Magnetometer, 3=fully calibrated, 0=not calibrated
         """
         cal_sys, cal_gyro, cal_accel, cal_mag = self._bno.get_calibration_status()
-        print('Sys_cal={} Gyro_cal={} Accel_cal={} Mag_cal={}'.format(cal_sys, cal_gyro, cal_accel, cal_mag))
+        print('Sys_cal={} Gyro_cal={} Accel_cal={} Mag_cal={}'.format(cal_sys, cal_gyro, cal_accel, cal_mag), file=redirect)
 
-    def show_calibration(self):
-        print(self._bno.get_calibration())
+    def show_calibration(self, redirect=sys.stdout):
+        print(self._bno.get_calibration(), file=redirect)
 
     def read_orientation(self):
         """Return the current orientation as a tuple of X, Y, Z, W quaternion
@@ -219,6 +254,7 @@ def test(bnohw):
     print("Test Case 11: show system status (self test) ...")
     test_show_system_status(True)
 
+
 def perform_calibration(bnohw):
     def wait_for_valid_status(key, get_cal_status):
         status = 0
@@ -262,7 +298,7 @@ def perform_calibration(bnohw):
     if result:
         print("device is calibrated")
         return result
-    
+
     wait_for_gyro_calibration(bnohw)
     wait_for_accel_calibration(bnohw)
     wait_for_mag_calibration(bnohw)
@@ -274,11 +310,16 @@ def perform_calibration(bnohw):
         print("device is calibrated")
     else:
         print("device is not calibrated")
-    
+
     return result
 
+
+
 if __name__ == "__main__":
-    bnohw = BNO055Hw()
+    try:
+        bnohw = BNO055Hw()
+    except BNO055HwError as e:
+        print(e.args)
     #bnohw.show_revision()
     #bnohw.show_system_status()
     #bnohw.show_calibration_status()
