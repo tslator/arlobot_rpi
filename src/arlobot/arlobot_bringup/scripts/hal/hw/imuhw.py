@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-# can we access the parameter configuration to select the hardware for importing?
-#import lm303chw as hardware
 from bno055hw import BNO055Hw as Hardware
 from bno055hw import BNO055HwError as HardwareError
 
@@ -10,10 +8,9 @@ class ImuHwError(Exception):
 
 class ImuHw:
 
-    def __init__(self, i2cbus):
-        self._i2c_bus = i2cbus
+    def __init__(self, i2cbus=None):
         try:
-            self._hardware = Hardware(i2cbus)
+            self._hardware = Hardware()
         except HardwareError:
             raise ImuHwError("Failed to instantiate hardware")
 
@@ -49,9 +46,7 @@ class ImuHw:
         except AttributeError:
             euler_result = {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0}
         try:
-            temp_in_celcius = self._hardware.read_temperature()
-            temp_in_fahrenheit = (temp_in_celcius - 32.0)*9.0/5.0
-            temp_result = {'f': temp_in_fahrenheit, 'c': temp_in_celcius}
+            temp_result = self._hardware.read_temperature()
         except AttributeError:
             temp_result = {'f': 0.0, 'c': 0.0}
 
@@ -84,7 +79,66 @@ class ImuHw:
 
     def GetTemp(self):
         imu = self._read_imu()
-        return imu['temp']
+        return imu['temperature']
 
     def GetImuData(self):
         return self._read_imu()
+
+#--------------------------------------------------------------------------------------------------
+# Module Test
+#--------------------------------------------------------------------------------------------------
+
+def test(imuhw):
+    def test_get_orientation():
+        print(imuhw.GetOrientation())
+
+    def test_get_linear_accel():
+        print(imuhw.GetLinearAccel())
+
+    def test_get_angular_velocity():
+        print(imuhw.GetAngularVelocity())
+
+    def test_get_magnetic_field():
+        print(imuhw.GetMagneticField())
+
+    def test_get_euler():
+        print(imuhw.GetEuler())
+
+    def test_get_temp():
+        print(imuhw.GetTemp())
+
+    def test_get_imu_data():
+        print(imuhw.GetImuData())
+
+    print("Test Case: 1 get orientation")
+    test_get_orientation()
+
+    print("Test Case 2: get linear accel")
+    test_get_linear_accel()
+
+    print("Test Case 3: get angular velocity")
+    test_get_angular_velocity()
+
+    print("Test Case 4: get magnetic field")
+    test_get_magnetic_field()
+
+    print("Test Case 5: get euler")
+    test_get_euler()
+
+    print("Test Case 6: get temp")
+    test_get_temp()
+
+    print("Test Case 7: get imu data")
+    test_get_imu_data()
+
+
+if __name__ == "__main__":
+    print("Instantiating ImuHw ... this takes a few seconds.")
+    try:
+        imuhw = ImuHw()
+    except ImuHwError as e:
+        print(e.args)
+        sys.exit(1)
+
+    print("Performing module tests ...")
+    test(imuhw)    

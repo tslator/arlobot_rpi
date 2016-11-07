@@ -15,11 +15,22 @@ class BNO055HwError(Exception):
 
 class BNO055Hw:
     def __init__(self, do_cal_check=True):
-        self._bno = BNO055.BNO055(rst='P9_12')
+        try:
+            self._bno = BNO055.BNO055(rst='P9_12')
+        except RuntimeError as e:
+            raise BNo055HwError(e.args)
 
         # Initialize the BNO055 and stop if something went wrong.
-        if not self._bno.begin():
-            raise BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
+        try:
+            for i in range(3):
+                result = self._bno.begin()
+                if result:
+                    break
+                time.sleep(0.05)
+            if not result:
+                BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
+        except RuntimeError as e:
+            raise BNO055HwError(e.args)
 
         # Load the calibration data into the BNO055
         try:
