@@ -70,14 +70,20 @@ class I2CBus:
         bytes = bytearray(struct.pack('f',value))
         self._write_multiple_bytes(address, offset, bytes)
 
-    def WriteArray(self, address, offset, values, type):
+    def WriteArray(self, address, offset, values, type, endian=sys.byteorder):
         # Convert each value to its byte representation and place into a bytearray before writing to the bus
         # Note: struct.pack returns a string representation of the value.  For a 1-byte value, it is a
         # string representation of 1 byte, for a 2 or 4 byte value, it is a 2-byte of 4-byte representation
         # Therefore, it is necessary to concatentate the strings before converting to a bytearray
+
+        if endian == 'little':
+            format = '<'+type
+        else:
+            format = '>'+type
+
         byte_values = ''
         for value in values:
-            byte_values += struct.pack(type, value)
+            byte_values += struct.pack(format, value)
         self._write_multiple_bytes(address, offset, bytearray(byte_values))
 
     def ReadUint8(self, address, offset):
