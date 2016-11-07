@@ -14,24 +14,25 @@ class BNO055HwError(Exception):
 
 
 class BNO055Hw:
-    def __init__(self):
+    def __init__(self, do_cal_check=True):
         self._bno = BNO055.BNO055(rst='P9_12')
 
         # Initialize the BNO055 and stop if something went wrong.
         if not self._bno.begin():
             raise BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
 
+        # Load the calibration data into the BNO055
         try:
             self._bno.set_calibration(cal_data)
         except ValueError:
             raise BNO055HwError("Calibration data is not in correct format: {}".format(cal_data))
-
-        # Setting the calibration may take some time to take effect.  I don't have anything concrete to confirm or deny
-        # just trying to keep the module flexiblt
-        time.sleep(0.1)
-
-        if not self._confirm_calibration():
-            raise BNO055HwError("Failed to confirm device calibration")
+        
+        # Allow the calibration check to be bypassed so that calibration can performed
+        if do_cal_check:
+            # Confirm that the gyro, accel, mag and system are reported as calibrated
+            # Note: A timeout of 10 seconds limits this checking
+            if not self._confirm_calibration():
+                raise BNO055HwError("Failed to confirm device calibration")
 
     def _wait_for_valid_status(self, key, timeout=10):
         status = 0
@@ -40,7 +41,7 @@ class BNO055Hw:
         delta_time = start_time
         # Stay in the loop until there is a valid status for 5 seconds or the timeout expires
         while status != 3 or count < 50 or delta_time > timeout:
-            status = self._bno.get_calibration_status()[key]
+            status = self.get_calibration_status()[key]
             time.sleep(0.1)
             if status != 3:
                 count = 0
@@ -48,13 +49,13 @@ class BNO055Hw:
                 count += 1
             delta_time = time.time() - start_time
 
-        if status == 3 and count < 50 and delta_time < timeout:
+        if status == 3 and count <= 50 and delta_time < timeout:
             return True
         else:
             return False
 
     def _confirm_calibration(self):
-        cal_status = self._bno.get_calibration_status()
+        cal_status = self.get_calibration_status()
         if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
             return self._wait_for_valid_status('sys')
         return False
@@ -320,15 +321,15 @@ if __name__ == "__main__":
         bnohw = BNO055Hw()
     except BNO055HwError as e:
         print(e.args)
-    #bnohw.show_revision()
-    #bnohw.show_system_status()
-    #bnohw.show_calibration_status()
-    
-    cal_result = perform_calibration(bnohw)
 
-    if cal_result:
-        for i in range(100):
-            euler = bnohw.read_euler()
-            print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'], pitch=euler['pitch'], roll=euler['roll']), end='\r')
+        print("The device is not calibrated.  Please write a little application that can be used to calibrate this device")
+        #cal_result = perform_calibration()
+        sys.exit(1)
+    
+    for i in range(20):
+        euler = bnohw.read_euler()
+        print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'], pitch=euler['pitch'], roll=euler['roll']))
     print("\n\n") 
+    
+
     test(bnohw)
