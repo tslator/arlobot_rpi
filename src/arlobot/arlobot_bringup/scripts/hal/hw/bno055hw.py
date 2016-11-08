@@ -4,7 +4,12 @@ import time
 import sys
 from Adafruit_BNO055 import BNO055
 
-# This is calibration data obtained by following the calibation routine below as part of the self test
+# This is calibration data obtained by following running a calibation routine composed of the following:
+#   1. Gyroscope Calibration - leave the unit on a level surface until the gryo status reports 3
+#   2. Acclerometer Calibration - rotate the unit in increments of 45 degrees holding each position for 2-3 seconds
+#      until the accel status reports 3
+#   3. Magnetometer Calibration - move the unit is a figure 8 motion until the mag status reports 3
+#   4. System Calibration - leave the unit motionless until the system status reports 3
 # This data is loaded by the BNO055Hw module when it is initialized.
 cal_data = [2, 0, 226, 255, 9, 0, 253, 255, 49, 0, 23, 255, 0, 0, 254, 255, 0, 0, 232, 3, 237, 3]
 
@@ -15,12 +20,22 @@ class BNO055HwError(Exception):
 
 class BNO055Hw:
     def __init__(self, do_cal_check=True):
+        """
+        Instantiate and initialize the BNO055, load calibration data and confirm the device is calibrated
+        :param do_cal_check:
+        :except BNO055HwError - if initialization fails
+                RuntimeError - if initialization fails, raises BNO055HwError
+                ValueError - if the calibration is not in the correct format, raises BNO055HwError
+                BNO055HwError - if calibration confirmation fails
+        """
         try:
-            self._bno = BNO055.BNO055(rst='P9_12')
+            self._bno = BNO055.BNO055(busnum=0, rst='P9_12')
         except RuntimeError as e:
-            raise BNo055HwError(e.args)
+            raise BNO055HwError(e.args)
 
         # Initialize the BNO055 and stop if something went wrong.
+        # Note: Sometimes after a reset a runtime error can occur but usually only once.  The following retry seems to
+        # get around this error.
         try:
             for i in range(3):
                 result = self._bno.begin()
@@ -46,6 +61,13 @@ class BNO055Hw:
                 raise BNO055HwError("Failed to confirm device calibration")
 
     def _wait_for_valid_status(self, key, timeout=10):
+        """
+        Checks that the specified calibration status is valid (equal to 3) for 5 seconds and limits the checking to
+        the specified timeout (default 10 seconds)
+        :param key:
+        :param timeout:
+        :return: True if the status is valid; otherwise, False
+        """
         status = 0
         count = 0
         start_time = time.time()
@@ -66,13 +88,18 @@ class BNO055Hw:
             return False
 
     def _confirm_calibration(self):
+        """
+        Confirms that the gyroscope, magnetometer, accelerometer and system calibration are valid
+        :return: True if calibration is confirmed; otherwise, False
+        """
         cal_status = self.get_calibration_status()
         if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
             return self._wait_for_valid_status('sys')
         return False
 
     def show_revision(self, redirect=sys.stdout):
-        """Return a tuple with revision information about the BNO055 chip.  Will
+        """
+        Return a tuple with revision information about the BNO055 chip.  Will
         return 5 values:
           - Software revision
           - Bootloader version
@@ -89,7 +116,8 @@ class BNO055Hw:
 
 
     def show_system_status(self, run_self_test=True, redirect=sys.stdout):
-        """Return a tuple with status information.  Three values will be returned:
+        """
+        Return a tuple with status information.  Three values will be returned:
           - System status register value with the following meaning:
               0 = Idle
               1 = System Error
@@ -133,59 +161,79 @@ class BNO055Hw:
             print('See datasheet section 4.3.59 for the meaning.', file=redirect)
 
     def get_calibration_status(self):
-        return dict(zip(['sys', 'gyro', 'accel', 'mag'], self._bno.get_calibration_status()))
-
-    def show_calibration_status(self, redirect=sys.stdout):
-        """Read the calibration status of the sensors and return a 4 tuple with
+        """
+        Read the calibration status of the sensors and return a 4 tuple with
         calibration status as follows:
           - System, 3=fully calibrated, 0=not calibrated
           - Gyroscope, 3=fully calibrated, 0=not calibrated
           - Accelerometer, 3=fully calibrated, 0=not calibrated
           - Magnetometer, 3=fully calibrated, 0=not calibrated
         """
+        return dict(zip(['sys', 'gyro', 'accel', 'mag'], self._bno.get_calibration_status()))
+
+    def show_calibration_status(self, redirect=sys.stdout):
+        """
+        Displays the current calibration status
+        Note: Output can be redirected
+
+        :param redirect: allows the print output to be redirected as needed
+        :return: None
+        """
         cal_sys, cal_gyro, cal_accel, cal_mag = self._bno.get_calibration_status()
         print('Sys_cal={} Gyro_cal={} Accel_cal={} Mag_cal={}'.format(cal_sys, cal_gyro, cal_accel, cal_mag), file=redirect)
 
     def show_calibration(self, redirect=sys.stdout):
+        """
+        Displays the current calibration data
+        Note: Output can be redirected
+        :param redirect: allows the print output to be redirected as needed
+        :return: None
+        """
         print(self._bno.get_calibration(), file=redirect)
 
     def read_orientation(self):
-        """Return the current orientation as a tuple of X, Y, Z, W quaternion
+        """
+        Return the current orientation as a tuple of X, Y, Z, W quaternion
         values.
         """
         w, x, y, z = self._bno.read_quaternion()
         return dict(zip(['x', 'y', 'z', 'w'], [x, y, z, w]))
 
     def read_acceleration(self):
-        """Return the current linear acceleration (acceleration from movement,
+        """
+        Return the current linear acceleration (acceleration from movement,
         not from gravity) reading as a tuple of X, Y, Z values in meters/second^2.
         """
         x, y, z = self._bno.read_linear_acceleration()
         return dict(zip(['x', 'y', 'z'], [x, y, z]))
 
     def read_gyroscope(self):
-        """Return the current gyroscope (angular velocity) reading as a tuple of
+        """
+        Return the current gyroscope (angular velocity) reading as a tuple of
         X, Y, Z values in degrees per second.
         """
         x, y, z = self._bno.read_gyroscope()
         return dict(zip(['x', 'y', 'z'], [x, y, z]))
 
     def read_magnetometer(self):
-        """Return the current magnetometer reading as a tuple of X, Y, Z values
+        """
+        Return the current magnetometer reading as a tuple of X, Y, Z values
         in micro-Teslas.
         """
         x, y, z = self._bno.read_magnetometer()
         return dict(zip(['x', 'y', 'z'], [x, y, z]))
 
     def read_euler(self):
-        """Return the current absolute orientation as a tuple of heading, roll,
+        """
+        Return the current absolute orientation as a tuple of heading, roll,
         and pitch euler angles in degrees.
         """
         yaw, roll, pitch = self._bno.read_euler()
         return dict(zip(['heading', 'yaw', 'roll', 'pitch'], [yaw, yaw, roll, pitch]))
 
     def read_temperature(self):
-        """Return the current temperature in Celsius and Fahrenheit.
+        """
+        Return the current temperature in Celsius and Fahrenheit.
         """
         temp_celsius = self._bno.read_temp()
         return {'c': float(temp_celsius), 'f': (float(temp_celsius) * 9.0/5.0) + 32.0}
@@ -225,14 +273,16 @@ def test(bnohw):
 
     def test_read_euler():
         euler = bnohw.read_euler()
-        print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'], pitch=euler['pitch'], roll=euler['roll']))
+        print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'],
+                                                                                        pitch=euler['pitch'],
+                                                                                        roll=euler['roll']))
         #print(values)
 
     def test_read_temperature():
         values = bnohw.read_temperature()
         print(values)
 
-
+    #-------------------------------------------------------------------------------------------------------------------
     print("Test Case 1: show revision ...")
     test_show_revision()
 
@@ -282,61 +332,83 @@ def perform_calibration(bnohw):
         print("")
         print(key, get_cal_status()[key], count)
 
-    def wait_for_system_calibration(bnohw):
-        print("System: once gyro, mag, and accel are calibrated, system will become calibrated")
-        wait_for_valid_status('sys', bnohw.get_calibration_status)
-
-    def check_system_calibration(bnohw):
-        cal_status = bnohw.get_calibration_status()
-        if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
-            wait_for_system_calibration(bnohw)
-            bnohw.show_calibration()
-            print("device is calibrated")
-            return True
-
-    def wait_for_gyro_calibration(bnohw):
+    def wait_for_gyro_calibration():
         print("Gyro: let the BNO055 sit on a flat surface until the gyro calibration value equals 3")
-        wait_for_valid_status('gyro', bnohw.get_calibration_status)
+        bnohw._wait_for_valid_status('gyro')
 
     def wait_for_accel_calibration(bnohw):
         print("Accel: rotate the BNO055 by 45 degrees pausing 2-3 second between each move")
-        wait_for_valid_status('accel', bnohw.get_calibration_status)
+        bnohw._wait_for_valid_status('accel')
 
     def wait_for_mag_calibration(bnohw):
         print("Mag: move the BNO055 in a figure 8 until the mag calibration value equals 3")
-        wait_for_valid_status('mag', bnohw.get_calibration_status)
+        bnohw._wait_for_valid_status('mag')
 
+    def wait_for_system_calibration(bnohw):
+        print("System: once gyro, mag, and accel are calibrated, system will become calibrated")
+        bnohw._wait_for_valid_status('sys')
+
+    def check_system_calibration(bnohw):
+        if bnohw._confirm_calibration():
+            print("device is calibrated")
+            return True
+        return False
+
+    #-------------------------------------------------------------------------------------------------------------------
+    # Check to see if the system is calibrated; if it is then return True
+    #-------------------------------------------------------------------------------------------------------------------
     result = check_system_calibration(bnohw)
     if result:
         print("device is calibrated")
         return result
 
-    wait_for_gyro_calibration(bnohw)
-    wait_for_accel_calibration(bnohw)
-    wait_for_mag_calibration(bnohw)
+    #-------------------------------------------------------------------------------------------------------------------
+    # Perform Gyroscope calibration
+    #-------------------------------------------------------------------------------------------------------------------
+    wait_for_gyro_calibration()
+    #-------------------------------------------------------------------------------------------------------------------
+    # Perform Accelerometer calibration
+    #-------------------------------------------------------------------------------------------------------------------
+    wait_for_accel_calibration()
+    #-------------------------------------------------------------------------------------------------------------------
+    # Perform Magnetometer calibration
+    #-------------------------------------------------------------------------------------------------------------------
+    wait_for_mag_calibration()
+    #-------------------------------------------------------------------------------------------------------------------
+    # Wait for system calibration to be reported
+    #-------------------------------------------------------------------------------------------------------------------
+    result = check_system_calibration()
 
-    result = check_system_calibration(bnohw)
-
+    #-------------------------------------------------------------------------------------------------------------------
+    # Display calibration status
+    #-------------------------------------------------------------------------------------------------------------------
     bnohw.show_calibration_status()
     if result:
         print("device is calibrated")
+        bnohw.show_calibration()
     else:
         print("device is not calibrated")
 
     return result
 
 
-
 if __name__ == "__main__":
+    do_cal_check = True
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'calibrate':
+            do_cal_check = False
+
     try:
-        bnohw = BNO055Hw()
+        bnohw = BNO055Hw(do_cal_check)
     except BNO055HwError as e:
         print(e.args)
 
+    if not do_cal_check:
         print("The device is not calibrated.  Please write a little application that can be used to calibrate this device")
-        #cal_result = perform_calibration()
-        sys.exit(1)
-    
+        perform_calibration()
+        sys.exit(0)
+
+
     for i in range(20):
         euler = bnohw.read_euler()
         print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'], pitch=euler['pitch'], roll=euler['roll']))
