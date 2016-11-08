@@ -1,0 +1,6 @@
+<launch>
+    <machine name="arlbotbase" address="arlobotbase" env-loader="/home/arlo/catkin_ws/src/arlobot_rpi/src/arlobot/environment/arlobotbase_env.sh" />
+
+    <node name="arlotalker" pkg="arlobot_bringup" type="talker.py" />
+
+</launch>

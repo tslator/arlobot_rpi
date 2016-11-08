@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="arlolistener" pkg="arlobot_bringup" type="listener.py" />
+
+</launch>
