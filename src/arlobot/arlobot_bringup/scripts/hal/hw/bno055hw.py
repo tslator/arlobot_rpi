@@ -405,7 +405,7 @@ if __name__ == "__main__":
 
     if not do_cal_check:
         print("The device is not calibrated.  Please write a little application that can be used to calibrate this device")
-        perform_calibration()
+        perform_calibration(bnohw)
         sys.exit(0)
 
 
@@ -413,6 +413,5 @@ if __name__ == "__main__":
         euler = bnohw.read_euler()
         print("heading/yaw: {heading:.3f}, pitch: {pitch:.3f}, roll: {roll:.3f}".format(heading=euler['heading'], pitch=euler['pitch'], roll=euler['roll']))
     print("\n\n") 
-    
 
     test(bnohw)
