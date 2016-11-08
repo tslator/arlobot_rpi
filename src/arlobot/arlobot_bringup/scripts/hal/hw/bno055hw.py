@@ -29,7 +29,7 @@ class BNO055Hw:
                 BNO055HwError - if calibration confirmation fails
         """
         try:
-            self._bno = BNO055.BNO055(busnum=0, rst='P9_12')
+            self._bno = BNO055.BNO055(rst='P9_12')
         except RuntimeError as e:
             raise BNO055HwError(e.args)
 
