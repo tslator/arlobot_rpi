@@ -2,6 +2,6 @@
 
 source arlobotbase.conf
 source env.conf
-source $ARLOBOTBASE_CATKIN_ROOT/devel/setup.bash
+source $ARLOBOT_CATKIN_ROOT/devel/setup.bash
 
 exec "@"
