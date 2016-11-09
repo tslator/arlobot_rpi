@@ -52,6 +52,7 @@ class PID:
 class ArlobotDriveNodeError(Exception):
     pass
 
+
 class ArlobotDriveNode:
 
     NAME = 'arlobot_drive_node'
@@ -220,8 +221,8 @@ class ArlobotDriveNode:
         self._angular_tracking.SetTarget(w)
 
     def Start(self):
-        _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
-        pass
+        #_, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
+        rospy.logdebug("arlobot_drive_node.Start")
 
     def CalculeOdometry(self):
 
@@ -256,7 +257,7 @@ class ArlobotDriveNode:
 
     def Loop(self):
         while not rospy.is_shutdown():
-
+            """
             odometry = self._CalculateOdometry()
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
                                            odometry['heading'],
@@ -277,7 +278,8 @@ class ArlobotDriveNode:
             angular = self._angular_tracking.Update(odometry['angular'])
 
             self._hal_proxy.SetSpeed(linear, angular)
-
+            """
+            rospy.logdebug("arlobot_drive_node.Loop")
             self._loop_rate.sleep()
 
         else:
