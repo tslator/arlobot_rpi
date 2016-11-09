@@ -1,5 +1,6 @@
 <launch>
 
-    <node name="arlolistener" pkg="arlobot_bringup" type="listener.py" />
+    <include file="$(find arlobot_bringup)/launch/arlobot.machine />
+    <node name="arlolistener" pkg="arlobot_bringup" type="listener.py" machine="arlobot"/>
 
 </launch>
