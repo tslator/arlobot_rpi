@@ -2,8 +2,6 @@
   <machine 
     name="arlobot" 
     address="arlobot" 
-    ros-root="$(env ROS_ROOT)" 
-    ros-package-path="$(env ROS_PACKAGE_PATH)" 
     env-loader="$(env ARLOBOT_ENV)/arlobot_env.sh" default="true" 
   />
 </launch>
