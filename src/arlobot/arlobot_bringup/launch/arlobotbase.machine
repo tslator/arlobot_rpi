@@ -2,6 +2,6 @@
   <machine 
     name="arlobotbase" 
     address="arlobotbase" 
-    env-loader="$(env ARLOBOT_ENV)/arlobotbase_env.sh" 
+    env-loader="$(env ARLOBOTBASE_ENV)/arlobotbase_env.sh" 
   />
 </launch>
