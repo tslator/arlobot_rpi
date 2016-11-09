@@ -1,6 +1,4 @@
 <launch>
-    <!--<include file="$(find arlobot_bringup)/launch/arlobotbase.machine" />-->
-    <machine name="arlobotbase" address="arlobotbase" user="arlo" password="arlobot" env-loader="/home/arlo/catkin_ws/src/arlobot_rpi/src/arlobot/environment/arlobotbase_env.sh" />
-
+    <include file="$(find arlobot_bringup)/launch/arlobotbase.machine" />
     <node name="arlotalker" pkg="arlobot_bringup" type="talker.py" machine="arlobotbase" />
 </launch>

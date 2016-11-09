@@ -2,6 +2,8 @@
   <machine 
     name="arlobotbase" 
     address="arlobotbase" 
+    user="arlo"
+    password="arlobot"
     env-loader="$(env ARLOBOTBASE_ENV)/arlobotbase_env.sh" 
   />
 </launch>
