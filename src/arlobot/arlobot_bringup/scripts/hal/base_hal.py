@@ -7,9 +7,12 @@ from random import randrange
 import rospy
 
 from hal_protocol import HALProtocol, HALProtocolError
-from hal.hw.imuhw import ImuHw, ImuHwError
-from hal.hw.psochw import PsocHw, PsocHwError
-from hal.hw.i2c import I2CBus
+#from hal.hw.imuhw import ImuHw, ImuHwError
+from hw.imuhw import ImuHw, ImuHwError
+#from hal.hw.psochw import PsocHw, PsocHwError
+from hw.psochw import PsocHw, PsocHwError
+#from hal.hw.i2c import I2CBus
+from hw.i2c import I2CBus, I2CBusError
 from utils import Worker
 from threading import RLock
 
