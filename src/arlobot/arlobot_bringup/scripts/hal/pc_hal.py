@@ -3,8 +3,8 @@ from __future__ import print_function
 
 import rospy
 from hal_protocol import HALProtocol, HALProtocolError
-from hal.hw.m4atxhw import M4AtxHw, M4AtxHwError
-from hal.hw.kinectauxhw import KinectAuxHw, KinectAuxHwError
+#from hal.hw.m4atxhw import M4AtxHw, M4AtxHwError
+#from hal.hw.kinectauxhw import KinectAuxHw, KinectAuxHwError
 
 
 class PCHardwareAbstractionLayerError(HALProtocolError):
