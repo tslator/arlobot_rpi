@@ -1,5 +1,7 @@
 ---
-float32[] accel
-float32[] mag
+float32[] orientation
+float32[] linear_accel
+float32[] angular_velocity
+float32[] magnetic_field
+float32[] euler
 float32[] temp
-float32[] heading
