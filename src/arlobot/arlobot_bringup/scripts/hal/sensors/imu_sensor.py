@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError
+from scripts.hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 from std_msgs.msg import Header
 from sensor_msgs.msg import Imu
 from arlobot_exception import ArlobotError

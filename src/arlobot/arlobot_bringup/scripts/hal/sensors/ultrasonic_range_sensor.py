@@ -1,10 +1,9 @@
 from __future__ import print_function
 
 import rospy
-from ..base_hal_proxy import BaseHALProxy, BaseHALProxyError
+from scripts.hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 from sensor_msgs.msg import Range
 from range_array_sensor import RangeArraySensor, RangeArraySensorError
-from ..hal_protocol import HardwareAbstractionLayer, HardwareAbstractionLayerError
 
 
 class UltrasonicRangeArraySensorError(Exception):
