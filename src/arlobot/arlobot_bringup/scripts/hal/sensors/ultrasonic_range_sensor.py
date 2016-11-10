@@ -15,13 +15,13 @@ class UltrasonicRangeArraySensor(RangeArraySensor):
     __BACK_FRAME_ID = "ultrasonic_array_back"
 
     def __init__(self):
-        fov = rospy.get_param("Ultrasonic Field Of View")
-        min_range = rospy.get_param("Ultrasonic Min Range")
-        max_range = rospy.get_param("Ultrasonic Max Range")
+        fov = rospy.get_param("Ultrasonic Field Of View", 1)
+        min_range = rospy.get_param("Ultrasonic Min Range", 1)
+        max_range = rospy.get_param("Ultrasonic Max Range", 1)
         RangeArraySensor.__init__(self, fov, min_range, max_range, Range.ULTRASOUND)
 
-        self._num_front_sensors = rospy.get_param("Num Ultrasonic Front Sensors")
-        self._num_back_sensors = rospy.get_param("Num Ultrasonic Back Sensors")
+        self._num_front_sensors = rospy.get_param("Num Ultrasonic Front Sensors", 8)
+        self._num_back_sensors = rospy.get_param("Num Ultrasonic Back Sensors", 8)
 
         self._front_publisher = rospy.Publisher("ultrasonic_array_front", Range, queue_size=16)
         self._back_publisher = rospy.Publisher("ultrasonic_array_back", Range, queue_size=16)

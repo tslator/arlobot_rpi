@@ -18,13 +18,13 @@ class InfraredRangeArraySensor(RangeArraySensor):
     __BACK_FRAME_ID = "/infrared_array_back"
 
     def __init__(self):
-        fov = rospy.get_param("Infrared Field Of View")
-        min_range = rospy.get_param("Infrared Min Range")
-        max_range = rospy.get_param("Infrared Max Range")
+        fov = rospy.get_param("Infrared Field Of View", 1)
+        min_range = rospy.get_param("Infrared Min Range", 1)
+        max_range = rospy.get_param("Infrared Max Range", 1)
         RangeArraySensor.__init__(self, fov, min_range, max_range, Range.INFRARED)
 
-        self._num_front_sensors = rospy.get_param("Num Infrared Front Sensors")
-        self._num_back_sensors = rospy.get_param("Num Infrared Back Sensors")
+        self._num_front_sensors = rospy.get_param("Num Infrared Front Sensors", 8)
+        self._num_back_sensors = rospy.get_param("Num Infrared Back Sensors", 8)
 
         self._front_publisher = rospy.Publisher("infrared_array_front", Range, queue_size=self._num_front_sensors)
         self._back_publisher = rospy.Publisher("infrared_array_back", Range, queue_size=self._num_back_sensors)
