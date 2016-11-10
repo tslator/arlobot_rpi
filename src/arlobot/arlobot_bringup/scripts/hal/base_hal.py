@@ -154,7 +154,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             distances = front + rear
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
-            distances = self._psoc.GetUlrasonicDistances()
+            distances = self._psoc.GetUltrasonicDistances()
 
         return distances
 
