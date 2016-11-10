@@ -165,7 +165,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
                          'angular_velocity': {'x': 0.0, 'y': 0.0, 'z': 0.0},
                          'magnetic_field': {'x': 0.0, 'y': 0.0, 'z': 0.0},
                          'euler': {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0},
-                         'temp': {'f':0.0, 'c':0.0}
+                         'temperature': {'f':0.0, 'c':0.0}
                          }
         else:
             imu_data = self._imu.GetImuData()

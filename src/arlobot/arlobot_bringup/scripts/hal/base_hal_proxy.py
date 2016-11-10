@@ -59,10 +59,13 @@ class BaseHALProxy:
     def GetImu(self):
         get_imu = rospy.ServiceProxy('BaseHALGetImu', HALGetImu)
         response = get_imu()
-        return { 'accel' : {'x' : response.accel[0], 'y' : response.accel[1], 'z' : response.accel[2]},
-                 'mag' : {'x' : response.mag[0], 'y' : response.mag[1], 'z' : response.mag[2]},
-                 'temp' : {'f' : response.temp[0], 'c' : response.temp[1]},
-                 'heading' : {'r': response.heading[0], 'd': response.heading[1]}}
+        return { 'orientation'      : dict(zip(['x', 'y', 'z', 'w'], response.orientation)), 
+	         'linear_accel'     : dict(zip(['x', 'y', 'z'], response.linear_accel)), 
+		 'angular_velocity' : dict(zip(['x', 'y', 'z'], response.angular_velocity)),
+                 'magnetic_field'   : dict(zip(['x', 'y', 'z'], response.magnetic_field)),
+		 'euler'            : dict(zip(['x', 'y', 'z'], response.euler)),
+                 'temperature'      : dict(zip(['f', 'c'], response.temperature))
+	       }
 
     def GetVoltage(self):
         get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetFloatArray)

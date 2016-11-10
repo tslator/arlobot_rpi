@@ -105,24 +105,16 @@ class BaseHALServiceNode(HALServiceNode):
         angular_velocity = []
         magnetic_field = []
         euler = []
-        temp = []
-        """
-        { 'orientation': {'x': 0.0, 'y': 0.0, 'z': 0.0, 'w': 0.0},
-                                'linear_accel':  {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                                'angular_velocity': {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                                'magnetic_field': {'x': 0.0, 'y': 0.0, 'z': 0.0},
-                                'euler': {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0},
-                                'temp': {'f':0.0, 'c':0.0}
-                              }
-        """
-        try:
+        temperature = []
+        
+	try:
             results = self._hal.GetImuSensor()
-            orientation = [ results['orientation']['x'], results['orientation']['y'], results['orientation']['z'], results['orientation']['w'] ]
-            linear_accel = [ results['linear_accel']['x'], results['linear_accel']['y'], results['linear_accel']['z'] ]
-            angular_velocity = [ results['angular_velocity']['x'], results['angular_velocity']['y'], results['angular_velocity']['z'] ]
-            magnetic_field = [ results['magnetic_field']['x'], results['magnetic_field']['y'], results['magnetic_field']['z'] ]
-            euler = [ results['euler']['heading'], results['euler']['yaw'], results['euler']['roll'], results['euler']['pitch'] ]
-            temp = [ results['temp']['f'], results['temp']['c'] ]
+            orientation = [ results['orientation'][k] for k in ['x', 'y', 'z', 'w'] ]
+            linear_accel = [ results['linear_accel'][k] for k in ['x', 'y', 'z'] ]
+            angular_velocity = [ results['angular_velocity'][k] for k in ['x', 'y', 'z'] ]
+            magnetic_field = [ results['magnetic_field'][k] for k in ['x', 'y','z'] ]
+            euler = [ results['euler'][k] for k in ['heading', 'yaw', 'roll', 'pitch'] ]
+            temperature = [ results['temp'][k] for k in ['f', 'c'] ]
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetImuSensor")
         return HALGetImuResponse(orientation=orientation, 
@@ -130,7 +122,7 @@ class BaseHALServiceNode(HALServiceNode):
                                  angular_velocity=angular_velocity, 
                                  magnetic_field=magnetic_field,
                                  euler=euler, 
-                                 temp=temp)
+                                 temperature=temperature)
 
     def _hal_get_voltage(self, request):
         values = []
