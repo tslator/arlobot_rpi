@@ -8,7 +8,7 @@ class ImuHwError(Exception):
 
 class ImuHw:
 
-    def __init__(self, i2cbus=None):
+    def __init__(self):
         try:
             self._hardware = Hardware()
         except HardwareError:

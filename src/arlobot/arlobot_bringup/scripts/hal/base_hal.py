@@ -7,11 +7,8 @@ from random import randrange
 import rospy
 
 from hal_protocol import HALProtocol, HALProtocolError
-#from hal.hw.imuhw import ImuHw, ImuHwError
 from hw.imuhw import ImuHw, ImuHwError
-#from hal.hw.psochw import PsocHw, PsocHwError
 from hw.psochw import PsocHw, PsocHwError
-#from hal.hw.i2c import I2CBus
 from hw.i2c import I2CBus, I2CBusError
 from utils import Worker
 from threading import RLock
@@ -28,7 +25,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
         self._simulated = simulated
 
         psoc_i2c_device = rospy.get_param("Psoc I2C Device", I2CBus.DEV_I2C_1)
-        imu_i2c_device = rospy.get_param("Imu I2C Device", I2CBus.DEV_I2C_2)
+        imu_i2c_device = rospy.get_param("Imu I2C Device", I2CBus.DEV_I2C_1)
 
         psoc_addr = rospy.get_param("Psoc I2C Address", PsocHw.PSOC_ADDR)
 
@@ -74,12 +71,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw")
 
             try:
-                self._i2c_bus_2 = I2CBus(imu_i2c_device)
-            except RuntimeError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(imu_i2c_device))
-
-            try:
-                self._imu = ImuHw(self._i2c_bus_2)
+                self._imu = ImuHw()
             except ImuHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
 
