@@ -7,9 +7,15 @@ class ImuHwError(Exception):
     pass
 
 class ImuHw:
+    ORIENTATION_ZERO = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'w': 0.0}
+    ACCELERATION_ZERO = {'x': 0.0, 'y': 0.0, 'z': 0.0}
+    GYROSCOPE_ZERO = {'x': 0.0, 'y': 0.0, 'z': 0.0}
+    MAGNETOMETER_ZERO = {'x': 0.0, 'y': 0.0, 'z': 0.0}
+    EULER_ZERO = {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0}
+    TEMPERATURE_ZERO = {'f': 0.0, 'c': 0.0}
 
     def __init__(self):
-	self._calibration_confired = False
+	self._cal_confirmed = False
         try:
 	    # Note: We disable the calibration check when we instantiate because we don't want
 	    # hold up the service startup.  Calibration will be confirmed later the first time
@@ -33,35 +39,42 @@ class ImuHw:
 	# The calibration data is loaded when the BNO055 is instantiated so hopefully by the 
         # we get to this call the status is valid; otherwise, we just wait until it is.
 	# This should cause any noticeable delays in IMU message publication
-	if not self._calibration_confirmed:
-	    self._hardware._confirm_calibration()
-	    self._calibration_confirmed = True
+	if not self._cal_confirmed:
+	    self._cal_confirmed = self._hardware._confirm_calibration()
 
+	if self._cal_confirmed:
+            try:
+                orientation_result = self._hardware.read_orientation()
+            except AttributeError:
+                orientation_result = ImuHw.ORIENTATION_ZERO
+            try:
+                acceleration_result = self._hardware.read_acceleration()
+            except AttributeError:
+                acceleration_result = ImuHw.ACCELERATION_ZERO
+            try:
+                gyro_result = self._hardware.read_gyroscope()
+            except AttributeError:
+                gyro_result = ImuHw.GYROSCOPE_ZERO
+            try:
+                mag_result = self._hardware.read_magnetometer()
+            except AttributeError:
+                mag_result = ImuHw.MAGNETOMETER_ZERO
+            try:
+                euler_result = self._hardware.read_euler()
+            except AttributeError:
+                euler_result = ImuHw.EULER_ZERO
+            try:
+                temp_result = self._hardware.read_temperature()
+            except AttributeError:
+                temp_result = ImuHw.TEMPERATURE_ZERO
 
-        try:
-            orientation_result = self._hardware.read_orientation()
-        except AttributeError:
-            orientation_result = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'w': 0.0}
-        try:
-            acceleration_result = self._hardware.read_acceleration()
-        except AttributeError:
-            acceleration_result = {'x': 0.0, 'y': 0.0, 'z': 0.0}
-        try:
-            gyro_result = self._hardware.read_gyroscope()
-        except AttributeError:
-            gyro_result = {'x': 0.0, 'y': 0.0, 'z': 0.0}
-        try:
-            mag_result = self._hardware.read_magnetometer()
-        except AttributeError:
-            mag_result = {'x': 0.0, 'y': 0.0, 'z': 0.0}
-        try:
-            euler_result = self._hardware.read_euler()
-        except AttributeError:
-            euler_result = {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0}
-        try:
-            temp_result = self._hardware.read_temperature()
-        except AttributeError:
-            temp_result = {'f': 0.0, 'c': 0.0}
+	else:
+	    orientation_result = ImuHw.ORIENTATION_ZERO
+	    acceleration_result = ImuHw.ACCELERATION_ZERO
+	    gyro_result = ImuHw.GYROSCOPE_ZERO
+	    mag_result =  ImuHw.MAGNETOMETER_ZERO
+            euler_result = ImuHw.EULER_ZERO
+	    temp_result = ImuHw.TEMPERATURE_ZERO
 
         return {'orientation': orientation_result,
                 'linear_accel': acceleration_result,
