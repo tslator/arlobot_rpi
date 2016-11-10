@@ -35,6 +35,7 @@ class HALServiceNode:
             rospy.init_node(node_name)
         rospy.on_shutdown(self.Shutdown)
 
+	# Note: The _hal is not instantiated in this class but in the subclass
         self._hal = None
         self._hal_name = hal_name
         self._timeout_rate = 0
@@ -49,16 +50,21 @@ class HALServiceNode:
         :return:
         '''
         ticks = self._timeout_rate * timeout
-        while not self._hal.Ready(startup_shutdown) and ticks > 0:
-            rospy.loginfo("Waiting for {} ...".format(self._hal_name))
-            ticks -= 1
-            self._wait_rate.sleep()
-        else:
-            if ticks <= 0:
-                rospy.loginfo("Timeout waiting for {}".format(self._hal_name))
-                return False
-            else:
-                return True
+	if self._hal:
+	    while not self._hal.Ready(startup_shutdown) and ticks > 0:
+        	    rospy.loginfo("Waiting for {} ...".format(self._hal_name))
+	            ticks -= 1
+        	    self._wait_rate.sleep()
+	    else:
+                if ticks <= 0:
+	            rospy.loginfo("Timeout waiting for {}".format(self._hal_name))
+        	    return False
+	        else:
+        	    return True
+	else:
+	    # The most likely reason for this is that the hal was not instantiated and is None
+	    rospy.logfatal("HAL was not instantiated.")
+	    return False
 
     def _service_status(self, request):
         '''
@@ -76,13 +82,18 @@ class HALServiceNode:
         :return:
         '''
         rospy.loginfo("Starting up {} ...".format(self._hal_name))
-        self._hal.Startup()
-        success = self._wait(True, timeout)
+        if self._hal:
+            self._hal.Startup()
+            success = self._wait(True, timeout)
 
-        if (success):
-            rospy.loginfo("Successfully started {}".format(self._hal_name))
-        else:
-            rospy.logfatal("Failed to start {}".format(self._hal_name))
+            if (success):
+                rospy.loginfo("Successfully started {}".format(self._hal_name))
+            else:
+                rospy.logfatal("Failed to start {}".format(self._hal_name))
+	else:
+	    # The most likely reason for this is that the hal was not instantiated and it None
+            rospy.logfatal("HAL was not instantiated")
+ 	    success = False            
 
         return success
 

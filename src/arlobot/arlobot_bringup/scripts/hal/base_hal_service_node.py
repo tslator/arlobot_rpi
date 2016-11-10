@@ -40,8 +40,8 @@ class BaseHALServiceNode(HALServiceNode):
 
         try:
             self._hal = BaseHardwareAbstractionLayer(simulated)
-        except BaseHardwareAbstractionLayerError:
-            raise BaseHALServiceNodeError
+        except BaseHardwareAbstractionLayerError as e:
+            raise BaseHALServiceNodeError("Unable to instantiate BaseHardwareAbstractionLayer: {}".format(e.args))
 
     def _run(self):
         self._services['BaseHALSetSpeed'] = rospy.Service('BaseHALSetSpeed', HALSetFloatArray, self._hal_set_speed)
@@ -69,6 +69,7 @@ class BaseHALServiceNode(HALServiceNode):
         values = []
         try:
             values = self._hal.GetOdometry()
+            rospy.logdebug("odometry: {}".format(values))
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL:GetOdometry")
         return HALGetFloatArrayResponse(values = values)

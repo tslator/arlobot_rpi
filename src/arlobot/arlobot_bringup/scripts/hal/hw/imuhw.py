@@ -9,8 +9,12 @@ class ImuHwError(Exception):
 class ImuHw:
 
     def __init__(self):
+	self._calibration_confired = False
         try:
-            self._hardware = Hardware()
+	    # Note: We disable the calibration check when we instantiate because we don't want
+	    # hold up the service startup.  Calibration will be confirmed later the first time
+	    # we read the IMU
+            self._hardware = Hardware(do_cal_check=False)
         except HardwareError:
             raise ImuHwError("Failed to instantiate hardware")
 
@@ -21,9 +25,18 @@ class ImuHw:
                                 'angular_velocity': {'x': 0.0, 'y': 0.0, 'z': 0.0},
                                 'magnetic_field': {'x': 0.0, 'y': 0.0, 'z': 0.0},
                                 'euler': {'heading': 0.0, 'yaw': 0.0, 'roll': 0.0, 'pitch': 0.0},
-                                'temp': {'f':0.0, 'c':0.0}
+                                'temperature': {'f':0.0, 'c':0.0}
                               }
         """
+	
+	# Note: Before the BNO055 will return valid values its calibration status must be valid
+	# The calibration data is loaded when the BNO055 is instantiated so hopefully by the 
+        # we get to this call the status is valid; otherwise, we just wait until it is.
+	# This should cause any noticeable delays in IMU message publication
+	if not self._calibration_confirmed:
+	    self._hardware._confirm_calibration()
+	    self._calibration_confirmed = True
+
 
         try:
             orientation_result = self._hardware.read_orientation()

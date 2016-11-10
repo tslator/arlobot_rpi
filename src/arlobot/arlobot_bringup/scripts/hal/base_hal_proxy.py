@@ -37,9 +37,9 @@ class BaseHALProxy:
     def GetOdometry(self):
         get_odometry = rospy.ServiceProxy('BaseHALGetOdometry', HALGetFloatArray)
 
-        left_speed, right_speed, left_delta_dist, right_delta_dist, heading = get_odometry()
+        left_speed, right_speed, left_dist, right_dist, heading = get_odometry()
 
-        return left_speed, right_speed, left_delta_dist, right_delta_dist, heading
+        return left_speed, right_speed, left_dist, right_dist, heading
 
     def GetUltrasonic(self):
         get_ultrasonic = rospy.ServiceProxy('BaseHALGetUltrasonic', HALGetFloatArray)

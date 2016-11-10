@@ -59,21 +59,26 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             self._left_worker = Worker("Left Wheel", self.__left_wheel_work)
             self._right_worker = Worker("Right Wheel", self.__right_wheel_work)
         else:
+	    # Note: The IMU hardware can take up to 10 seconds to set its calibration status to valid
+	    # In order to give it as mush time as possible, we'll instantiate it first and hopefully
+            # by the time all of the nodes and services get started, the IMU will be ready to report
+            # valid orientation values.  But, even if it isn't ready, the first read of the IMU will
+            # will check and wait for calibration to be valid.
+            try:
+                self._imu = ImuHw()
+            except ImuHwError:
+                #raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
+                rospy.loginfo("unable to create ImuHw")
+
             try:
                 self._i2c_bus_1 = I2CBus(psoc_i2c_device)
             except RuntimeError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(psoc_i2c_device))
-
-            # Instantiate Psoc class
+            
             try:
                 self._psoc = PsocHw(self._i2c_bus_1, psoc_addr)
             except PsocHwError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw")
-
-            try:
-                self._imu = ImuHw()
-            except ImuHwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
 
     def __left_wheel_work(self):
         now = time()
@@ -129,10 +134,10 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             with self._lock:
                 left_speed = 0
                 right_speed = 0
-                left_delta_distance = 0
-                right_delta_distance = 0
+                left_distance = 0
+                right_distance = 0
                 heading = 0
-                return [left_speed, right_speed, left_delta_distance, right_delta_distance, heading]
+                return [left_speed, right_speed, left_distance, right_distance, heading]
         else:
             return self._psoc.GetOdometry()
 
