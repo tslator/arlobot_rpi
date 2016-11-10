@@ -34,10 +34,10 @@ class ArlobotSensorsNode:
             rospy.init_node(ArlobotSensorsNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
-        laser_scan_enable = rospy.get_param("Laser Scan Enable")
-        ultrasonic_scan_enable = rospy.get_param("Ultrasonic Scan Enable")
-        infrared_scan_enable = rospy.get_param("Infrared Scan Enable")
-        loop_rate = rospy.get_param("Sensors Node Loop Rate")
+        laser_scan_enable = rospy.get_param("Laser Scan Enable", False)
+        ultrasonic_scan_enable = rospy.get_param("Ultrasonic Scan Enable", False)
+        infrared_scan_enable = rospy.get_param("Infrared Scan Enable", False)
+        loop_rate = rospy.get_param("Sensors Node Loop Rate", 1)
 
         self._loop_rate = rospy.Rate(loop_rate)
 
