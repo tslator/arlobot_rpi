@@ -114,7 +114,7 @@ class BaseHALServiceNode(HALServiceNode):
             angular_velocity = [ results['angular_velocity'][k] for k in ['x', 'y', 'z'] ]
             magnetic_field = [ results['magnetic_field'][k] for k in ['x', 'y','z'] ]
             euler = [ results['euler'][k] for k in ['heading', 'yaw', 'roll', 'pitch'] ]
-            temperature = [ results['temp'][k] for k in ['f', 'c'] ]
+            temperature = [ results['temperature'][k] for k in ['f', 'c'] ]
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetImuSensor")
         return HALGetImuResponse(orientation=orientation, 
