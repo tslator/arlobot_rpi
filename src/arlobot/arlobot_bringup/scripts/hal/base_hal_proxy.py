@@ -61,7 +61,7 @@ class BaseHALProxy:
 	         'linear_accel'     : dict(zip(['x', 'y', 'z'], response.linear_accel)), 
 		 'angular_velocity' : dict(zip(['x', 'y', 'z'], response.angular_velocity)),
                  'magnetic_field'   : dict(zip(['x', 'y', 'z'], response.magnetic_field)),
-		 'euler'            : dict(zip(['x', 'y', 'z'], response.euler)),
+		 'euler'            : dict(zip(['heading', 'yaw', 'roll', 'pitch'], response.euler)),
                  'temperature'      : dict(zip(['f', 'c'], response.temperature))
 	       }
 

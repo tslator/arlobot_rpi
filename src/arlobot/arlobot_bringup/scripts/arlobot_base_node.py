@@ -108,6 +108,7 @@ class ArlobotBaseNode:
             # at this level, i.e., obstacle avoidance, charging, etc
             # At this level (running on the raspberry pi) we have enough abstractions to implement behaviors and the
             # ability to switch between those behaviors as needed.
+	    #rospy.logdebug("tick, tock")i
 
             self._loop_rate.sleep()
         else:
