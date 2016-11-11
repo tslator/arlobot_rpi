@@ -127,8 +127,7 @@ class ArlobotDriveNode:
         self._hal_proxy.SetSpeed(0, 0)
 
         self._loop_rate = rospy.Rate(loop_rate)
-        self._safety_delta_time = rospy.Time.now()
-        self._last_twist_time = rospy.Time.now()
+        self._last_twist_time = time.time()
 
         self._last_linear_velocity = 0
         self._last_angular_velocity = 0
@@ -143,10 +142,9 @@ class ArlobotDriveNode:
         self._min_linear_velocity = 0
         self._min_angular_velocity = 0
 
-        self._last_odom_time = 0.0
+        self._last_odom_time = time.time()
         self._left = 0.0
         self._right = 0.0
-        self._last_command_time = 0.0
 
         kp = rospy.get_param("Linear Tracking Kp", 0.4)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
@@ -239,7 +237,7 @@ class ArlobotDriveNode:
         :return: None
         """
 
-        self._last_command_time = time.time()
+        self._last_twist_time = time.time()
 
         # Adjust commanded linear/angular velocities to ensure compliance
         #v, w = self.ensure_w(command.linear.x, command.angular.z)
@@ -291,7 +289,7 @@ class ArlobotDriveNode:
         return {'heading': self._theta, 'x_dist': x_dist, 'y_dist': y_dist, 'linear': v, 'angular': w}
 
     def _safety_timeout_exceeded(self):
-        return time.time() - self._last_command_time > self._max_safety_timeout
+        return time.time() - self._last_twist_time > self._max_safety_timeout
 
     def Start(self):
         self._hal_proxy.SetSpeed(0.0, 0.0)
