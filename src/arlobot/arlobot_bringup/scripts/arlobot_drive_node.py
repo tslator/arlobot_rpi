@@ -231,7 +231,7 @@ class ArlobotDriveNode:
                                command.angular.z,
                                self._track_width,
                                self._wheel_radius)
-        rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
+        rospy.logdebug("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
         self._left = left
         self._right = right
@@ -273,7 +273,7 @@ class ArlobotDriveNode:
     def Start(self):
         self._hal_proxy.SetSpeed(0.0, 0.0)
         _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
-        rospy.loginfo("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
+        rospy.logdebug("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
 
     def Loop(self):
         while not rospy.is_shutdown():
@@ -290,7 +290,7 @@ class ArlobotDriveNode:
             # Consider implementing tracking of the linear/angular velocity at this level to ensure that the robot
             # is moving at the correct heading
             linear = self._linear_tracking.Update(odometry['linear'])
-            rospy.loginfo("linear - target: {}, measured: {}, new: {}".format(self._linear_tracking._target,
+            rospy.logdebug("linear - target: {}, measured: {}, new: {}".format(self._linear_tracking._target,
                                                                               odometry['linear'],
                                                                               linear))
             # If there a need to be concerned with keeping the angle within in +/- pi?  Remember this is a problem
@@ -299,7 +299,7 @@ class ArlobotDriveNode:
             # should do the trick.  It would be nice to somehow add this to the PID as a constraint to be checked before
             # returning the result.
             angular = self._angular_tracking.Update(odometry['angular'])
-            rospy.loginfo("angular - target: {}, measured: {}, new: {}".format(self._angular_tracking._target,
+            rospy.logdebug("angular - target: {}, measured: {}, new: {}".format(self._angular_tracking._target,
                                                                                odometry['angular'],
                                                                                angular))
             left, right = uni2diff(linear, angular, self._track_width, self._wheel_radius)
@@ -312,7 +312,7 @@ class ArlobotDriveNode:
             right = self._right
             self._hal_proxy.SetSpeed(left, right)
 
-            rospy.loginfo("tick, tock {}".format(str(rospy.Time.now())))
+            rospy.logdebug("tick, tock {}".format(str(rospy.Time.now())))
             self._loop_rate.sleep()
 
         else:
