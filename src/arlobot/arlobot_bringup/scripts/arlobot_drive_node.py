@@ -170,24 +170,6 @@ class ArlobotDriveNode:
         # Publishes the Odometry message
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
-    def _apply_accel_profile(self, new_linear, new_angular):
-        """
-        Calculate the max linear and angular velocity based on max linear and angular acceleration (configurable via parameter)
-        Choose the min of new and max linear and angular velocity
-        :param new_linear:
-        :param new_angular:
-        :return:
-        """
-
-        delta_time = self._last_twist_time - time.time() # needs to be in seconds
-
-        max_linear_velocity = self._last_linear_velocity + self._linear_accel * delta_time
-        max_angular_velocity = self._last_angular_velocity + self._angular_accel * delta_time
-        self._last_linear_velocity = min(new_linear, max_linear_velocity)
-        self._last_angular_velocity = min(new_angular, max_angular_velocity)
-
-        return self._last_linear_velocity, self._last_angular_velocity
-
     def ensure_w(self, v, w):
         """
 
@@ -231,6 +213,24 @@ class ArlobotDriveNode:
 
         return v,w
 
+    def _apply_accel_profile(self, new_linear, new_angular):
+        """
+        Calculate the max linear and angular velocity based on max linear and angular acceleration (configurable via parameter)
+        Choose the min of new and max linear and angular velocity
+        :param new_linear:
+        :param new_angular:
+        :return:
+        """
+
+        delta_time = self._last_twist_time - time.time() # needs to be in seconds
+
+        max_linear_velocity = self._last_linear_velocity + self._linear_accel * delta_time
+        max_angular_velocity = self._last_angular_velocity + self._angular_accel * delta_time
+        self._last_linear_velocity = min(new_linear, max_linear_velocity)
+        self._last_angular_velocity = min(new_angular, max_angular_velocity)
+
+        return self._last_linear_velocity, self._last_angular_velocity
+
     def _twist_command_callback(self, command):
         """
         Within this callback it is necessary to enforce velocity limits specific to preventing motor stalling and
@@ -244,11 +244,11 @@ class ArlobotDriveNode:
         # Adjust commanded linear/angular velocities to ensure compliance
         #v, w = self.ensure_w(command.linear.x, command.angular.z)
 
-        # Apply an acceleration profile to ensure smooth transitions
-        #v, w = self._apply_accel_profile(v, w)
-
         v = command.linear.x
         w = command.angular.z
+
+        # Apply an acceleration profile to ensure smooth transitions
+        v, w = self._apply_accel_profile(v, w)
 
         self._linear_tracking.SetTarget(v)
         self._angular_tracking.SetTarget(w)
