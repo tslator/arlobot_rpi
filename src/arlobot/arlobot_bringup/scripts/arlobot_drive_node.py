@@ -253,11 +253,11 @@ class ArlobotDriveNode:
         self._linear_tracking.SetTarget(v)
         self._angular_tracking.SetTarget(w)
 
-        self._left, self._right = uni2diff(command.linear.x,
-                                           command.angular.z,
-                                           self._track_width,
-                                           self._wheel_radius)
-        rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, self._left, self._right))
+        left, right = uni2diff(command.linear.x,
+                               command.angular.z,
+                               self._track_width,
+                               self._wheel_radius)
+        rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
     def _calc_odometry(self):
         odometry = self._hal_proxy.GetOdometry()
@@ -327,10 +327,10 @@ class ArlobotDriveNode:
                                                                                angular))
             left, right = uni2diff(linear, angular, self._track_width, self._wheel_radius)
             if self._safety_timeout_exceeded():
-                self._left = 0.0
-                self._right = 0.0
+                left = 0.0
+                right = 0.0
 
-            self._hal_proxy.SetSpeed(self._left, self._right)
+            self._hal_proxy.SetSpeed(left, right)
 
             rospy.loginfo("tick, tock {}".format(str(rospy.Time.now())))
             self._loop_rate.sleep()
