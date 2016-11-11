@@ -146,13 +146,13 @@ class ArlobotDriveNode:
         self._left = 0.0
         self._right = 0.0
 
-        kp = rospy.get_param("Linear Tracking Kp", 0.4)
+        kp = rospy.get_param("Linear Tracking Kp", 0.8)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
         kd = rospy.get_param("Linear Tracking Kd", 0.0)
 
         self._linear_tracking = PID(kp, ki, kd, self._min_linear_velocity, self._max_linear_velocity, loop_rate)
 
-        kp = rospy.get_param("Angular Tracking Kp", 0.4)
+        kp = rospy.get_param("Angular Tracking Kp", 0.8)
         ki = rospy.get_param("Angular Tracking Ki", 0.0)
         kd = rospy.get_param("Angular Tracking Kd", 0.0)
 
@@ -211,24 +211,6 @@ class ArlobotDriveNode:
 
         return v,w
 
-    def _apply_accel_profile(self, new_linear, new_angular):
-        """
-        Calculate the max linear and angular velocity based on max linear and angular acceleration (configurable via parameter)
-        Choose the min of new and max linear and angular velocity
-        :param new_linear:
-        :param new_angular:
-        :return:
-        """
-
-        delta_time = self._last_twist_time - time.time() # needs to be in seconds
-
-        max_linear_velocity = self._last_linear_velocity + self._linear_accel * delta_time
-        max_angular_velocity = self._last_angular_velocity + self._angular_accel * delta_time
-        self._last_linear_velocity = min(new_linear, max_linear_velocity)
-        self._last_angular_velocity = min(new_angular, max_angular_velocity)
-
-        return self._last_linear_velocity, self._last_angular_velocity
-
     def _twist_command_callback(self, command):
         """
         Within this callback it is necessary to enforce velocity limits specific to preventing motor stalling and
@@ -240,13 +222,7 @@ class ArlobotDriveNode:
         self._last_twist_time = time.time()
 
         # Adjust commanded linear/angular velocities to ensure compliance
-        #v, w = self.ensure_w(command.linear.x, command.angular.z)
-
-        v = command.linear.x
-        w = command.angular.z
-
-        # Apply an acceleration profile to ensure smooth transitions
-        v, w = self._apply_accel_profile(v, w)
+        v, w = self.ensure_w(command.linear.x, command.angular.z)
 
         self._linear_tracking.SetTarget(v)
         self._angular_tracking.SetTarget(w)
