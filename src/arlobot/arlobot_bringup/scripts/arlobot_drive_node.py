@@ -233,6 +233,9 @@ class ArlobotDriveNode:
                                self._wheel_radius)
         rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
+        self._left = left
+        self._right = right
+
     def _calc_odometry(self):
         odometry = self._hal_proxy.GetOdometry()
         rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
@@ -303,7 +306,10 @@ class ArlobotDriveNode:
             if self._safety_timeout_exceeded():
                 left = 0.0
                 right = 0.0
-
+                self._left = 0.0
+                self._right = 0.0
+            left = self._left
+            right = self._right
             self._hal_proxy.SetSpeed(left, right)
 
             rospy.loginfo("tick, tock {}".format(str(rospy.Time.now())))
