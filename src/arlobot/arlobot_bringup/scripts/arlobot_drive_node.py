@@ -19,7 +19,7 @@ class PID:
         self._min = min
         self._max = max
 
-        sample_time = 1/sample_rate
+        sample_time = 1.0/sample_rate
 
         self._kp = kp * sample_time
         self._ki = ki
