@@ -66,7 +66,7 @@ class PID:
         self._output = self._kp*error + self._kd*e_dot + self._ki*self._error_sum
 
         self._last_error = error
-
+        rospy.loginfo("min: {}, output: {}, max: {}".format(self._min, self._output, self._max))
         return min(max(self._output, self._min), self._max)*self._sign
 
 
