@@ -146,13 +146,13 @@ class ArlobotDriveNode:
         self._left = 0.0
         self._right = 0.0
 
-        kp = rospy.get_param("Linear Tracking Kp", 0.8)
+        kp = rospy.get_param("Linear Tracking Kp", 0.2)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
         kd = rospy.get_param("Linear Tracking Kd", 0.0)
 
         self._linear_tracking = PID(kp, ki, kd, self._min_linear_velocity, self._max_linear_velocity, loop_rate)
 
-        kp = rospy.get_param("Angular Tracking Kp", 0.8)
+        kp = rospy.get_param("Angular Tracking Kp", 0.2)
         ki = rospy.get_param("Angular Tracking Ki", 0.0)
         kd = rospy.get_param("Angular Tracking Kd", 0.0)
 
