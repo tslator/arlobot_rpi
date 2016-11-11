@@ -24,18 +24,18 @@ def normalize_angle(angle):
     return res
 
 
-def uni2diff(self, v, w, L, R):
-    two_v = 2 * v
-    w_l = w * L
-    two_r = 2 * R
+def uni2diff(v, w, L, R):
+    _2_v = 2 * v
+    _w_L = w * L
+    _2_R = 2 * R
 
-    l_v = (two_v - w_l) / two_r
-    r_v = (two_v + w_l) / two_r
+    l_v = (_2_v - _w_L) / _2_R
+    r_v = (_2_v + _w_L) / _2_R
 
     return l_v, r_v
 
 
-def diff2uni(self, l_v, r_v, L, R):
+def diff2uni(l_v, r_v, L, R):
     v = (l_v + r_v) * (R / 2)
     w = (r_v - l_v) * (R / L)
 
