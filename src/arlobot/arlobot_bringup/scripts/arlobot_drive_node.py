@@ -303,13 +303,35 @@ class ArlobotDriveNode:
                                                                                odometry['angular'],
                                                                                angular))
             left, right = uni2diff(linear, angular, self._track_width, self._wheel_radius)
+
             if self._safety_timeout_exceeded():
                 left = 0.0
                 right = 0.0
                 self._left = 0.0
                 self._right = 0.0
-            left = self._left
-            right = self._right
+
+            # Apply an acceleration profile here
+            # Using this eq:
+            #       a = (vi - vi-1)/t
+            #  a will be fixed by selecting an acceleration
+            #  t is fixed by the loop rate
+            #  vi-1 is the last velocity
+            #  vi is the new velocity
+            #
+            #  vi = a*t + vi-1
+            #
+            # So no matter what the command velocity is it will be limited by the acceleration and via this loop the
+            # PID's will continue to force the desired velocity
+            #
+            # I think we need to know in which direction the acceleration will be, yes?
+            # If so then we need to compare vi and vi-1 to make that determination
+            
+            new_left = self._linear_accel*self._loop_time + self._left
+            left = min(new_left, self._angular_tracking._target)
+            self._left = left
+
+            #left = self._left
+            #right = self._right
             self._hal_proxy.SetSpeed(left, right)
 
             rospy.logdebug("tick, tock {}".format(str(rospy.Time.now())))
