@@ -277,8 +277,12 @@ class ArlobotDriveNode:
         else:
             w = min(command.angular.z, self._max_ccw_angular_velocity)
 
+        rospy.loginfo("After b/f constrain - v: {:3}, w: {:3}".format(v, w))
+
         # Adjust commanded linear/angular velocities to ensure angular velocity (omega)
         v, w = self.ensure_w(command.linear.x, command.angular.z)
+
+        rospy.loginfo("After Ensure - v: {:.3}, w: {:3}".format(v, w))
 
         # Update target velocities to be tracked
         self._linear_tracking.SetTarget(v)
