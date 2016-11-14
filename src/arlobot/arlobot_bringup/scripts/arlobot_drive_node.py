@@ -14,7 +14,6 @@ class PID:
     def __init__(self, name, kp, ki, kd, min, max, sample_rate):
         self._name = name
         self._target = 0
-        self._output = 0
         self._error_sum = 0
         self._last_error = 0
         self._min = abs(min)
@@ -68,15 +67,17 @@ class PID:
         self._error_sum += error
 
         # Calculate new output
-        self._output = self._kp*error + self._kd*e_dot + self._ki*self._error_sum
+        output = self._kp*error + self._kd*e_dot + self._ki*self._error_sum
 
         # Save error
         self._last_error = error
 
+        output = min(max(output, self._min), self._max)*self._sign
+
         rospy.loginfo("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name, float(self._min), float(self._target), float(self._output), float(self._max)))
 
         # Restrict the output to the min/max and apply the sign
-        return min(max(self._output, self._min), self._max)*self._sign
+        return output
 
 
 class ArlobotDriveNodeError(Exception):
