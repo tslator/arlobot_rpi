@@ -20,6 +20,6 @@
   <include file="$(find arlobot_bringup)/launch/arlobot.xml" />
   
   <!-- Launch the nodes for arlobotbase -->
-  <include file="$(find arlobot_bringup)/launch/arlobot_base.xml" />
+  <include file="$(find arlobot_bringup)/launch/arlobotbase.xml" />
 
 </launch>
