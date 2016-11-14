@@ -127,14 +127,11 @@ class ArlobotDriveNode:
         self._hal_proxy.SetSpeed(0, 0)
 
         self._loop_rate = rospy.Rate(loop_rate)
+        self._loop_time = 1.0/loop_rate
         self._last_twist_time = time.time()
 
-        self._last_linear_velocity = 0
-        self._last_angular_velocity = 0
-        self._linear_accel = rospy.get_param("Drive Node Velocity Profile Linear Accel", 3)
-        self._angular_accel = rospy.get_param("Drive Node Velocity Profile Angular Accel", 0.1)
-        self._linear_accel = 10
-        self._angular_accel = 1
+        self._linear_accel_limit = rospy.get_param("Drive Node Linear Accel Limit", 0.75)
+        self._angular_accel_limit = rospy.get_param("Drive Node Angular Accel Limit", 0.02)
 
         self._theta = 0
         self._last_left_dist = 0
@@ -146,13 +143,13 @@ class ArlobotDriveNode:
         self._left = 0.0
         self._right = 0.0
 
-        kp = rospy.get_param("Linear Tracking Kp", 0.2)
+        kp = rospy.get_param("Linear Tracking Kp", 0.7)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
         kd = rospy.get_param("Linear Tracking Kd", 0.0)
 
         self._linear_tracking = PID(kp, ki, kd, self._min_linear_velocity, self._max_linear_velocity, loop_rate)
 
-        kp = rospy.get_param("Angular Tracking Kp", 0.2)
+        kp = rospy.get_param("Angular Tracking Kp", 0.7)
         ki = rospy.get_param("Angular Tracking Ki", 0.0)
         kd = rospy.get_param("Angular Tracking Kd", 0.0)
 
@@ -231,10 +228,7 @@ class ArlobotDriveNode:
                                command.angular.z,
                                self._track_width,
                                self._wheel_radius)
-        rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
-
-        self._left = left
-        self._right = right
+        rospy.logdebug("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
     def _calc_odometry(self):
         odometry = self._hal_proxy.GetOdometry()
@@ -270,12 +264,70 @@ class ArlobotDriveNode:
     def _safety_timeout_exceeded(self):
         return time.time() - self._last_twist_time > self._max_safety_timeout
 
+    def _apply_accel_profile(self, linear, angular, last_linear, last_angular):
+        # Using this eq:
+        #       a = (vi - vi-1)/t
+        #  a will be fixed by selecting an acceleration
+        #  t is fixed by the loop rate
+        #  vi-1 is the last velocity
+        #  vi is the new velocity
+        #
+        #  vi = a*t + vi-1
+        #
+        # So no matter what the command velocity is it will be limited by the acceleration and via this loop the
+        # PID's will continue to force the desired velocity
+        def calc_velocity(new, last, accel, delta):
+            if new - last < 0.0:
+                velocity = max(-accel * delta + last, new)
+            else:
+                velocity = min(accel * delta + last, new)
+
+            return velocity
+
+        left = calc_velocity(linear, last_linear, self._linear_accel_limit, self._loop_time)
+        right = calc_velocity(angular, last_angular, self._angular_accel_limit, self._loop_time)
+
+        return left, right
+
+    def _track_commanded_velocity(self, odometry):
+        # Consider implementing tracking of the linear/angular velocity at this level to ensure that the robot
+        # is moving at the correct heading
+        linear = self._linear_tracking.Update(odometry['linear'])
+        rospy.logdebug("linear - target: {}, measured: {}, new: {}".format(self._linear_tracking._target,
+                                                                           odometry['linear'],
+                                                                           linear))
+        # If there a need to be concerned with keeping the angle within in +/- pi?  Remember this is a problem
+        # with angle tracking, but is it also a problem with angular velocity tracking?  If so, does atan2 care
+        # if the parameter passed is radians vs radians/s?  If not, than math.atan2(sin(angular, cos(angular))
+        # should do the trick.  It would be nice to somehow add this to the PID as a constraint to be checked before
+        # returning the result.
+        angular = self._angular_tracking.Update(odometry['angular'])
+        rospy.logdebug("angular - target: {}, measured: {}, new: {}".format(self._angular_tracking._target,
+                                                                            odometry['angular'],
+                                                                            angular))
+
+        return linear, angular
+
+    def _peform_safety_check(self, linear, angular):
+        if self._safety_timeout_exceeded():
+            linear = 0.0
+            angular = 0.0
+
+        return linear, angular
+
     def Start(self):
         self._hal_proxy.SetSpeed(0.0, 0.0)
         _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
-        rospy.loginfo("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
+        rospy.logdebug("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
 
     def Loop(self):
+        """
+        Description: Main loop of the drive node and will run until the node is shutdown.  Within the loop,
+            * odometry is collected and published,
+            * track the commanded linear and angular velocity,
+            * perform safety check
+        :return: None
+        """
         while not rospy.is_shutdown():
         
             odometry = self._calc_odometry()
@@ -287,43 +339,33 @@ class ArlobotDriveNode:
                                            odometry['linear'],
                                            odometry['angular'])
 
-            # Consider implementing tracking of the linear/angular velocity at this level to ensure that the robot
-            # is moving at the correct heading
-            linear = self._linear_tracking.Update(odometry['linear'])
-            rospy.loginfo("linear - target: {}, measured: {}, new: {}".format(self._linear_tracking._target,
-                                                                              odometry['linear'],
-                                                                              linear))
-            # If there a need to be concerned with keeping the angle within in +/- pi?  Remember this is a problem
-            # with angle tracking, but is it also a problem with angular velocity tracking?  If so, does atan2 care
-            # if the parameter passed is radians vs radians/s?  If not, than math.atan2(sin(angular, cos(angular))
-            # should do the trick.  It would be nice to somehow add this to the PID as a constraint to be checked before
-            # returning the result.
-            angular = self._angular_tracking.Update(odometry['angular'])
-            rospy.loginfo("angular - target: {}, measured: {}, new: {}".format(self._angular_tracking._target,
-                                                                               odometry['angular'],
-                                                                               angular))
+            linear, angular = self._track_commanded_velocity(odometry)
+            linear, angular = self._peform_safety_check(linear, angular)
+
+            # Apply an acceleration profile
+            linear, angular = self._apply_accel_profile(linear, angular, self._linear, self._angular)
             left, right = uni2diff(linear, angular, self._track_width, self._wheel_radius)
-            if self._safety_timeout_exceeded():
-                left = 0.0
-                right = 0.0
-                self._left = 0.0
-                self._right = 0.0
-            left = self._left
-            right = self._right
             self._hal_proxy.SetSpeed(left, right)
 
-            rospy.loginfo("tick, tock {}".format(str(rospy.Time.now())))
             self._loop_rate.sleep()
 
         else:
             rospy.logwarn("Arlobot Drive Node: shutdown invoked, exiting")
 
     def Shutdown(self):
+        """
+        Description: Sets the left/right speed of the motors to 0.0 to ensure the robot stops.  Note, the robot has a
+        safety timeout that will also ensure the robot stops.
+        :return: None
+        """
         rospy.loginfo("Arlobot Drive Node has shutdown")
         self._hal_proxy.SetSpeed(0, 0)
 
 
 if __name__ == "__main__":
+    """
+    Description: Instantiates the arlobot drive node, starts the node, and enters the main loop
+    """
     arlobotdrivenode = ArlobotDriveNode()
     arlobotdrivenode.Start()
     arlobotdrivenode.Loop()
