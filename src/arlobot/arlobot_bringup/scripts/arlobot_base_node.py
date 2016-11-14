@@ -32,7 +32,7 @@ class ArlobotBaseNode:
             rospy.init_node(ArlobotBaseNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
-        loop_rate_value = rospy.get_param("Base Node Loop Rate")
+        loop_rate_value = rospy.get_param("Base Node Loop Rate", 1)
         
         # Initialization
         self._operational_state =  ArlobotBaseNodeStates.STATE_INITIAL
