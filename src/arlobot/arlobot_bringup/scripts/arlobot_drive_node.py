@@ -368,15 +368,15 @@ class ArlobotDriveNode:
             rospy.loginfo("v: {:6.3}, n: {:6.3}, l: {:6.3}, a: {:6.3}, d: {:6.3}".format(velocity, new, last, accel, delta))
             return velocity
 
-        tolerance = 0.000001
+        tolerance = 0.0001
 
-        rospy.loginfo("lindelta: {:6.3}, angdelta: {:6.3}".format(self._linear - linear, self._angular - angular))
-        if abs(self._linear - linear) > tolerance:
+        rospy.loginfo("lin: {}, ang: {}".format(abs(linear) > tolerance, abs(angular) > tolerance))
+        if abs(linear) > tolerance:
             self._linear = calc_velocity(linear, self._linear, self._linear_accel_limit, self._loop_time)
         else:
             self._linear = 0.0
 
-        if abs(self._angular - angular) > tolerance:
+        if abs(angular) > tolerance:
             self._angular = calc_velocity(angular, self._angular, self._angular_accel_limit, self._loop_time)
         else:
             self._angular = 0.0
