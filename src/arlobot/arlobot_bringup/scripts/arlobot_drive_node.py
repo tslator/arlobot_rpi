@@ -121,7 +121,7 @@ class ArlobotDriveNode:
 
 	    # Get the 'user' linear/angular velocity settings
         max_linear_speed = rospy.get_param("Max Linear Speed", 1.0)
-	    max_angular_speed = rospy.get_param("Max Angular Speed", 0.3)
+        max_angular_speed = rospy.get_param("Max Angular Speed", 0.3)
 
 	    # 'User' setting can be more restrictive but is limited to motor parameters
 	    self._min_linear_velocity = 0.0
