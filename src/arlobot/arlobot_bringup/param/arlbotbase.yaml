@@ -24,8 +24,8 @@ Drive Node Loop Rate: 10   # Hz
 Sensors Node Loop Rate: 1  # Hz
 
 # Drive Node Velocity Profile parameters
-Drive Node Linear Accel Limit: 0.75
-Drive Node Angular Accel Limit: 0.02
+Drive Node Linear Accel Limit: 0.025
+Drive Node Angular Accel Limit: 0.002
 
 # Ultrasonic range sensors
 Ultrasonic Field Of View:  0.523599
