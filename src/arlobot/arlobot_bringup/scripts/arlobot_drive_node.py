@@ -370,7 +370,6 @@ class ArlobotDriveNode:
 
         tolerance = 0.0001
 
-        rospy.loginfo("lin: {}, ang: {}".format(abs(linear) > tolerance, abs(angular) > tolerance))
         if abs(linear) > tolerance:
             self._linear = calc_velocity(linear, self._linear, self._linear_accel_limit, self._loop_time)
         else:
