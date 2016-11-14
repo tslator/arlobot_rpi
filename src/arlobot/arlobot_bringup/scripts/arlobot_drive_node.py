@@ -17,8 +17,8 @@ class PID:
         self._output = 0
         self._error_sum = 0
         self._last_error = 0
-        self._min = min
-        self._max = max
+        self._min = abs(min)
+        self._max = abs(max)
 
         sample_time = 1.0/sample_rate
 
@@ -30,19 +30,17 @@ class PID:
 
     def SetTarget(self, target):
         """
-
-        :param target:
+	:description: sets/updates the target value for the PID
+        :param target: new target value
         :return:
         """
 
-        '''
-        One of the things that is problematic with PIDs and velocities is that the velocity can
-        be positive and negative.  I have worked around this in other cases by always making
-        the input to the PID a positive value and then keeping track of sign and adjusting the
-        result.
-
-        I would like to hide this 'adjustment' within the PID itself.
-        '''
+	# Restrict the target value to be positive between min and max
+	# If the PID range is restricted to positive it becomes possible to generate a negative value.
+        # In the case of wheels, this means they can go backwards which is undesirable for speed tracking
+	# I'm sure there is better explanation in control system vernacular for this condition, but I
+	# discovered this experimentally and found the easiest way to make things work is to keep them
+	# positive and keep track of the sign so it can be applied to the final output
         self._sign = 1.0
         if target < 0.0:
             self._sign = -1.0
@@ -50,26 +48,34 @@ class PID:
 
     def Update(self, measured):
         """
-        read e;
+	:description: basic PID algorithm which determines a new value based on measured input and applied control gains
+        calc e;
         e_dot = e - e_old;
         E = E + e;
         u = kp*e + kd*e_dot + ki*E;
-
         e_old = e;
 
         :param measured:
         :return:
         """
 
-        # Calculate Error:
+        # Calculate error:
         error = self._target - measured
 
+	# Calculate delta error
         e_dot = error - self._last_error
+	# Calculate error integration
         self._error_sum += error
+	
+	# Calculate new output
         self._output = self._kp*error + self._kd*e_dot + self._ki*self._error_sum
-
+	
+	# Save error
         self._last_error = error
-        rospy.loginfo("{} - min: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name, float(self._min), float(self._output), float(self._max)))
+
+        rospy.loginfo("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name, float(self._min), float(self._target), float(self._output), float(self._max)))
+
+	# Restrict the output to the min/max and apply the sign	
         return min(max(self._output, self._min), self._max)*self._sign
 
 
@@ -89,6 +95,10 @@ class ArlobotDriveNode:
             rospy.init_node(ArlobotDriveNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
+	#--------------------------------
+	# Wheel/Robot Velocity Configuration/Control
+	#--------------------------------
+	
         max_motor_rpm = rospy.get_param("Max Motor RPM", 95)
         wheel_diameter = rospy.get_param("Wheel Diameter", 0.1524)
         self._track_width = rospy.get_param("Track Width", 0.4030)
@@ -99,56 +109,71 @@ class ArlobotDriveNode:
         # Calculate max wheel angular velocity in rad/s from RPM, i.e., 2*pi*RPMmax/60
         self._max_wheel_angular_velocity = 2 * math.pi * max_motor_rpm / 60
 
-        # Calculate max linear and angular velocities
-        v0, self._max_angular_velocity = diff2uni(self._max_wheel_angular_velocity,
-                                                  -self._max_wheel_angular_velocity,
-                                                  self._track_width,
-                                                  self._wheel_radius)
-        self._max_linear_velocity, w0 = diff2uni(self._max_wheel_angular_velocity,
-                                                 self._max_wheel_angular_velocity,
+        # Calculate max linear and angular velocities based on motor parameters
+        _, self._max_angular_velocity = diff2uni(self._max_wheel_angular_velocity,
+                                                 -self._max_wheel_angular_velocity,
                                                  self._track_width,
                                                  self._wheel_radius)
+        self._max_linear_velocity, _ = diff2uni(self._max_wheel_angular_velocity,
+                                                self._max_wheel_angular_velocity,
+                                                self._track_width,
+                                                self._wheel_radius)
 
+	# Get the 'user' linear/angular velocity settings
         max_linear_speed = rospy.get_param("Max Linear Speed", 1.0)
-        max_angular_speed = rospy.get_param("Max Angular Speed", 1.0)
+	max_angular_speed = rospy.get_param("Max Angular Speed", 0.3)
 
-        self._max_linear_velocity = max(self._max_linear_velocity, max_linear_speed)
-        self._max_angular_velocity = max(self._max_angular_velocity, max_angular_speed)
+	# 'User' setting can be more restrictive but is limited to motor parameters
+	self._min_linear_velocity = 0.0
+        self._max_linear_velocity = min(self._max_linear_velocity, max_linear_speed)
+	self._min_angular_velocity = 0.0
+        self._max_angular_velocity = min(abs(self._max_angular_velocity), max_angular_speed)
 
-        self._OdometryTransformBroadcaster = tf.TransformBroadcaster()
+	rospy.loginfo("---------------------------------------------------")
+	rospy.loginfo("Max Linear Velocity : {:6.3}".format(self._max_linear_velocity))
+	rospy.loginfo("Max Angular Velocity: {:6.3}".format(self._max_angular_velocity))
+        rospy.loginfo("---------------------------------------------------")
 
-        loop_rate = rospy.get_param("Drive Node Loop Rate", 10)
-        self._max_safety_timeout = rospy.get_param("Max Safety Timeout", 2.0)
-
-        try:
-            self._hal_proxy = BaseHALProxy()
-        except BaseHALProxyError:
-            raise ArlobotDriveNodeError("Unable to create BaseHALProxy")
-
-        self._hal_proxy.SetSpeed(0, 0)
-
-        self._loop_rate = rospy.Rate(loop_rate)
-        self._loop_time = 1.0/loop_rate
-        self._last_twist_time = time.time()
+	# Calculate range of linear velocities accepted from ROS
+	self._max_forward_linear_velocity = max_linear_speed
+	self._max_backward_linear_velocity = -max_linear_speed
+	
+	# Calculate range of angular velocities accepted from ROS
+	self._max_ccw_angular_velocity = max_angular_speed
+	self._max_cw_angular_velocity = -max_angular_speed
 
         self._linear_accel_limit = rospy.get_param("Drive Node Linear Accel Limit", 0.01)
         self._angular_accel_limit = rospy.get_param("Drive Node Angular Accel Limit", 0.002)
 
-        self._theta = 0
-        self._last_left_dist = 0
-        self._last_right_dist = 0
-        self._min_linear_velocity = 0
-        self._min_angular_velocity = 0
-
-        self._last_odom_time = time.time()
         self._linear = 0.0
         self._angular = 0.0
+
+	#-----------------------------
+	# Control/Processing
+	#-----------------------------
+        loop_rate = rospy.get_param("Drive Node Loop Rate", 10)
+        self._max_safety_timeout = rospy.get_param("Drive Node Safety Timeout", 10.0)
+
+        self._loop_rate = rospy.Rate(loop_rate)
+        self._loop_time = 1.0/float(loop_rate)
+        self._last_twist_time = time.time()
+
+	#------------------------------------
+	# Linear/Angular Tracking
+	#------------------------------------
+
+	# A layered appoach is used for control.  At the lowest level of control (within the Psoc) there are left/right PIDs
+	# tuned to a as fast a response as possible.  However, that can still lead to differences between the wheels and 
+	# cause the robot to veer of course.  Here we have the next level of control where odometry is used to make adjustments
+	# to the linear and angular velocity as received via ROS.  The PIDs here do not need to be as aggressive as in the Psoc.
+	# They need only to ensures that any differences are corrected.  As can be seen, only the proportional gain is being
+	# used for now.
 
         kp = rospy.get_param("Linear Tracking Kp", 0.7)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
         kd = rospy.get_param("Linear Tracking Kd", 0.0)
 
-        self._linear_tracking = PID("lienar", kp, ki, kd, self._min_linear_velocity, self._max_linear_velocity, loop_rate)
+        self._linear_tracking = PID("linear", kp, ki, kd, self._min_linear_velocity, self._max_linear_velocity, loop_rate)
 
         kp = rospy.get_param("Angular Tracking Kp", 0.7)
         ki = rospy.get_param("Angular Tracking Ki", 0.0)
@@ -156,33 +181,53 @@ class ArlobotDriveNode:
 
         self._angular_tracking = PID("angular", kp, ki, kd, self._min_angular_velocity, self._max_angular_velocity, loop_rate)
 
-        # Subscriptions
+	#------------------------------------
+	# Odometry
+	#------------------------------------
+        self._OdometryTransformBroadcaster = tf.TransformBroadcaster()
+
+        self._last_left_dist = 0
+        self._last_right_dist = 0
+        self._min_linear_velocity = 0
+        self._min_angular_velocity = 0
+
+        self._last_odom_time = time.time()
+
+	#-------------------------------------
+	# Subscriptions
+	#-------------------------------------
 
         # Subscribes to the Twist message received from ROS proper
         self._twist_subscriber = rospy.Subscriber("cmd_vel", Twist, self._twist_command_callback)
 
+	#-------------------------------------
         # Publications
+	#-------------------------------------
 
         # Publishes the Odometry message
         self._arlobot_odometry = ArlobotOdometryPublisher()
 
+	#---------------------------------------------------
+	# Instantiate the HAL Base Proxy and stop the motors
+	#---------------------------------------------------
+        try:
+            self._hal_proxy = BaseHALProxy()
+        except BaseHALProxyError:
+            raise ArlobotDriveNodeError("Unable to create BaseHALProxy")
+
+        self._hal_proxy.SetSpeed(0, 0)
+
+
     def ensure_w(self, v, w):
         """
-
+	:description: Ensure that the given angular velocity can be achieved.  Will reduce linear velocity as necessary
         :param v: linear velocity
         :param w: angular velocity
         :return:
         """
-        '''
-        1. Constrain the linear and angular velocities to robot minimum and maximum
-           This prevents ROS from giving something that the robot motors can't achieve.
-        '''
-        w = max(min(w, self._max_angular_velocity), self._min_angular_velocity)
-        v = max(min(v, self._max_linear_velocity), self._min_linear_velocity)
 
         '''
-        2. Ensure that the given angular velocity is achieved by checking and adjusting
-           the resulting differential velocities.
+        Ensure that the given angular velocity is achieved by checking and adjusting the resulting differential velocities.
         '''
         l_v_d, r_v_d = uni2diff(v, w, self._track_width, self._wheel_radius)
 
@@ -193,7 +238,7 @@ class ArlobotDriveNode:
         r_v = 0
 
         '''
-        3. Adjust resulting left/right velocities to achieve desired angular velocity.
+        Adjust resulting left/right velocities to achieve desired angular velocity.
         '''
         if max_rl_v > self._max_wheel_angular_velocity:
             r_v = r_v_d - (max_rl_v - self._max_wheel_angular_velocity)
@@ -213,30 +258,50 @@ class ArlobotDriveNode:
         """
         Within this callback it is necessary to enforce velocity limits specific to preventing motor stalling and
         ensuring the requested angular velocity
-        :param command:
+        :param command: the twist command received from the ROS stack
         :return: None
         """
 
+	# Update time of twist command for safety purposes
         self._last_twist_time = time.time()
 
-        # Adjust commanded linear/angular velocities to ensure compliance
+	# While there are subsequent checks linear and angular velocity, its seems prudent to apply the most course checking
+	# here before allowing velocities to flow futher through the stack
+	if command.linear.x < 0.0:
+    	    v = min(command.linear.x, self._max_backward_linear_velocity)
+        else:
+	    v = min(command.linear.x, self._max_forward_linear_velocity)
+
+	if command.angular.z < 0.0:
+	    w = min(command.angular.z, self._max_cw_angular_velocity)
+ 	else:
+	    w = min(command.angular.z, self._max_ccw_angular_velocity)
+
+        # Adjust commanded linear/angular velocities to ensure angular velocity (omega)
         v, w = self.ensure_w(command.linear.x, command.angular.z)
 
+	# Update target velocities to be tracked
         self._linear_tracking.SetTarget(v)
         self._angular_tracking.SetTarget(w)
 
-        left, right = uni2diff(command.linear.x,
-                               command.angular.z,
-                               self._track_width,
-                               self._wheel_radius)
+	# For debugging purposes, convert linear, angular and print current velocities request
+        left, right = uni2diff(v, w, self._track_width, self._wheel_radius)
         rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
     def _calc_odometry(self):
+	"""
+	:description: Calculate the odometry parameters received from the robot and to be published to the ROS stack
+	:return: None
+	"""
+
+	# Get the latest odometry from the HAL
         odometry = self._hal_proxy.GetOdometry()
         #rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
-
+	# Break out the odometry into its constituents
+	# Note: heading is constrained to -Pi to Pi
         left_speed, right_speed, left_dist, right_dist, heading = odometry
 
+	# Calculate the delta time to be used to calculate distance
         delta_time = self._last_odom_time - time.time()
         self._last_odom_time = time.time()
 
@@ -245,8 +310,12 @@ class ArlobotDriveNode:
         # rospy.loginfo("get imu")
         # imu = self._hal_proxy.GetImu()
         # rospy.loginfo("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['euler']['heading']))
-
-        self._theta = math.atan2(math.sin(self._theta), math.cos(self._theta))
+	
+	# Note: There is a problem reading from the IMU.  The IMU via Euler values provides a more accurate heading
+	# Once the IMU is working, the heading should be taken from the Euler values.
+	# Note: heading from Euler values is 0 .. 360.  Need to understand if that is acceptable for odometry
+	# publishing and if not it will need to be adjusted, e.g., heading = euler_heading - 180 (?)
+        
 
         left_delta_dist = self._last_left_dist - left_dist
         right_delta_dist = self._last_right_dist - right_dist
@@ -255,28 +324,41 @@ class ArlobotDriveNode:
         self._last_right_dist = right_dist
 
         c_dist = (left_delta_dist + right_delta_dist) / 2
-        x_dist = c_dist * math.cos(self._theta) * delta_time
-        y_dist = c_dist * math.cos(self._theta) * delta_time
+        x_dist = c_dist * math.cos(heading) * delta_time
+        y_dist = c_dist * math.cos(heading) * delta_time
 
         v, w = diff2uni(left_speed, right_speed, self._track_width, self._wheel_radius)
 
-        return {'heading': self._theta, 'x_dist': x_dist, 'y_dist': y_dist, 'linear': v, 'angular': w}
+        return {'heading': heading, 'x_dist': x_dist, 'y_dist': y_dist, 'linear': v, 'angular': w}
 
     def _safety_timeout_exceeded(self):
+	"""
+	:description: Checks if the time since the last twist command was received exceeds the specified safety timeout
+	:return: True is the safety timeout has been exceeded; otherwise, False
+	"""
         return time.time() - self._last_twist_time > self._max_safety_timeout
 
     def _apply_accel_profile(self, linear, angular):
-        # Using this eq:
-        #       a = (vi - vi-1)/t
-        #  a will be fixed by selecting an acceleration
-        #  t is fixed by the loop rate
-        #  vi-1 is the last velocity
-        #  vi is the new velocity
-        #
-        #  vi = a*t + vi-1
-        #
-        # So no matter what the command velocity is it will be limited by the acceleration and via this loop the
-        # PID's will continue to force the desired velocity
+	"""
+	:description: Applies the accleration limit to the current velocity and cacluates a new velocity.
+	         Using this eq:
+        	       a = (vi - vi-1)/t
+	          a will be fixed by selecting an acceleration
+        	  t is fixed by the loop rate
+	          vi-1 is the last velocity
+        	  vi is the new velocity
+	        
+        	  vi = a*t + vi-1
+	        
+	:param linear: the desired linear velocity
+	:param angular: the desired angular velocity
+	:return: None
+	"""
+
+	# The purpose of this method is to limit the acceleration and prevent large and possibly damaging velocities
+	# from be commanded.  This also can help reduce motor slippage and improve motion accuracy.  Coupled with
+	# the tracking PIDs, limiting acceleration provides smooth transitions between motion commands.
+
         def calc_velocity(new, last, accel, delta):
             if new - last < 0.0:
                 velocity = max(-accel * delta + last, new)
@@ -290,38 +372,55 @@ class ArlobotDriveNode:
         self._angular = calc_velocity(angular, self._angular, self._angular_accel_limit, self._loop_time)
 
     def _track_commanded_velocity(self, odometry):
-        # Consider implementing tracking of the linear/angular velocity at this level to ensure that the robot
-        # is moving at the correct heading
+	"""
+	:description: Updates the linear/angular target velocity of the linear/angular PID controllers
+	:param odometry: latest odometry calculation
+	"""
+	
         linear = self._linear_tracking.Update(odometry['linear'])
-        rospy.loginfo("linear - target: {:6.3}, measured: {:6.3}, new: {:6.3}".format(float(self._linear_tracking._target),
-                                                                           float(odometry['linear']),
-                                                                           float(linear)))
-        # If there a need to be concerned with keeping the angle within in +/- pi?  Remember this is a problem
+        
+	# If there a need to be concerned with keeping the angle within in +/- pi?  Remember this is a problem
         # with angle tracking, but is it also a problem with angular velocity tracking?  If so, does atan2 care
         # if the parameter passed is radians vs radians/s?  If not, than math.atan2(sin(angular, cos(angular))
         # should do the trick.  It would be nice to somehow add this to the PID as a constraint to be checked before
         # returning the result.
         angular = self._angular_tracking.Update(odometry['angular'])
-        rospy.loginfo("angular - target: {:6.3}, measured: {:6.3}, new: {:6.3}".format(float(self._angular_tracking._target),
-                                                                            float(odometry['angular']),
-                                                                            float(angular)))
 
         return linear, angular
 
-    def _peform_safety_check(self, linear, angular):
+    def _perform_safety_check(self):
+	"""
+	:description: Performs various safety checks to ensure environment is safe for the robot
+	:return: None
+	"""
+
+	# Check the safety timeout.  Motion commands from ROS are latched so in order to keep from
+	# running out of control, a check of the time since the last motion command is made.
         if self._safety_timeout_exceeded():
-            linear = 0.0
-            angular = 0.0
-
-        return linear, angular
+            self._linear = 0.0
+            self._angular = 0.0
 
     def _update_speed(self):
-            left, right = uni2diff(self._linear, self._angular, self._track_width, self._wheel_radius)
-            rospy.loginfo("l: {:6.3}, a: {:6.3}, l: {:6.3}, r: {:6.3}".format(self._linear, self._angular, left, right))
-            self._hal_proxy.SetSpeed(left, right)
+	"""
+	:description: Convert the current linear/angular velocity to left/right speed and apply to the HAL
+	:return: None
+	"""
+        left, right = uni2diff(self._linear, self._angular, self._track_width, self._wheel_radius)
+        rospy.loginfo("l: {:6.3}, a: {:6.3}, l: {:6.3}, r: {:6.3}".format(self._linear, self._angular, left, right))
+        self._hal_proxy.SetSpeed(left, right)
 
     def Start(self):
+	"""
+	:description: Start up the drive node
+	:return: None
+	"""
+
+	# There are likely other things that could be done in Start like performing safety checks and diagnostics
+	# For now, we're just stopping the robot and initializing the last left/right distance
         self._hal_proxy.SetSpeed(0.0, 0.0)
+
+	# Note: There is a command that can be sent to the HAL to clear the odometry.  It may make sense to do that here
+
         _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
         rospy.logdebug("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
 
@@ -345,8 +444,8 @@ class ArlobotDriveNode:
                                            odometry['angular'])
 
             linear, angular = self._track_commanded_velocity(odometry)
-            linear, angular = self._peform_safety_check(linear, angular)
             self._apply_accel_profile(linear, angular)
+	    self._perform_safety_check()
             self._update_speed()
 
             self._loop_rate.sleep()
