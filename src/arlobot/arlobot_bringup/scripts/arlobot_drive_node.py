@@ -360,7 +360,12 @@ class ArlobotDriveNode:
 	# the tracking PIDs, limiting acceleration provides smooth transitions between motion commands.
 
         def calc_velocity(new, last, accel, delta):
-            if new - last < 0.0:
+            delta = new - last
+	    # If we are close enough to zero then call it zero to keep from drifting
+            if abs(delta) < 0.0001:
+		return 0.0
+
+            if delta < 0.0:
                 velocity = max(-accel * delta + last, new)
             else:
                 velocity = min(accel * delta + last, new)
