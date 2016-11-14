@@ -361,9 +361,6 @@ class ArlobotDriveNode:
 
         def calc_velocity(new, last, accel, delta):
             delta = new - last
-	    # If we are close enough to zero then call it zero to keep from drifting
-            if abs(delta) < 0.0001:
-		return 0.0
 
             if delta < 0.0:
                 velocity = max(-accel * delta + last, new)
@@ -373,8 +370,17 @@ class ArlobotDriveNode:
 	    rospy.loginfo("n: {:6.3}, l: {:6.3}, a: {:6.3}, d: {:6.3}".format(velocity, last, accel, delta))
             return velocity
 
-        self._linear = calc_velocity(linear, self._linear, self._linear_accel_limit, self._loop_time)
-        self._angular = calc_velocity(angular, self._angular, self._angular_accel_limit, self._loop_time)
+        tolerance = 0.000001
+
+        if abs(linear) > tolerance:
+	    self._linear = calc_velocity(linear, self._linear, self._linear_accel_limit, self._loop_time)
+	else:
+	    self._linear = 0.0
+
+	if abs(angular) > tolerance:
+	    self._angular = calc_velocity(angular, self._angular, self._angular_accel_limit, self._loop_time)
+	else:
+	    self._angular = 0.0
 
     def _track_commanded_velocity(self, odometry):
 	"""
