@@ -1,11 +1,12 @@
 <launch>
     <include file="$(find arlobot_bringup)/launch/arlobotbase.machine" />
     <rosparam file="$(find arlobot_bringup)/param/arlobotbase.yaml" command="load" />
+
     <node name="arlobot_base_node" pkg="arlobot_bringup" type="arlobot_base_node.py" output="screen" respawn="true" machine="arlobotbase" />
-     
+
     <node name="arlobot_drive_node" pkg="arlobot_bringup" type="arlobot_drive_node.py" output="screen" respawn="true" machine="arlobotbase" />
     
     <node name="arlobot_sensors_node" pkg="arlobot_bringup" type="arlobot_sensors_node.py" output="screen" respawn="true" machine="arlobotbase" />    
     
-    <node name="base_hal_service_node" pkg="arlobot_bringup" type="base_hal_service_node.py" output="screen" respawn="true" machine="arlobotbase" />    
+    <node name="base_hal_service_node" pkg="arlobot_bringup" type="base_hal_service_node.py" output="screen" respawn="true" machine="arlobotbase" />
 </launch>
