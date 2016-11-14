@@ -30,7 +30,7 @@ class PID:
 
     def SetTarget(self, target):
         """
-	    :description: sets/updates the target value for the PID
+        :description: sets/updates the target value for the PID
         :param target: new target value
         :return:
         """
@@ -41,10 +41,10 @@ class PID:
         # I'm sure there is better explanation in control system vernacular for this condition, but I
         # discovered this experimentally and found the easiest way to make things work is to keep them
         # positive and keep track of the sign so it can be applied to the final output
-        self._sign = 1.0
-        if target < 0.0:
-            self._sign = -1.0
-            self._target = abs(target)
+        self._sign = -1.0 if target < 0.0 else 1.0
+        self._target = abs(target)
+
+        rospy.loginfo("{} - new target {:3}".format(self._name, self._target))
 
     def Update(self, measured):
         """
@@ -277,12 +277,8 @@ class ArlobotDriveNode:
         else:
             w = min(command.angular.z, self._max_ccw_angular_velocity)
 
-        rospy.loginfo("After b/f constrain - v: {:3}, w: {:3}".format(v, w))
-
         # Adjust commanded linear/angular velocities to ensure angular velocity (omega)
         v, w = self.ensure_w(command.linear.x, command.angular.z)
-
-        rospy.loginfo("After Ensure - v: {:.3}, w: {:3}".format(v, w))
 
         # Update target velocities to be tracked
         self._linear_tracking.SetTarget(v)
