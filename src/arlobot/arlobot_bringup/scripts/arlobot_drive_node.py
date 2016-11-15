@@ -153,6 +153,8 @@ class ArlobotDriveNode:
         self._linear = 0.0
         self._angular = 0.0
 
+        self._use_imu = rospy.get_param("IMU Enabled", True)
+
         #-----------------------------
         # Control/Processing
         #-----------------------------
@@ -310,10 +312,19 @@ class ArlobotDriveNode:
         delta_time = self._last_odom_time - time.time()
         self._last_odom_time = time.time()
 
-        # Compare the heading
-        # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
-        imu = self._hal_proxy.GetImu()
-        rospy.loginfo("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['euler']['heading']))
+        orientation = None
+        # Select whether to use the IMU data
+        if self._use_imu:
+            # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
+            imu = self._hal_proxy.GetImu()
+            orientation['euler'] = dict(zip(['roll', 'pitch', 'yaw'], imu['euler'].values()))
+
+            # Note: Another option provided by the IMU is to get orientation as a quaternion
+            orientation['quaternion'] = imu['orientation']
+        else:
+            orientation['euler'] = {'roll': 0.0, 'pitch': 0.0, 'yaw': heading}
+
+        rospy.loginfo("orientation: {:6.3f}".format(str(orientation)))
 
         # Note: There is a problem reading from the IMU.  The IMU via Euler values provides a more accurate heading
         # Once the IMU is working, the heading should be taken from the Euler values.
@@ -332,7 +343,7 @@ class ArlobotDriveNode:
 
         v, w = diff2uni(left_speed, right_speed, self._track_width, self._wheel_radius)
 
-        return {'heading': heading, 'x_dist': x_dist, 'y_dist': y_dist, 'linear': v, 'angular': w}
+        return {'orientation': orientation, 'x_dist': x_dist, 'y_dist': y_dist, 'linear': v, 'angular': w}
 
     def _safety_timeout_exceeded(self):
         """
@@ -448,7 +459,7 @@ class ArlobotDriveNode:
             odometry = self._calc_odometry()
 
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
-                                           odometry['heading'],
+                                           odometry['orientation'],
                                            odometry['x_dist'],
                                            odometry['y_dist'],
                                            odometry['linear'],

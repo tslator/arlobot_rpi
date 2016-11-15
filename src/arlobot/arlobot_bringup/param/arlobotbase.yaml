@@ -23,6 +23,8 @@ Base Node Loop Rate: 1     # Hz
 Drive Node Loop Rate: 20   # Hz
 Sensors Node Loop Rate: 5  # Hz
 
+IMU Enabled: True
+
 # Drive Node Velocity Profile parameters
 Drive Node Linear Accel Limit: 0.075
 Drive Node Angular Accel Limit: 0.05

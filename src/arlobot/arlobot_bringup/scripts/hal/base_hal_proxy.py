@@ -23,8 +23,8 @@ class BaseHALProxy:
             response = hal_service_status()
             if not response.success:
                 raise BaseHALProxyError("Failed response from BaseHALServiceStatus")
-        except rospy.ServiceException, e:
-            raise BaseHALProxyError(e)
+        except rospy.ServiceException as e:
+            raise BaseHALProxyError(e.args)
 
         # Note: We explicitly do not call wait_for_service below because once the HAL is determined to be ready via
         # wait_for_service('BaseHALServiceStatus'), all of the other services will also be ready
@@ -57,13 +57,13 @@ class BaseHALProxy:
     def GetImu(self):
         get_imu = rospy.ServiceProxy('BaseHALGetImu', HALGetImu)
         response = get_imu()
-        return { 'orientation'      : dict(zip(['x', 'y', 'z', 'w'], response.orientation)), 
-	         'linear_accel'     : dict(zip(['x', 'y', 'z'], response.linear_accel)), 
-		 'angular_velocity' : dict(zip(['x', 'y', 'z'], response.angular_velocity)),
-                 'magnetic_field'   : dict(zip(['x', 'y', 'z'], response.magnetic_field)),
-		 'euler'            : dict(zip(['heading', 'yaw', 'roll', 'pitch'], response.euler)),
-                 'temperature'      : dict(zip(['f', 'c'], response.temperature))
-	       }
+        return { 'orientation': dict(zip(['x', 'y', 'z', 'w'], response.orientation)),
+                 'linear_accel': dict(zip(['x', 'y', 'z'], response.linear_accel)),
+                 'angular_velocity': dict(zip(['x', 'y', 'z'], response.angular_velocity)),
+                 'magnetic_field': dict(zip(['x', 'y', 'z'], response.magnetic_field)),
+                 'euler': dict(zip(['heading', 'yaw', 'roll', 'pitch'], response.euler)),
+                 'temperature': dict(zip(['f', 'c'], response.temperature))
+               }
 
     def GetVoltage(self):
         get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetFloatArray)
