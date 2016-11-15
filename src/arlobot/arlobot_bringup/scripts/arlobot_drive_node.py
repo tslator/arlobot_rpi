@@ -43,7 +43,7 @@ class PID:
         self._sign = -1.0 if target < 0.0 else 1.0
         self._target = abs(target)
 
-        rospy.loginfo("{} - new target {:3}".format(self._name, self._target))
+        rospy.logdebug("{} - new target {:3}".format(self._name, self._target))
 
     def Update(self, measured):
         """
@@ -74,7 +74,7 @@ class PID:
 
         output = min(max(output, self._min), self._max)*self._sign
 
-        rospy.loginfo("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name,
+        rospy.logdebug("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name,
                                                                                              float(self._min),
                                                                                              float(self._target),
                                                                                              float(output),
@@ -291,7 +291,7 @@ class ArlobotDriveNode:
 
         # For debugging purposes, convert linear, angular and print current velocities request
         left, right = uni2diff(v, w, self._track_width, self._wheel_radius)
-        rospy.loginfo("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
+        rospy.logdebug("twist_command_callback - linear: {:6.3f}, angular: {:6.3f}, left: {:6.3f}, right: {:6.3f}".format(v, w, left, right))
 
     def _calc_odometry(self):
         """
@@ -368,7 +368,7 @@ class ArlobotDriveNode:
             else:
                 velocity = min(accel * delta + last, new)
 
-            rospy.loginfo("v: {:6.3}, n: {:6.3}, l: {:6.3}, a: {:6.3}, d: {:6.3}".format(velocity, new, last, accel, delta))
+            rospy.logdebug("v: {:6.3}, n: {:6.3}, l: {:6.3}, a: {:6.3}, d: {:6.3}".format(velocity, new, last, accel, delta))
             return velocity
 
         tolerance = 0.0001
@@ -419,7 +419,7 @@ class ArlobotDriveNode:
         """
 
         left, right = uni2diff(self._linear, self._angular, self._track_width, self._wheel_radius)
-        rospy.loginfo("l: {:6.3}, a: {:6.3}, l: {:6.3}, r: {:6.3}".format(self._linear, self._angular, left, right))
+        rospy.logdebug("l: {:6.3}, a: {:6.3}, l: {:6.3}, r: {:6.3}".format(self._linear, self._angular, left, right))
         self._hal_proxy.SetSpeed(left, right)
 
     def Start(self):
