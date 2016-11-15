@@ -1,13 +1,14 @@
 import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Quaternion
+from tf import transformations
 import math
 
 class ArlobotOdometryPublisher:
     def __init__(self):
         self._publisher = rospy.Publisher("odom", Odometry, queue_size=10)
 
-    def _msg(self, orientation, heading, x_dist, y_dist, linear_speed, angular_speed, now, use_pose_ekf=False):
+    def _msg(self, orientation, x_dist, y_dist, linear_speed, angular_speed, now, use_pose_ekf=False):
         # next, we will publish the odometry message over ROS
         msg = Odometry()
         msg.header.frame_id = "odom"
@@ -44,12 +45,6 @@ class ArlobotOdometryPublisher:
         return msg
 
     def Publish(self, broadcaster, heading, x_dist, y_dist, linear_speed, angular_speed, use_pose_ekf=False):
-        orientation = Quaternion()
-        orientation.x = 0.0
-        orientation.y = 0.0
-        orientation.z = math.sin(heading / 2.0)
-        orientation.w = math.cos(heading / 2.0)
-
         ros_now = rospy.Time.now()
 
         # Publish the transform from frame odom to frame base_link over tf
@@ -66,10 +61,10 @@ class ArlobotOdometryPublisher:
         else:
             broadcaster.sendTransform(
                 (x_dist, y_dist, 0),
-                (orientation.x, orientation.y, orientation.z, orientation.w),
+                transformations.quaternion_from_euler(0, 0, heading),
                 ros_now,
                 "base_footprint",
                 "odom"
             )
 
-        self._publisher.publish(self._msg(orientation, heading, x_dist, y_dist, linear_speed, angular_speed, ros_now, use_pose_ekf))
+        self._publisher.publish(self._msg(orientation, x_dist, y_dist, linear_speed, angular_speed, ros_now, use_pose_ekf))

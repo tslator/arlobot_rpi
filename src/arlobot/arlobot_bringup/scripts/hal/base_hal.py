@@ -59,16 +59,18 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             self._left_worker = Worker("Left Wheel", self.__left_wheel_work)
             self._right_worker = Worker("Right Wheel", self.__right_wheel_work)
         else:
-	    # Note: The IMU hardware can take up to 10 seconds to set its calibration status to valid
-	    # In order to give it as mush time as possible, we'll instantiate it first and hopefully
-            # by the time all of the nodes and services get started, the IMU will be ready to report
-            # valid orientation values.  But, even if it isn't ready, the first read of the IMU will
-            # will check and wait for calibration to be valid.
+            # Note: The IMU instantiation contains code to check if the calibration is valid.  This can take up to 5
+            # seconds.  The base HAL service timeout should be set to accommodate this time.  The policy is that the HAL
+            # cannot report that it is ready unless all of its components are ready, e.g., the IMU has reported it is
+            # calibrated.
             try:
                 self._imu = ImuHw()
-            except ImuHwError:
-                #raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw")
-                rospy.loginfo("unable to create ImuHw")
+            except ImuHwError as e:
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw: {}".format(e.args))
+
+            # Mostly for debugging purposes, check that calibration status of the IMU before continuing on
+            if not self._imu.CalibrationConfirmed():
+                raise BaseHardwareAbstractionLayerError("IMU reported as not calibrated")
 
             try:
                 self._i2c_bus_1 = I2CBus(psoc_i2c_device)

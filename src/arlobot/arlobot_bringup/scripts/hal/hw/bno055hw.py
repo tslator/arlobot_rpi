@@ -19,7 +19,9 @@ class BNO055HwError(Exception):
 
 
 class BNO055Hw:
-    def __init__(self, do_cal_check=True):
+    __RETRIES = 3
+
+    def __init__(self, do_cal_check=True, retries=__RETRIES):
         """
         Instantiate and initialize the BNO055, load calibration data and confirm the device is calibrated
         :param do_cal_check:
@@ -37,13 +39,13 @@ class BNO055Hw:
         # Note: Sometimes after a reset a runtime error can occur but usually only once.  The following retry seems to
         # get around this error.
         try:
-            for i in range(3):
+            for i in range(retries):
                 result = self._bno.begin()
                 if result:
                     break
                 time.sleep(0.05)
             if not result:
-                BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
+                raise BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
         except RuntimeError as e:
             raise BNO055HwError(e.args)
 
@@ -57,7 +59,8 @@ class BNO055Hw:
         if do_cal_check:
             # Confirm that the gyro, accel, mag and system are reported as calibrated
             # Note: A timeout of 10 seconds limits this checking
-            if not self._confirm_calibration():
+            self._cal_confirmed = self._confirm_calibration()
+            if not self._cal_confirmed:
                 raise BNO055HwError("Failed to confirm device calibration")
 
     def _wait_for_valid_status(self, key, timeout=10):
@@ -96,6 +99,9 @@ class BNO055Hw:
         if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
             return self._wait_for_valid_status('sys')
         return False
+
+    def calibration_confirmed(self):
+        return self._cal_confirmed
 
     def show_revision(self, redirect=sys.stdout):
         """

@@ -32,7 +32,7 @@ class BaseHALServiceNode(HALServiceNode):
         HALServiceNode.__init__(self, BaseHALServiceNode.NAME, "BaseHAL")
 
         self._timeout_rate = rospy.get_param("Base HAL Service Timeout Rate", 1)
-        self._timeout = rospy.get_param("Base HAL Service Timeout", 5)
+        self._timeout = rospy.get_param("Base HAL Service Timeout", 10)
         simulated = rospy.get_param("Base HAL Simulate", False)
 
         self._wait_rate = rospy.Rate(self._timeout_rate)

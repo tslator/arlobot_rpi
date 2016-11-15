@@ -2,7 +2,7 @@
 
 import math
 import rospy
-import tf
+from tf import TransformBroadcaster
 from geometry_msgs.msg import Twist
 from arlobot_odom_pub import ArlobotOdometryPublisher
 from hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
@@ -312,15 +312,14 @@ class ArlobotDriveNode:
 
         # Compare the heading
         # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
-        # rospy.loginfo("get imu")
-        # imu = self._hal_proxy.GetImu()
-        # rospy.loginfo("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['euler']['heading']))
+        rospy.loginfo("get imu")
+        imu = self._hal_proxy.GetImu()
+        rospy.loginfo("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['euler']['heading']))
 
         # Note: There is a problem reading from the IMU.  The IMU via Euler values provides a more accurate heading
         # Once the IMU is working, the heading should be taken from the Euler values.
         # Note: heading from Euler values is 0 .. 360.  Need to understand if that is acceptable for odometry
         # publishing and if not it will need to be adjusted, e.g., heading = euler_heading - 180 (?)
-        
 
         left_delta_dist = self._last_left_dist - left_dist
         right_delta_dist = self._last_right_dist - right_dist

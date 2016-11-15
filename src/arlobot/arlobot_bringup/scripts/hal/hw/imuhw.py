@@ -15,12 +15,8 @@ class ImuHw:
     TEMPERATURE_ZERO = {'f': 0.0, 'c': 0.0}
 
     def __init__(self):
-	self._cal_confirmed = False
         try:
-	    # Note: We disable the calibration check when we instantiate because we don't want
-	    # hold up the service startup.  Calibration will be confirmed later the first time
-	    # we read the IMU
-            self._hardware = Hardware(do_cal_check=False)
+            self._hardware = Hardware()
         except HardwareError:
             raise ImuHwError("Failed to instantiate hardware")
 
@@ -34,54 +30,41 @@ class ImuHw:
                                 'temperature': {'f':0.0, 'c':0.0}
                               }
         """
-	
-	# Note: Before the BNO055 will return valid values its calibration status must be valid
-	# The calibration data is loaded when the BNO055 is instantiated so hopefully by the 
-        # we get to this call the status is valid; otherwise, we just wait until it is.
-	# This should cause any noticeable delays in IMU message publication
-	if not self._cal_confirmed:
-	    self._cal_confirmed = self._hardware._confirm_calibration()
 
-	if self._cal_confirmed:
-            try:
-                orientation_result = self._hardware.read_orientation()
-            except AttributeError:
-                orientation_result = ImuHw.ORIENTATION_ZERO
-            try:
-                acceleration_result = self._hardware.read_acceleration()
-            except AttributeError:
-                acceleration_result = ImuHw.ACCELERATION_ZERO
-            try:
-                gyro_result = self._hardware.read_gyroscope()
-            except AttributeError:
-                gyro_result = ImuHw.GYROSCOPE_ZERO
-            try:
-                mag_result = self._hardware.read_magnetometer()
-            except AttributeError:
-                mag_result = ImuHw.MAGNETOMETER_ZERO
-            try:
-                euler_result = self._hardware.read_euler()
-            except AttributeError:
-                euler_result = ImuHw.EULER_ZERO
-            try:
-                temp_result = self._hardware.read_temperature()
-            except AttributeError:
-                temp_result = ImuHw.TEMPERATURE_ZERO
-
-	else:
-	    orientation_result = ImuHw.ORIENTATION_ZERO
-	    acceleration_result = ImuHw.ACCELERATION_ZERO
-	    gyro_result = ImuHw.GYROSCOPE_ZERO
-	    mag_result =  ImuHw.MAGNETOMETER_ZERO
+        try:
+            orientation_result = self._hardware.read_orientation()
+        except AttributeError:
+            orientation_result = ImuHw.ORIENTATION_ZERO
+        try:
+            acceleration_result = self._hardware.read_acceleration()
+        except AttributeError:
+            acceleration_result = ImuHw.ACCELERATION_ZERO
+        try:
+            gyro_result = self._hardware.read_gyroscope()
+        except AttributeError:
+            gyro_result = ImuHw.GYROSCOPE_ZERO
+        try:
+            mag_result = self._hardware.read_magnetometer()
+        except AttributeError:
+            mag_result = ImuHw.MAGNETOMETER_ZERO
+        try:
+            euler_result = self._hardware.read_euler()
+        except AttributeError:
             euler_result = ImuHw.EULER_ZERO
-	    temp_result = ImuHw.TEMPERATURE_ZERO
+        try:
+            temp_result = self._hardware.read_temperature()
+        except AttributeError:
+            temp_result = ImuHw.TEMPERATURE_ZERO
 
         return {'orientation': orientation_result,
-                'linear_accel': acceleration_result,
-                'angular_velocity': gyro_result,
-                'magnetic_field': mag_result,
-                'euler': euler_result,
-                'temperature': temp_result}
+               'linear_accel': acceleration_result,
+               'angular_velocity': gyro_result,
+               'magnetic_field': mag_result,
+               'euler': euler_result,
+               'temperature': temp_result}
+
+    def CalibrationConfirmed(self):
+        return self._hardware.calibration_confirmed()
 
     def GetOrientation(self):
         imu_data = self._read_imu()

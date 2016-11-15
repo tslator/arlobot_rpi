@@ -55,8 +55,9 @@ Infrared Scan Enable: True
 
 # HAL parameters
 Base HAL Service Timeout Rate: 1 # Hz
-Base HAL Service Timeout: 5 # seconds
+# Note: The IMU can take up to 5 seconds to confirm calibration.  The Base HAL Service Timeout needs to account for this.
+Base HAL Service Timeout: 10 # seconds (5 seconds for IMU plus 5 seconds generally)
 Base HAL Simulate: False
 Psoc I2C Device: 1
-Imu I2C Device: 2
+Imu I2C Device: 1
 Psoc I2C Address: 0x08
