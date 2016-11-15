@@ -312,19 +312,20 @@ class ArlobotDriveNode:
         delta_time = self._last_odom_time - time.time()
         self._last_odom_time = time.time()
 
-        orientation = None
+        orientation = {}
         # Select whether to use the IMU data
         if self._use_imu:
-            # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
             imu = self._hal_proxy.GetImu()
-            orientation['euler'] = dict(zip(['roll', 'pitch', 'yaw'], imu['euler'].values()))
+
+            #euler = imu['euler']
+            #orientation['euler'] = {'roll': euler['roll'], 'pitch': euler['pitch'], 'yaw': euler['yaw']}
 
             # Note: Another option provided by the IMU is to get orientation as a quaternion
-            orientation['quaternion'] = imu['orientation']
+            quat = imu['orientation']
+            orientation['quaternion'] = quat
         else:
             orientation['euler'] = {'roll': 0.0, 'pitch': 0.0, 'yaw': heading}
 
-        rospy.loginfo("orientation: {:6.3f}".format(str(orientation)))
 
         # Note: There is a problem reading from the IMU.  The IMU via Euler values provides a more accurate heading
         # Once the IMU is working, the heading should be taken from the Euler values.

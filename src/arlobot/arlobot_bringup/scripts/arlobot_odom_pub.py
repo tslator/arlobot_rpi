@@ -19,7 +19,7 @@ class ArlobotOdometryPublisher:
         msg.pose.pose.position.z = 0
         msg.pose.pose.orientation = orientation
         '''
-        msg.pose.pose = Pose(Point(x_dist, y_dist, 0.0), Quaternion(*quaternion))
+        msg.pose.pose = Pose(Point(x_dist, y_dist, 0.0), quaternion)
 
         msg.child_frame_id = "base_link"
         '''
@@ -95,7 +95,7 @@ class ArlobotOdometryPublisher:
         else:
             broadcaster.sendTransform(
                 (x_dist, y_dist, 0),
-                quat,
+                (quat.x, quat.y, quat.z, quat.w),
                 ros_now,
                 "base_footprint",
                 "odom"
