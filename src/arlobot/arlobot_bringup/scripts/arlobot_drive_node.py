@@ -189,7 +189,7 @@ class ArlobotDriveNode:
         #------------------------------------
         # Odometry
         #------------------------------------
-        self._OdometryTransformBroadcaster = tf.TransformBroadcaster()
+        self._OdometryTransformBroadcaster = TransformBroadcaster()
 
         self._last_left_dist = 0
         self._last_right_dist = 0
@@ -312,7 +312,6 @@ class ArlobotDriveNode:
 
         # Compare the heading
         # Note: The imu can provide a heading as well.  It will be interesting to see how they compare
-        rospy.loginfo("get imu")
         imu = self._hal_proxy.GetImu()
         rospy.loginfo("psoc heading: {:6.3f}, imu heading: {:6.3f}".format(heading, imu['euler']['heading']))
 

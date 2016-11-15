@@ -47,6 +47,8 @@ class ArlobotOdometryPublisher:
     def Publish(self, broadcaster, heading, x_dist, y_dist, linear_speed, angular_speed, use_pose_ekf=False):
         ros_now = rospy.Time.now()
 
+	orientation = transformations.quaternion_from_euler(0, 0, heading)
+
         # Publish the transform from frame odom to frame base_link over tf
 
         #    Note: pose ekf is how turtlebot does its thing.  If there is an imu and/or gyro, it might be best to take
@@ -61,7 +63,7 @@ class ArlobotOdometryPublisher:
         else:
             broadcaster.sendTransform(
                 (x_dist, y_dist, 0),
-                transformations.quaternion_from_euler(0, 0, heading),
+                orientation,
                 ros_now,
                 "base_footprint",
                 "odom"
