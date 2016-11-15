@@ -74,7 +74,11 @@ class PID:
 
         output = min(max(output, self._min), self._max)*self._sign
 
-        rospy.loginfo("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name, float(self._min), float(self._target), float(self._output), float(self._max)))
+        rospy.loginfo("{} - min: {:6.3}, target: {:6.3}, output: {:6.3}, max: {:6.3}".format(self._name,
+                                                                                             float(self._min),
+                                                                                             float(self._target),
+                                                                                             float(output),
+                                                                                             float(self._max)))
 
         # Restrict the output to the min/max and apply the sign
         return output
