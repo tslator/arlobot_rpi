@@ -93,7 +93,7 @@ class ArlobotDriveNode:
     NAME = 'arlobot_drive_node'
 
     def __init__(self):
-        enable_debug = rospy.get_param('debug', False)
+        enable_debug = rospy.get_param('Arlobot Drive Node Debug', False)
         if enable_debug:
             rospy.init_node(ArlobotDriveNode.NAME, log_level=rospy.DEBUG)
         else:
