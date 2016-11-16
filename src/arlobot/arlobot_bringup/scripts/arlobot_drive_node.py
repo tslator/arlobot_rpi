@@ -93,16 +93,18 @@ class ArlobotDriveNode:
     NAME = 'arlobot_drive_node'
 
     def __init__(self):
-        enable_debug = rospy.get_param('debug', False)
+        enable_debug = rospy.get_param('debug', True)
         if enable_debug:
             rospy.init_node(ArlobotDriveNode.NAME, log_level=rospy.DEBUG)
         else:
             rospy.init_node(ArlobotDriveNode.NAME)
         rospy.on_shutdown(self.Shutdown)
 
-        #--------------------------------
+        #-------------------------------------------
         # Wheel/Robot Velocity Configuration/Control
-        #--------------------------------
+        #-------------------------------------------
+
+        rospy.logdebug("Configuring wheel velocity")
 
         max_motor_rpm = rospy.get_param("Max Motor RPM", 95)
         wheel_diameter = rospy.get_param("Wheel Diameter", 0.1524)
@@ -125,8 +127,8 @@ class ArlobotDriveNode:
                                                 self._wheel_radius)
 
         # Get the 'user' linear/angular velocity settings
-        max_linear_speed = rospy.get_param("Max Linear Speed", 1.0)
-        max_angular_speed = rospy.get_param("Max Angular Speed", 0.3)
+        max_linear_speed = rospy.get_param("Max Linear Speed", 5.0)
+        max_angular_speed = rospy.get_param("Max Angular Speed", 1.0)
 
         # 'User' setting can be more restrictive but is limited to motor parameters
         self._min_linear_velocity = 0.0
@@ -158,6 +160,9 @@ class ArlobotDriveNode:
         #-----------------------------
         # Control/Processing
         #-----------------------------
+
+        rospy.logdebug("Control processing")
+
         loop_rate = rospy.get_param("Drive Node Loop Rate", 10)
         self._max_safety_timeout = rospy.get_param("Drive Node Safety Timeout", 10.0)
 
@@ -176,6 +181,8 @@ class ArlobotDriveNode:
         # They need only to ensures that any differences are corrected.  As can be seen, only the proportional gain is being
         # used for now.
 
+        rospy.logdebug("linear/angular tracking")
+
         kp = rospy.get_param("Linear Tracking Kp", 0.7)
         ki = rospy.get_param("Linear Tracking Ki", 0.0)
         kd = rospy.get_param("Linear Tracking Kd", 0.0)
@@ -191,6 +198,9 @@ class ArlobotDriveNode:
         #------------------------------------
         # Odometry
         #------------------------------------
+
+        rospy.logdebug("odometry")
+
         self._OdometryTransformBroadcaster = TransformBroadcaster()
 
         self._last_left_dist = 0
@@ -217,10 +227,13 @@ class ArlobotDriveNode:
         #---------------------------------------------------
         # Instantiate the HAL Base Proxy and stop the motors
         #---------------------------------------------------
+
+        rospy.logdebug("instantiate base hal proxy")
+
         try:
             self._hal_proxy = BaseHALProxy()
-        except BaseHALProxyError:
-            raise ArlobotDriveNodeError("Unable to create BaseHALProxy")
+        except BaseHALProxyError as e:
+            raise ArlobotDriveNodeError("Unable to create BaseHALProxy: {}".format(e.args))
 
         self._hal_proxy.SetSpeed(0, 0)
 

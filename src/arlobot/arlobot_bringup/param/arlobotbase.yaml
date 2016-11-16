@@ -7,14 +7,14 @@ Wheel Diameter: 0.1524   # meter
 # Speed constraints
 Max Motor RPM: 95 # rpm
 Max Linear Speed: 2.0  # meter/sec
-Max Angular Speed: 0.3 # rad/sec
+Max Angular Speed: 1.0 # rad/sec
 
 # Tracking PID Gains
-Linear Tracking Kp: 1.1
+Linear Tracking Kp: 0.7
 Linear Tracking Ki: 0.0
 Linear Tracking Kd: 0.0
 
-Angular Tracking Kp: 1.1
+Angular Tracking Kp: 0.7
 Angular Tracking Ki: 0.0
 Angluar Tracking Kd: 0.0
 
@@ -26,8 +26,8 @@ Sensors Node Loop Rate: 5  # Hz
 IMU Enabled: True
 
 # Drive Node Velocity Profile parameters
-Drive Node Linear Accel Limit: 0.075
-Drive Node Angular Accel Limit: 0.05
+Drive Node Linear Accel Limit: 0.095
+Drive Node Angular Accel Limit: 0.075
 Drive Node Safety Timeout: 2.0
 
 # Ultrasonic range sensors
