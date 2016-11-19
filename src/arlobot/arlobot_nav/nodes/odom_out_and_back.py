@@ -138,6 +138,7 @@ class OutAndBack():
                 (position, rotation) = self.get_odom()
                 
                 # Compute the amount of rotation since the last loop
+                rospy.loginfo("ta: {:.3} ga: {:.3} r: {:.3} la: {:.3}".format(turn_angle, goal_angle, rotation, last_angle))
                 delta_angle = normalize_angle(rotation - last_angle)
                 
                 # Add to the running total

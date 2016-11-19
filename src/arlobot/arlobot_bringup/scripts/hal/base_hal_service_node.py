@@ -36,7 +36,6 @@ class BaseHALServiceNode(HALServiceNode):
         simulated = rospy.get_param("Base HAL Simulate", False)
 
         self._wait_rate = rospy.Rate(self._timeout_rate)
-        self._services = {}
 
         try:
             self._hal = BaseHardwareAbstractionLayer(simulated)
@@ -53,6 +52,7 @@ class BaseHALServiceNode(HALServiceNode):
         self._services['BaseHALGetVoltage'] = rospy.Service('BaseHALGetVoltage', HALGetFloatArray, self._hal_get_voltage)
         self._services['BaseHALGetCurrent'] = rospy.Service('BaseHALGetCurrent', HALGetFloatArray, self._hal_get_current)
         self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetFloatArray, self._hal_get_temp)
+        self._services['BaseHALGetCalibration'] = rospy.Service('BaseHALGetCalibration', HALGetCalibration, self._hal_get_calibration)
 
     def _hal_set_speed(self, request):
         success = False
@@ -108,7 +108,7 @@ class BaseHALServiceNode(HALServiceNode):
         euler = []
         temperature = []
         
-	try:
+        try:
             results = self._hal.GetImuSensor()
             orientation = [ results['orientation'][k] for k in ['x', 'y', 'z', 'w'] ]
             linear_accel = [ results['linear_accel'][k] for k in ['x', 'y', 'z'] ]
@@ -148,6 +148,25 @@ class BaseHALServiceNode(HALServiceNode):
         except BaseHardwareAbstractionLayerError:
             raise BaseHALServiceNodeError("Failure calling HAL::GetTemp")
         return HALGetFloatArrayResponse(values = values)
+
+    def _hal_get_calibration(self, request):
+        psoc_cal = {}
+        imu_cal = {}
+        try:
+            psoc_cal = self._hal.GetPsocCalibration()
+            imu_cal = self._hal.GetImuCalibration()
+        except BaseHardwareAbstractionLayerError:
+            raise BaseHALServiceNodeError("Failure calling HAL::GetTemp")
+        return HALGetCalibrationResponse(psoc_calibrated = psoc_cal['calibrated'],
+                                         psoc_motors = psoc_cal['motors'],
+                                         psoc_pids = psoc_cal['pids'],
+                                         psoc_linear = psoc_cal['linear'],
+                                         psoc_angular = psoc_cal['angular'],
+                                         imu_calibrated = imu_cal['calibrated'],
+                                         imu_sys = imu_cal['sys'],
+                                         imu_gyro = imu_cal['gryo'],
+                                         imu_accel = imu_cal['accel'],
+                                         imu_mag = imu_cal['mag'])
 
 
 if __name__ ==  "__main__":

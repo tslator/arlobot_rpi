@@ -445,20 +445,33 @@ class ArlobotDriveNode:
         rospy.logdebug("l: {:6.3}, a: {:6.3}, l: {:6.3}, r: {:6.3}".format(self._linear, self._angular, left, right))
         self._hal_proxy.SetSpeed(left, right)
 
-    def Start(self):
-        """
-        :description: Start up the drive node
-        :return: None
-        """
+    if __name__ == '__main__':
+        def Start(self):
+            """
+            :description: Start up the drive node
+            :return: None
+            """
 
-        # There are likely other things that could be done in Start like performing safety checks and diagnostics
-        # For now, we're just stopping the robot and initializing the last left/right distance
-        self._hal_proxy.SetSpeed(0.0, 0.0)
+            # There are likely other things that could be done in Start like performing safety checks and diagnostics
+            # For now, we're just stopping the robot and initializing the last left/right distance
+            self._hal_proxy.SetSpeed(0.0, 0.0)
 
-        # Note: There is a command that can be sent to the HAL to clear the odometry.  It may make sense to do that here
+            # Note: There is a command that can be sent to the HAL to clear the odometry.  It may make sense to do that here
 
-        _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
-        rospy.logdebug("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
+            _, _, self._last_left_dist, self._last_right_dist, _ = self._hal_proxy.GetOdometry()
+            rospy.logdebug("lld: {}, lrd: {}".format(self._last_left_dist, self._last_right_dist))
+
+
+            # Recently, it was found that the IMU magnetometer calibration is difficult to define statically.  That is, one
+            # can calibrate the magnetometer in position A and save the calibration values, move to position B and load the
+            # calibration values but not be in calibration.  This makes sense because the magnetic field can change.  As
+            # described in this article (https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/device-calibration),
+            # magnetic calibration should be possible by performing normal device movement, i.e., no need for figure 8
+            # motion in 3 dimensions.  So, the drive node might be a good place to check the current calibration and
+            # if not calibrated, perform the necessary motion.  Or, since 'calibration' is a higher-level function
+            # maybe the base node should coordinate this, i.e., receive calibration messages from the sensor node and
+            # if not calibrated, send a message to the drive node to perform the 'calibration motion'
+            #
 
     def Loop(self):
         """

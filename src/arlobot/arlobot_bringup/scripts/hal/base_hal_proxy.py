@@ -4,59 +4,52 @@
 # The Base HAL is used to access all hardware drivers that run on the Base.
 
 import rospy
-from std_srvs.srv import Trigger
-from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu
+from service_proxy import ServiceProxy, ServiceProxyError
+from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu, HALGetCalibration
 
 
 class BaseHALProxyError(Exception):
     pass
 
 
-class BaseHALProxy:
+class BaseHALProxy(ServiceProxy):
 
-    def __init__(self, use_stub=True):
-        # Create a connection to the HAL Service
+    def __init__(self):
+        ServiceProxy.__init__(self, 'BaseHALService')
 
-        rospy.wait_for_service('BaseHALServiceStatus')
-        try:
-            hal_service_status = rospy.ServiceProxy('BaseHALServiceStatus', Trigger)
-            response = hal_service_status()
-            if not response.success:
-                raise BaseHALProxyError("Failed response from BaseHALServiceStatus")
-        except rospy.ServiceException as e:
-            raise BaseHALProxyError(e.args)
-
-        # Note: We explicitly do not call wait_for_service below because once the HAL is determined to be ready via
-        # wait_for_service('BaseHALServiceStatus'), all of the other services will also be ready
+        self._add_service('set_speed', 'BaseHALSetSpeed', HALSetFloatArray)
+        self._add_service('get_odometry', 'BaseHALGetOdometry', HALGetFloatArray)
+        self._add_service('get_ultrasonic', 'BaseHALGetUltrasonic', HALGetFloatArray)
+        self._add_service('get_infrared', 'BaseHALGetInfrared', HALGetFloatArray)
+        self._add_service('get_laser_scan', 'BaseHALGetLaserScan', HALGetLaserScan)
+        self._add_service('get_imu', 'BaseHALGetImu', HALGetImu)
+        self._add_service('get_voltage', 'BaseHALGetVoltage', HALGetFloatArray)
+        self._add_service('get_current', 'BaseHALGetCurrent', HALGetFloatArray)
+        self._add_service('get_temp', 'BaseHALGetTemp', HALGetFloatArray)
+        self._add_service('get_calibration', 'BaseHALGetCalibration', HALGetCalibration)
 
     def SetSpeed(self, left, right):
-        set_speed = rospy.ServiceProxy('BaseHALSetSpeed', HALSetFloatArray)
-        response = set_speed([left, right])
+        response = self._invoke_service('set_speed', left, right)
         return response.success
 
     def GetOdometry(self):
-        get_odometry = rospy.ServiceProxy('BaseHALGetOdometry', HALGetFloatArray)
-        response = get_odometry()
+        response = self._invoke_service('get_odometry')
         return list(response.values)
 
     def GetUltrasonic(self):
-        get_ultrasonic = rospy.ServiceProxy('BaseHALGetUltrasonic', HALGetFloatArray)
-        response = get_ultrasonic()
+        response = self._invoke_service('get_ultrasonic')
         return list(response.values)
 
     def GetInfrared(self):
-        get_infrared = rospy.ServiceProxy('BaseHALGetInfrared', HALGetFloatArray)
-        response = get_infrared()
+        response = self._invoke('get_infrared')
         return list(response.values)
 
     def GetLaserScan(self):
-        get_laser_scan = rospy.ServiceProxy('BaseHALGetLaserScan', HALGetLaserScan)
-        response = get_laser_scan()
+        response = self._invoke('get_laser_scan')
         return list(response.ranges), list(response.intensities), response.time_increment
 
     def GetImu(self):
-        get_imu = rospy.ServiceProxy('BaseHALGetImu', HALGetImu)
-        response = get_imu()
+        response = self._invoke_service('get_imu')
         return { 'orientation': dict(zip(['x', 'y', 'z', 'w'], response.orientation)),
                  'linear_accel': dict(zip(['x', 'y', 'z'], response.linear_accel)),
                  'angular_velocity': dict(zip(['x', 'y', 'z'], response.angular_velocity)),
@@ -66,19 +59,34 @@ class BaseHALProxy:
                }
 
     def GetVoltage(self):
-        get_voltage = rospy.ServiceProxy('BaseHALGetVoltage', HALGetFloatArray)
-        response = get_voltage()
+        response = self._invoke_service('get_voltage')
         return response.values
 
     def GetCurrent(self):
-        get_current = rospy.ServiceProxy('BaseHALGetCurrent', HALGetFloatArray)
-        response = get_current()
+        response = self._invoke_service('get_current')
         return response.values[0]
 
     def GetTemp(self):
-        get_temp = rospy.ServiceProxy('BaseHALGetTemp', HALGetFloatArray)
-        response = get_temp()
+        response = self._invoke_service('get_temp')
         return response.values[0]
 
+    def GetCalibration(self):
+        response = self._invoke_service('get_calibration')
+        return {
+            'psoc': {'calibrated': response.psoc_calibrated,
+                     'motors': response.psoc_motors,
+                     'pids': response.psoc_pids,
+                     'linear': response.psoc_linear,
+                     'angular': response.psoc_angular},
+            'imu': {'calibrated': response.psoc_calibrated,
+                    'sys': response.imu_sys,
+                    'gryo': response.imu_gyro,
+                    'accel': response.imu_accel,
+                    'mag': response.imu_mag}
+        }
+
+    def GetCalibrated(self):
+        cal = self.GetCalibration()
+        return cal['psoc']['calibrated'] and cal['imu']['calibrated']
 
 
