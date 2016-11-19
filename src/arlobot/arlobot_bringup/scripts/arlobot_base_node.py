@@ -33,7 +33,7 @@ class ArlobotBaseNode:
 
     def __init__(self):
         # Initialize the node
-        enable_debug = rospy.get_param('debug', False)
+        enable_debug = rospy.get_param('Arlobot Base Node Debug', False)
         if enable_debug:
             rospy.init_node(ArlobotBaseNode.NAME, log_level=rospy.DEBUG)
         else:

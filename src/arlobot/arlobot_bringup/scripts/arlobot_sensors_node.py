@@ -27,7 +27,7 @@ class ArlobotSensorsNode:
 
     def __init__(self):
         # Initialize the node
-        enable_debug = rospy.get_param('debug', False)
+        enable_debug = rospy.get_param('Arlobot Sensor Node Debug', False)
         if enable_debug:
             rospy.init_node(ArlobotSensorsNode.NAME, log_level=rospy.DEBUG)
         else:
