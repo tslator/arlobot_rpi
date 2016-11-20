@@ -54,8 +54,10 @@ class PsocHw:
                       'DEVICE_STATUS' : __DEVICE_STATUS_OFFSET,
                       #      - Bit 0: HB25 Motor Controller Initialized
                       'CALIBRATION_STATUS': __CALIBRATION_STATUS_OFFSET,
-                      #      - Bit 0: Wheel Velocity, i.e., Count/Sec-to-PWM
+                      #      - Bit 0: Count/Sec to PWM
                       #      - Bit 1: PID
+                      #      - Bit 2: Linear
+                      #      - Bit 3: Angular
                       'ODOMETRY': __ODOMETRY_OFFSET,
                       'FRONT_ULTRASONIC_DISTANCE': __FRONT_ULTRASONIC_DISTANCE_OFFSET,
                       'REAR_ULTRASONIC_DISTANCE': __REAR_ULTRASONIC_DISTANCE_OFFSET,
@@ -77,12 +79,16 @@ class PsocHw:
 
     __CAL_MOTORS_BIT = 0x0001
     __CAL_PID_GAINS_BIT = 0x0002
+    __CAL_LINEAR_BIT = 0x0004
+    __CAL_ANGULAR_BIT = 0x0008
 
     __CAL_MOTORS_CONTROL_BIT = __CAL_MOTORS_BIT
     __CAL_PID_GAINS_CONTROL_BIT = __CAL_PID_GAINS_BIT
 
     __CAL_MOTORS_STATUS_BIT = __CAL_MOTORS_BIT
     __CAL_PID_GAINS_STATUS_BIT = __CAL_PID_GAINS_BIT
+    __CAL_LINEAR_STATUS_BIT = __CAL_LINEAR_BIT
+    __CAL_ANGULAR_STATUS_BIT = __CAL_ANGULAR_BIT
 
     DISABLE_MOTORS = __CONTROL_DISABLE_MOTORS_BIT
     CLEAR_ODOMETRY = __CONTROL_CLEAR_ODOMETRY_BIT
@@ -187,12 +193,12 @@ class PsocHw:
         result = self._get_calibration_status() & PsocHw.__CAL_PID_GAINS_STATUS_BIT
         return result != 0
 
-    def Calibrated(self):
-        '''
-        The robot is considered calibrated if either the motors or pids are calibrated
-        Detailed calibration information is available in the accessors above
-        '''
-        result = self._get_calibration_status() & (PsocHw.__CAL_MOTORS_STATUS_BIT | PsocHw.__CAL_PID_GAINS_STATUS_BIT)
+    def LinearCalibrated(self):
+        result = self._get_calibration_status() & PsocHw.__CAL_LINEAR_STATUS_BIT
+        return result != 0
+
+    def AngularCalibrated(self):
+        result = self._get_calibration_status() & PsocHw.__CAL_ANGULAR_STATUS_BIT
         return result != 0
 
     def GetOdometry(self):

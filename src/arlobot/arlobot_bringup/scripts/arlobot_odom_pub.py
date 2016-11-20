@@ -42,8 +42,7 @@ class ArlobotOdometryPublisher:
     def Publish(self, broadcaster, orientation, x_dist, y_dist, linear_speed, angular_speed, use_pose_ekf=False):
         ros_now = rospy.Time.now()
 
-        quat = None#Quaternion()
-        values = [0.0, 0.0, 0.0, 0.0]
+        quat = Quaternion()
 
         # Orientation can be one of two things:
         #    Euler Angles or Quaternion
@@ -52,23 +51,24 @@ class ArlobotOdometryPublisher:
         if orientation.has_key('euler'):
             euler = orientation['euler']
 
+            # Note: Euler values are in degrees
             roll = euler['roll']
             pitch = euler['pitch']
             yaw = euler['yaw']
 
-            values  = transformations.quaternion_from_euler(roll, pitch, yaw)
+            q = transformations.quaternion_from_euler(roll, pitch, yaw)
+
+            quat.x = q[0]
+            quat.y = q[1]
+            quat.z = q[2]
+            quat.w = q[3]
 
         elif orientation.has_key('quaternion'):
-            quat_values = orientation['quaternion']
-            values = [ quat_values[k] for k in ('x', 'y', 'z', 'w') ]
+            quat.x = orientation['quaternion']['x']
+            quat.y = orientation['quaternion']['y']
+            quat.z = orientation['quaternion']['z']
+            quat.w = orientation['quaternion']['w']
 
-        quat = Quaternion(*values)
-        '''
-        quat.x = 0.0
-        quat.y = 0.0
-        quat.z = math.sin(heading / 2.0)
-        quat.w = math.cos(heading / 2.0)
-        '''
 
         # Publish the transform from frame odom to frame base_link over tf
 

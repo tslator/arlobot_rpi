@@ -1,0 +1,11 @@
+---
+bool psoc_calibrated
+bool psoc_motors
+bool psoc_pids
+bool psoc_linear
+bool psoc_angular
+bool imu_calibrated
+bool imu_sys
+bool imu_gyro
+bool imu_accel
+bool imu_mag

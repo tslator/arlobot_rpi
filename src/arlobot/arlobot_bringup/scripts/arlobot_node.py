@@ -33,7 +33,7 @@ class ArlobotNode():
             response = arlobot_base_status()
             if not response.success:
                 raise ArlobotNodeError("Failed response from ArlobotBaseStatus")
-        except rospy.ServiceException, e:
+        except rospy.ServiceException as e:
             raise ArlobotNodeError(e)
         rospy.loginfo("Service is running")
 
@@ -61,6 +61,9 @@ class ArlobotNode():
             pass
         elif msg.data == ArlobotBaseNodeStates.STATE_STARTED:
             # This is good, it means ArlobotBaseNode has started.  Be patient ...
+            pass
+        elif msg.data == ArlobotBaseNodeStates.CALIBRATING:
+            # This is good, it means ArlobotBaseNode is communicating with components ...
             pass
         elif msg.data == ArlobotBaseNodeStates.STATE_RUNNING:
             # This is awesome, let's rock 'n roll

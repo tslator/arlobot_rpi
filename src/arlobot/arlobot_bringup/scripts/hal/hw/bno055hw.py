@@ -42,7 +42,6 @@ class BNO055Hw:
         if not result:
             raise BNO055HwError("Failed to initialize BNO055!  Is the sensor connected?")
         
-
         # Load the calibration data into the BNO055
         try:
             self._bno.set_calibration(cal_data)

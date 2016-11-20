@@ -64,22 +64,22 @@ class ImuHw:
             euler_result = ImuHw.EULER_ZERO
 
         try:
-            temp_result = self._hardware.read_temperature()
+            temp_result = self._hardware.get_calibration_status()
         except AttributeError:
             temp_result = ImuHw.TEMPERATURE_ZERO
 
-	try:
+        try:
             cal_result = self._hardware.read_calibration()
         except AttributeError:
             cal_result = ImuHw.CALIBRATION_ZERO
 
         return {'orientation': orientation_result,
-               'linear_accel': acceleration_result,
-               'angular_velocity': gyro_result,
-               'magnetic_field': mag_result,
-               'euler': euler_result,
-               'temperature': temp_result,
-               'caliubration': cal_result}
+                'linear_accel': acceleration_result,
+                'angular_velocity': gyro_result,
+                'magnetic_field': mag_result,
+                'euler': euler_result,
+                'temperature': temp_result,
+                'caliubration': cal_result}
 
     def Calibrated(self):
         return self._is_calibrated
