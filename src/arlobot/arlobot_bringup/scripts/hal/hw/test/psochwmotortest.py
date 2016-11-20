@@ -80,24 +80,18 @@ def Uni2Diff(linear, angular):
 
     return left, right
 
-def ToDegrees(radians):
-    return (radians/math.pi)*360.0
-
-def ToRadians(degrees):
-    return (degrees/360.0)*math.pi
-
 def DoCwRotate(psoc, degrees):
     # Use fixed angular velocity
 
     left, right = Uni2Diff(0.0, -0.035)
 
     _,_,_,_,heading = psoc.GetOdometry()    
-    desired_heading = heading - ToRadians(degrees)
+    desired_heading = heading - math.radians(degrees)
 
     end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
-    print("Start Heading (deg): ", ToDegrees(heading))
-    print("Target Heading (deg): ", ToDegrees(desired_heading))
-    print("Expected Final Heading (deg): ", ToDegrees(end_heading))
+    print("Start Heading (deg): ", math.degrees(heading))
+    print("Target Heading (deg): ", math.degrees(desired_heading))
+    print("Expected Final Heading (deg): ", math.degrees(end_heading))
 
     while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
@@ -106,19 +100,19 @@ def DoCwRotate(psoc, degrees):
         #time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
-    print("Actual Final Heading (deg): ", ToDegrees(heading))
+    print("Actual Final Heading (deg): ", math.degrees(heading))
 
 
 def DoCcwRotate(psoc, degrees):
     left, right = Uni2Diff(0.0, 0.035)
 
     _, _, _, _, heading = psoc.GetOdometry()
-    desired_heading = heading + ToRadians(degrees)
+    desired_heading = heading + math.radians(degrees)
 
     end_heading = math.atan2(math.sin(desired_heading), math.cos(desired_heading))
-    print("Start Heading (deg): ", ToDegrees(heading))
-    print("Target Heading (deg): ", ToDegrees(desired_heading))
-    print("Expected Final Heading (deg): ", ToDegrees(end_heading))
+    print("Start Heading (deg): ", math.degrees(heading))
+    print("Target Heading (deg): ", math.degrees(desired_heading))
+    print("Expected Final Heading (deg): ", math.degrees(end_heading))
     
     while abs(end_heading - heading) > 0.1:
         psoc.SetSpeed(left, right)
@@ -127,7 +121,7 @@ def DoCcwRotate(psoc, degrees):
         #time.sleep(0.001)
 
     psoc.SetSpeed(0.0, 0.0)
-    print("Actual Final Heading (deg): ", ToDegrees(heading))
+    print("Actual Final Heading (deg): ", math.degrees(heading))
 
 
 def main(psoc, args):
