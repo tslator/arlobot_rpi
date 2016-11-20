@@ -20,9 +20,8 @@ class BNO055HwError(Exception):
 
 
 class BNO055Hw:
-    __RETRIES = 3
 
-    def __init__(self, do_cal_check=True, retries=__RETRIES):
+    def __init__(self, do_cal_check=True, cal_timeout=30):
         """
         Instantiate and initialize the BNO055, load calibration data and confirm the device is calibrated
         :param do_cal_check:
@@ -41,8 +40,8 @@ class BNO055Hw:
 
         result = self._bno.begin()
         if not result:
-            raise BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
-
+            raise BNO055HwError("Failed to initialize BNO055!  Is the sensor connected?")
+        
         # Load the calibration data into the BNO055
         try:
             self._bno.set_calibration(cal_data)
@@ -59,7 +58,7 @@ class BNO055Hw:
             # however, is dynamic and depends on the magnetic field around the part.  Consequently, gryoscope and
             # accelerometer calibration must be valid in order to confirm calibration.  There are other ways to complete
             # calibration for the magnetometer that are handled at a higher level in the software.
-            self._cal_confirmed = self._confirm_calibration()
+            self._cal_confirmed = self._confirm_calibration(cal_timeout)
 
     def _confirm_calibration(self, timeout):
         """
@@ -82,7 +81,7 @@ class BNO055Hw:
 
             time.sleep(1)
             count += 1
-
+            
             # Limit status output to every 5 seconds
             if count % 5 == 0:
                 rospy.loginfo("{}".format(str(cal_status)))

@@ -69,6 +69,7 @@ class ArlobotOdometryPublisher:
             quat.z = orientation['quaternion']['z']
             quat.w = orientation['quaternion']['w']
 
+
         # Publish the transform from frame odom to frame base_link over tf
 
         #    Note: pose ekf is how turtlebot does its thing.  If there is an imu and/or gyro, it might be best to take
