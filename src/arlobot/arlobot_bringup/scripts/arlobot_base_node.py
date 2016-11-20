@@ -131,7 +131,7 @@ class ArlobotBaseNode:
         # The HAL provides access to calibration information for each component that needs it.  At this level, we care
         # about the overall calibration.  If everything is calibrated, then we're good; otherwise, we need to know if
         # the problem is just the IMU.  If the IMU is not calibrated
-
+        '''
         if not self._hal_proxy.GetCalibrated():
             retries_remaining = 3
             while retries_remaining:
@@ -139,7 +139,8 @@ class ArlobotBaseNode:
 
                 # Check to see what isn't calibrated.  Note, we can only fix magnetometer calibration
                 if not detail['psoc']['calibrated']:
-                    raise ArlobotBaseNodeError("Unable to proceed.  PSOC is not calibrated: {}".format(str(detail['psoc'])))
+                    #raise ArlobotBaseNodeError("Unable to proceed.  PSOC is not calibrated: {}".format(str(detail['psoc'])))
+                    ropsy.logwarn("Psoc is not calibrated: {}".format(str(detail['psoc'])))
 
                 imu_cal = detail['imu']['calibrated']
                 imu_sys = detail['imu']['sys']
@@ -153,6 +154,8 @@ class ArlobotBaseNode:
                     retries_remaining -= 1
         else:
             return True
+        '''
+        return True
 
     def _perform_operational_checks(self):
         """
