@@ -62,7 +62,7 @@ class ImuHw:
             euler_result = ImuHw.EULER_ZERO
 
         try:
-            temp_result = self._hardware.get_calibration_status()
+            temp_result = self._hardware.read_temperature()
         except AttributeError:
             temp_result = ImuHw.TEMPERATURE_ZERO
 

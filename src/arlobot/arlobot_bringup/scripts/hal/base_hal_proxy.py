@@ -29,7 +29,7 @@ class BaseHALProxy(ServiceProxy):
         #self._add_service('get_calibration', 'BaseHALGetCalibration', HALGetCalibration)
 
     def SetSpeed(self, left, right):
-        response = self._invoke_service('set_speed', left, right)
+        response = self._invoke_service('set_speed', [left, right])
         return response.success
 
     def GetOdometry(self):
@@ -41,11 +41,11 @@ class BaseHALProxy(ServiceProxy):
         return list(response.values)
 
     def GetInfrared(self):
-        response = self._invoke('get_infrared')
+        response = self._invoke_service('get_infrared')
         return list(response.values)
 
     def GetLaserScan(self):
-        response = self._invoke('get_laser_scan')
+        response = self._invoke_service('get_laser_scan')
         return list(response.ranges), list(response.intensities), response.time_increment
 
     def GetImu(self):

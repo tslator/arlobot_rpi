@@ -52,7 +52,7 @@ class BaseHALServiceNode(HALServiceNode):
         self._services['BaseHALGetVoltage'] = rospy.Service('BaseHALGetVoltage', HALGetFloatArray, self._hal_get_voltage)
         self._services['BaseHALGetCurrent'] = rospy.Service('BaseHALGetCurrent', HALGetFloatArray, self._hal_get_current)
         self._services['BaseHALGetTemp'] = rospy.Service('BaseHALGetTemp', HALGetFloatArray, self._hal_get_temp)
-        self._services['BaseHALGetCalibration'] = rospy.Service('BaseHALGetCalibration', HALGetCalibration, self._hal_get_calibration)
+        #self._services['BaseHALGetCalibration'] = rospy.Service('BaseHALGetCalibration', HALGetCalibration, self._hal_get_calibration)
 
     def _hal_set_speed(self, request):
         success = False
@@ -150,6 +150,7 @@ class BaseHALServiceNode(HALServiceNode):
         return HALGetFloatArrayResponse(values = values)
 
     def _hal_get_calibration(self, request):
+        '''
         psoc_cal = {}
         imu_cal = {}
         try:
@@ -167,6 +168,8 @@ class BaseHALServiceNode(HALServiceNode):
                                          imu_gyro = imu_cal['gryo'],
                                          imu_accel = imu_cal['accel'],
                                          imu_mag = imu_cal['mag'])
+        '''
+        return None
 
 
 if __name__ ==  "__main__":

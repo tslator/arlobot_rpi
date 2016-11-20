@@ -334,7 +334,7 @@ class ArlobotDriveNode:
             euler = imu['euler']
             orientation['euler'] = {'roll': math.radians(euler['roll']), 
                                     'pitch': math.radians(euler['pitch']), 
-                                    'yaw': match.radians(euler['yaw'])}
+                                    'yaw': math.radians(euler['yaw'])}
             # Note: Another option provided by the IMU is to get orientation as a quaternion
             #quat = imu['orientation']
             #orientation['quaternion'] = quat

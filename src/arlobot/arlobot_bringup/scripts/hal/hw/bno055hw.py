@@ -6,6 +6,7 @@ import time
 import sys
 try:
     import rospy
+    loginfo = rospy.loginfo
 except ImportError:
     loginfo = print
 from Adafruit_BNO055 import BNO055
