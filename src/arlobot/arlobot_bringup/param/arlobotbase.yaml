@@ -1,3 +1,8 @@
+# Debug Settings
+Arlobot Base Node Debug: False
+Arlobot Drive Node Debug: False
+Arlobot Sensor Node Debug: False
+
 # Robot drive and mechanical parameters
 Drive Type: "ArlobotDifferential"
 Track Width: 0.4030      # meter

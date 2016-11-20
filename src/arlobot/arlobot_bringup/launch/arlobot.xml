@@ -1,6 +1,26 @@
 <launch>
+    <!-- arlobot.machine contains the definition for the computer that runs the Arlobot collection of nodes.  In this
+         configuration, Arlobot runs on the mini-atx PC located on the robot.  However, it would also be a laptop or
+         other capable machine and it could also not be positioned on the robot.
+      -->
     <include file="$(find arlobot_bringup)/launch/arlobot.machine" />
+
+    <!-- arlobot.yaml contains the configuration for the Arlobot collection of nodes -->
     <rosparam file="$(find arlobot_bringup)/param/arlobot.yaml" command="load" />
+
+    <!-- arlobot_node is the main node for the Arlobot.  Its primary responsibility at the moment is to track the startup
+         of ArlobotBase.  However, in the future it is expected to be a supervisor for various robot behaviors.
+      -->
     <node name="arlobot_node" pkg="arlobot_bringup" type="arlobot_node.py" output="screen" machine="arlobot"/>
+
+    <!-- pc_hal_service_node is a service which provides access to a hardware abstraction layer (HAL) of components
+         connected to the Arlobot, e.g., camera, gps, etc
+      -->
     <node name="pc_hal_service_node" pkg="arlobot_bringup" type="pc_hal_service_node.py" output="screen" respawn="true" machine="arlobot"/>
+
+    <!-- arlobot_nav_service_node is a service containing motion primitives, position, distance, rotate, that use odometry
+         to track position and move the robot appropriately.
+         Note: Distance sensors are not referenced as part of this service
+      -->
+    <node name="arlobot_nav_service_node" pkg="arlobot_bringup" type="arlobot_nav_service_node.py" output="sreen" respawn="true" machine="arlobot"/>
 </launch>

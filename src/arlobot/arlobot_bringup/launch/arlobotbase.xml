@@ -1,12 +1,29 @@
 <launch>
+    <!-- arlobotbase.machine contains the definition for the computer that runs the ArlobotBase collection of nodes.  In
+         this configuration, ArlobotBase runs on the BeagleBone Black located on the robot.  The primary directive for
+         the ArlobotBase is to handle motor control and aggregate sensors.
+      -->
     <include file="$(find arlobot_bringup)/launch/arlobotbase.machine" />
+
+    <!-- arlobotbase.yaml contains the configuration for the ArlobotBase collection of nodes -->
     <rosparam file="$(find arlobot_bringup)/param/arlobotbase.yaml" command="load" />
 
+    <!-- arlobot_base_node - is the primary node for the ArlobotBase and is responsible for high-level control, e.g.
+         safety, calibration, operational checking, etc.
+      -->
     <node name="arlobot_base_node" pkg="arlobot_bringup" type="arlobot_base_node.py" output="screen" respawn="true" machine="arlobotbase" />
 
+    <!-- arlobot_drive_node - has primary responsibility for driving the motors.  It incorporates PID control of the wheels to maintain
+         linear and angular velocity, checking and adjustment to ensure the command angular velocity is achievable, and is responsible
+         for publishing odometry
+      -->
     <node name="arlobot_drive_node" pkg="arlobot_bringup" type="arlobot_drive_node.py" output="screen" respawn="true" machine="arlobotbase" />
-    
+
+    <!-- arlobot_sensors_node - has primary responsibility for aggregating all the sensors on the robot and publishing the robot sensor
+         'skirt'.
+      -->
     <node name="arlobot_sensors_node" pkg="arlobot_bringup" type="arlobot_sensors_node.py" output="screen" respawn="true" machine="arlobotbase" />    
-    
+
+    <!-- base_hal_service_node - is a service which provides a hardware abstraction layer (HAL) for the hardware components on the ArlobotBase. -->
     <node name="base_hal_service_node" pkg="arlobot_bringup" type="base_hal_service_node.py" output="screen" respawn="true" machine="arlobotbase" />
 </launch>

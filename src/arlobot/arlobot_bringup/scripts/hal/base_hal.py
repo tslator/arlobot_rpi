@@ -166,8 +166,8 @@ class BaseHardwareAbstractionLayer(HALProtocol):
     def GetUltrasonic(self):
         distances = []
         if self._simulated:
-            front = [float(random.randrange(2,501,1))/100 for _ in range (8)]
-            rear = [float(random.randrange(2,501,1))/100 for _ in range (8)]
+            front = [float(randrange(2,501,1))/100 for _ in range (8)]
+            rear = [float(randrange(2,501,1))/100 for _ in range (8)]
             distances = front + rear
         else:
             # Note: There are no left/right infrared sensors, but there are front and back
@@ -191,7 +191,7 @@ class BaseHardwareAbstractionLayer(HALProtocol):
 
     def GetLaserScan(self):
         if self._simulated:
-            ranges = [float(random.randrange(6,501,1))/100 for _ in range(360)]
+            ranges = [float(randrange(6,501,1))/100 for _ in range(360)]
             intensities = [1.0 for _ in range(360)]
             time_offset = 0.0
         else:
@@ -203,20 +203,17 @@ class BaseHardwareAbstractionLayer(HALProtocol):
         return ranges, intensities, time_offset
 
     def GetVoltage(self):
-        '''
-        Originally, the power pi was to be the source of current measurement, but it has not lived up to its reputation
-        so an alternate approach is needed
-
+        """
         Consider using an A/D-based current/voltage sensor:
             http://www.robotshop.com/en/current-voltage-sensors.html
-        '''
+        """
         return 0.0
 
     def GetCurrent(self):
-        '''
-        Originally, the power pi was to be the source of current measurement, but it has not lived up to its reputation
-        so an alternate approach is needed
-        '''
+        """
+        Consider using an A/D-based current/voltage sensor:
+            http://www.robotshop.com/en/current-voltage-sensors.html
+        """
         return 0.0
 
     def GetTemp(self):
@@ -225,6 +222,42 @@ class BaseHardwareAbstractionLayer(HALProtocol):
         else:
             temp = self._imu.GetTemp()
         return temp
+
+    def GetPsocCalibration(self):
+        if self._simulated:
+            return {'calibrated': True,
+                    'motors': True,
+                    'pids': True,
+                    'linear': True,
+                    'angular': True
+                   }
+        else:
+            motors = self._psoc.MotorsCalibrated()
+            pids = self._psoc.PidsCalibrated()
+            linear = self._psoc.LinearCalibrated()
+            angular = self._psoc.AngularCalibrated()
+            # A dict of the psoc calibration details:
+            return {'calibrated': motors and pids and linear and angular,
+                    'motors': motors,
+                    'pids': pids,
+                    'linear': linear,
+                    'angular': angular
+                   }
+
+    def GetImuCalibration(self):
+        if self._simulated:
+            return {'calibrated': True,
+                    'sys': True,
+                    'gyro': True,
+                    'accel': True,
+                    'mag': True}
+        else:
+            cal = self._imu.GetCalibration()
+            return {'calibrated': cal['sys'] and cal['gyro'] and cal['accel'] and cal['mag'],
+                    'sys': cal['sys'],
+                    'gyro': cal['gyro'],
+                    'accel': cal['accel'],
+                    'mag': cal['mag']}
 
 
 if __name__ == "__main__":
