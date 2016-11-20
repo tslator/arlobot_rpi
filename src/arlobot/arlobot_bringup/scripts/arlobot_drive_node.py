@@ -316,7 +316,7 @@ class ArlobotDriveNode:
 
         # Get the latest odometry from the HAL
         odometry = self._hal_proxy.GetOdometry()
-        #rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
+        rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
         # Break out the odometry into its constituents
         # Note: heading is constrained to -Pi to Pi
         left_speed, right_speed, left_dist, right_dist, heading = odometry
@@ -329,31 +329,25 @@ class ArlobotDriveNode:
         # Select whether to use the IMU data
         if self._use_imu:
             imu = self._hal_proxy.GetImu()
-
-            #euler = imu['euler']
-            #orientation['euler'] = {'roll': euler['roll'], 'pitch': euler['pitch'], 'yaw': euler['yaw']}
-
+                        
+            heading = math.radians(imu['euler']['heading'])
+            euler = imu['euler']
+            orientation['euler'] = {'roll': math.radians(euler['roll']), 
+                                    'pitch': math.radians(euler['pitch']), 
+                                    'yaw': match.radians(euler['yaw'])}
             # Note: Another option provided by the IMU is to get orientation as a quaternion
-            quat = imu['orientation']
-            orientation['quaternion'] = quat
+            #quat = imu['orientation']
+            #orientation['quaternion'] = quat
         else:
+            if heading < 0:
+                heading + 2*math.pi
             orientation['euler'] = {'roll': 0.0, 'pitch': 0.0, 'yaw': heading}
 
+        c_dist = (left_dist + right_dist) / 2.0
+        x_dist = c_dist * math.cos(heading)
+        y_dist = c_dist * math.sin(heading)
 
-        # Note: There is a problem reading from the IMU.  The IMU via Euler values provides a more accurate heading
-        # Once the IMU is working, the heading should be taken from the Euler values.
-        # Note: heading from Euler values is 0 .. 360.  Need to understand if that is acceptable for odometry
-        # publishing and if not it will need to be adjusted, e.g., heading = euler_heading - 180 (?)
-
-        left_delta_dist = self._last_left_dist - left_dist
-        right_delta_dist = self._last_right_dist - right_dist
-
-        self._last_left_dist = left_dist
-        self._last_right_dist = right_dist
-
-        c_dist = (left_delta_dist + right_delta_dist) / 2
-        x_dist = c_dist * math.cos(heading) * delta_time
-        y_dist = c_dist * math.cos(heading) * delta_time
+        rospy.loginfo("x: {:.3} y: {:.3} c: {:.3} h: {:.3}".format(x_dist, y_dist, c_dist, heading))
 
         v, w = diff2uni(left_speed, right_speed, self._track_width, self._wheel_radius)
 
@@ -471,7 +465,6 @@ class ArlobotDriveNode:
         while not rospy.is_shutdown():
         
             odometry = self._calc_odometry()
-
             self._arlobot_odometry.Publish(self._OdometryTransformBroadcaster,
                                            odometry['orientation'],
                                            odometry['x_dist'],
