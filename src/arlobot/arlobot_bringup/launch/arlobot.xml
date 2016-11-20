@@ -22,5 +22,7 @@
          to track position and move the robot appropriately.
          Note: Distance sensors are not referenced as part of this service
       -->
+    <!--
     <node name="arlobot_nav_service_node" pkg="arlobot_bringup" type="arlobot_nav_service_node.py" output="sreen" respawn="true" machine="arlobot"/>
+    -->
 </launch>

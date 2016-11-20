@@ -8,7 +8,7 @@ import rospy
 from std_srvs.srv import Trigger, TriggerResponse
 from sensor_msgs.msg import Range
 from arlobot_base_status_pub import ArlobotBaseStatusPublisher
-from arlobot_base_hal import BaseHALProxy, BaseHALProxyError
+from hal.base_hal_proxy import BaseHALProxy, BaseHALProxyError
 from service_proxy import ServiceProxy, ServiceProxyError
 from math import radians
 

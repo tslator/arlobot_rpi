@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import rospy
-from service_node import ServiceNode, ServiceNodeError
+from scripts.service_node import ServiceNode, ServiceNodeError
 
 
 class HALServiceNodeError(Exception):

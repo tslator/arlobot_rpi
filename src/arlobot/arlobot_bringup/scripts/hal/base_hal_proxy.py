@@ -5,7 +5,7 @@
 
 import rospy
 from service_proxy import ServiceProxy, ServiceProxyError
-from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu, HALGetCalibration
+from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu#, HALGetCalibration
 
 
 class BaseHALProxyError(Exception):
@@ -26,7 +26,7 @@ class BaseHALProxy(ServiceProxy):
         self._add_service('get_voltage', 'BaseHALGetVoltage', HALGetFloatArray)
         self._add_service('get_current', 'BaseHALGetCurrent', HALGetFloatArray)
         self._add_service('get_temp', 'BaseHALGetTemp', HALGetFloatArray)
-        self._add_service('get_calibration', 'BaseHALGetCalibration', HALGetCalibration)
+        #self._add_service('get_calibration', 'BaseHALGetCalibration', HALGetCalibration)
 
     def SetSpeed(self, left, right):
         response = self._invoke_service('set_speed', left, right)
@@ -71,18 +71,19 @@ class BaseHALProxy(ServiceProxy):
         return response.values[0]
 
     def GetCalibration(self):
-        response = self._invoke_service('get_calibration')
+        #response = self._invoke_service('get_calibration')
+        
         return {
-            'psoc': {'calibrated': response.psoc_calibrated,
-                     'motors': response.psoc_motors,
-                     'pids': response.psoc_pids,
-                     'linear': response.psoc_linear,
-                     'angular': response.psoc_angular},
-            'imu': {'calibrated': response.psoc_calibrated,
-                    'sys': response.imu_sys,
-                    'gryo': response.imu_gyro,
-                    'accel': response.imu_accel,
-                    'mag': response.imu_mag}
+            'psoc': {'calibrated': False, #response.psoc_calibrated,
+                     'motors': True, #response.psoc_motors,
+                     'pids': True, #response.psoc_pids,
+                     'linear': True, #response.psoc_linear,
+                     'angular': True}, #response.psoc_angular},
+            'imu': {'calibrated': True, #response.psoc_calibrated,
+                    'sys': True, #response.imu_sys,
+                    'gryo': True, #response.imu_gyro,
+                    'accel': True, #response.imu_accel,
+                    'mag': True} #response.imu_mag
         }
 
     def GetCalibrated(self):
