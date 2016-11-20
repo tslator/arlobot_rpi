@@ -94,7 +94,7 @@ class OutAndBack():
             
             # Get the starting position values     
             (position, rotation) = self.get_odom()
-                        
+                
             x_start = position.x
             y_start = position.y
             
@@ -130,13 +130,15 @@ class OutAndBack():
             turn_angle = 0
             
             while abs(turn_angle + angular_tolerance) < abs(goal_angle) and not rospy.is_shutdown():
+
                 # Publish the Twist message and sleep 1 cycle         
                 self.cmd_vel.publish(move_cmd)
                 r.sleep()
                 
                 # Get the current rotation
                 (position, rotation) = self.get_odom()
-                
+               
+                rospy.loginfo("ta: {:.3} ga: {:.3} r: {:.3} la: {:.3}".format(float(turn_angle), float(goal_angle), float(rotation), float(last_angle))) 
                 # Compute the amount of rotation since the last loop
                 delta_angle = normalize_angle(rotation - last_angle)
                 
@@ -160,6 +162,8 @@ class OutAndBack():
             rospy.loginfo("TF Exception")
             return
 
+        rospy.loginfo(str(Point(*trans)))
+        rospy.loginfo(str(quat_to_angle(Quaternion(*rot))))
         return (Point(*trans), quat_to_angle(Quaternion(*rot)))
         
     def shutdown(self):
