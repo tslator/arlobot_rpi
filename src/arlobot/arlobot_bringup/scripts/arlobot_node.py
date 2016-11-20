@@ -62,7 +62,7 @@ class ArlobotNode():
         elif msg.data == ArlobotBaseNodeStates.STATE_STARTED:
             # This is good, it means ArlobotBaseNode has started.  Be patient ...
             pass
-        elif msg.data == ArlobotBaseNodeStates.CALIBRATING:
+        elif msg.data == ArlobotBaseNodeStates.CHECKING:
             # This is good, it means ArlobotBaseNode is communicating with components ...
             pass
         elif msg.data == ArlobotBaseNodeStates.STATE_RUNNING:
