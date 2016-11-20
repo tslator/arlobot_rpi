@@ -13,20 +13,9 @@ class ArlobotOdometryPublisher:
         msg = Odometry()
         msg.header.frame_id = "odom"
         msg.header.stamp = now
-        '''
-        msg.pose.pose.position.x = x_dist
-        msg.pose.pose.position.y = y_dist
-        msg.pose.pose.position.z = 0
-        msg.pose.pose.orientation = orientation
-        '''
         msg.pose.pose = Pose(Point(x_dist, y_dist, 0.0), quaternion)
 
         msg.child_frame_id = "base_link"
-        '''
-        msg.twist.twist.linear.x = linear_speed
-        msg.twist.twist.linear.y = 0
-        msg.twist.twist.angular.z = angular_speed
-        '''
         msg.twist.twist = Twist(Vector3(linear_speed, 0, 0), Vector3(0, 0, angular_speed))
 
         if use_pose_ekf:
@@ -53,13 +42,8 @@ class ArlobotOdometryPublisher:
     def Publish(self, broadcaster, orientation, x_dist, y_dist, linear_speed, angular_speed, use_pose_ekf=False):
         ros_now = rospy.Time.now()
 
-        quat = Quaternion()
-        '''
-        quat.x = 0.0
-        quat.y = 0.0
-        quat.z = math.sin(heading / 2.0)
-        quat.w = math.cos(heading / 2.0)
-        '''
+        quat = None#Quaternion()
+        values = [0.0, 0.0, 0.0, 0.0]
 
         # Orientation can be one of two things:
         #    Euler Angles or Quaternion
@@ -68,18 +52,23 @@ class ArlobotOdometryPublisher:
         if orientation.has_key('euler'):
             euler = orientation['euler']
 
-            # Note: Euler values are in degrees
-            roll = math.radians(euler['roll'])
-            pitch = math.radians(euler['pitch'])
-            yaw = math.radians(euler['yaw'])
+            roll = euler['roll']
+            pitch = euler['pitch']
+            yaw = euler['yaw']
 
-            quat = transformations.quaternion_from_euler(roll, pitch, yaw)
+            values  = transformations.quaternion_from_euler(roll, pitch, yaw)
 
         elif orientation.has_key('quaternion'):
-            quat.x = orientation['quaternion']['x']
-            quat.y = orientation['quaternion']['y']
-            quat.z = orientation['quaternion']['z']
-            quat.w = orientation['quaternion']['w']
+            quat_values = orientation['quaternion']
+            values = [ quat_values[k] for k in ('x', 'y', 'z', 'w') ]
+
+        quat = Quaternion(*values)
+        '''
+        quat.x = 0.0
+        quat.y = 0.0
+        quat.z = math.sin(heading / 2.0)
+        quat.w = math.cos(heading / 2.0)
+        '''
 
         # Publish the transform from frame odom to frame base_link over tf
 
