@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import time
 import sys
+import rospy
 from Adafruit_BNO055 import BNO055
 
 # This is calibration data obtained by following running a calibation routine composed of the following:
@@ -19,9 +20,8 @@ class BNO055HwError(Exception):
 
 
 class BNO055Hw:
-    __RETRIES = 3
 
-    def __init__(self, do_cal_check=True, retries=__RETRIES):
+    def __init__(self, do_cal_check=True, cal_timeout=30):
         """
         Instantiate and initialize the BNO055, load calibration data and confirm the device is calibrated
         :param do_cal_check:
@@ -30,24 +30,18 @@ class BNO055Hw:
                 ValueError - if the calibration is not in the correct format, raises BNO055HwError
                 BNO055HwError - if calibration confirmation fails
         """
+
+        self._cal_confirmed = False
+
         try:
             self._bno = BNO055.BNO055(rst='P9_12')
         except RuntimeError as e:
-            raise BNO055HwError(e.args)
+            raise BNO055HwError("Unable to instantiate BNO055 object: {}".format(e.args))
 
-        # Initialize the BNO055 and stop if something went wrong.
-        # Note: Sometimes after a reset a runtime error can occur but usually only once.  The following retry seems to
-        # get around this error.
-        try:
-            for i in range(retries):
-                result = self._bno.begin()
-                if result:
-                    break
-                time.sleep(0.05)
-            if not result:
-                raise BNO055HwError('Failed to initialize BNO055! Is the sensor connected?')
-        except RuntimeError as e:
-            raise BNO055HwError(e.args)
+        result = self._bno.begin()
+        if not result:
+            raise BNO055HwError("Failed to initialize BNO055!  Is the sensor connected?")
+        
 
         # Load the calibration data into the BNO055
         try:
@@ -57,50 +51,52 @@ class BNO055Hw:
         
         # Allow the calibration check to be bypassed so that calibration can performed
         if do_cal_check:
-            # Confirm that the gyro, accel, mag and system are reported as calibrated
-            # Note: A timeout of 10 seconds limits this checking
-            self._cal_confirmed = self._confirm_calibration()
-            if not self._cal_confirmed:
-                raise BNO055HwError("Failed to confirm device calibration")
+            # There are four calibration status indicators one for the gyroscope, the accelerometer, the magnetometer,
+            # and system.  System depends on the other three, that is, when the other three are valid then system will
+            # become valid.
+            # The gyroscope and the accelerometer are generally static, that is, once calibration parameters have been
+            # obtained, loading the settings back into the part causes calibration to report valid.  The magnetometer;
+            # however, is dynamic and depends on the magnetic field around the part.  Consequently, gryoscope and
+            # accelerometer calibration must be valid in order to confirm calibration.  There are other ways to complete
+            # calibration for the magnetometer that are handled at a higher level in the software.
+            self._cal_confirmed = self._confirm_calibration(cal_timeout)
 
-    def _wait_for_valid_status(self, key, timeout=10):
-        """
-        Checks that the specified calibration status is valid (equal to 3) for 5 seconds and limits the checking to
-        the specified timeout (default 10 seconds)
-        :param key:
-        :param timeout:
-        :return: True if the status is valid; otherwise, False
-        """
-        status = 0
-        count = 0
-        start_time = time.time()
-        delta_time = start_time
-        # Stay in the loop until there is a valid status for 5 seconds or the timeout expires
-        while status != 3 or count < 50 or delta_time > timeout:
-            status = self.get_calibration_status()[key]
-            time.sleep(0.1)
-            if status != 3:
-                count = 0
-            else:
-                count += 1
-            delta_time = time.time() - start_time
-
-        if status == 3 and count <= 50 and delta_time < timeout:
-            return True
-        else:
-            return False
-
-    def _confirm_calibration(self):
+    def _confirm_calibration(self, timeout):
         """
         Confirms that the gyroscope, magnetometer, accelerometer and system calibration are valid
         :return: True if calibration is confirmed; otherwise, False
         """
-        cal_status = self.get_calibration_status()
-        if cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3:
-            return self._wait_for_valid_status('sys')
-        return False
+        # Confirm that the gyro, accel, mag and system are reported as calibrated
+        # Note: A timeout of 30 seconds ensures this does not block forever. I have
+        # witnessed it taking as must as 15 seconds to confirm calibration
+        rospy.loginfo("Confirming calibration ...")
+        count = 0
+        confirmed = False
+        while not confirmed and count < timeout:
+            cal_status = self.get_calibration_status()
+            if (cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3 and cal_status['sys'] == 3):
 
-    def calibration_confirmed(self):
+                confirmed = True
+                rospy.loginfo("Valid status for all: {}".format(str(cal_status)))
+                break
+
+            time.sleep(1)
+            count += 1
+            
+            # Limit status output to every 5 seconds
+            if count % 5 == 0:
+                rospy.loginfo("{}".format(str(cal_status)))
+        else:
+            if count == timeout:
+                rospy.loginfo("Timeout confirming calibration.")
+            elif confirmed:
+                rospy.loginfo("Calibration confirmed")
+            else:
+                rospy.loginfo("Failed to confirm calibration")
+
+        return confirmed
+
+    def confirm_calibration(self):
         return self._cal_confirmed
 
     def show_revision(self, redirect=sys.stdout):
