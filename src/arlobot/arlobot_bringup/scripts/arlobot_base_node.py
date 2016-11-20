@@ -170,10 +170,11 @@ class ArlobotBaseNode:
         :description: Check anything that could cause harm to the robot or things around the robot
         :return:
         """
-        rospy.loginfo("Performing safety checks: ...")
-        rospy.loginfo("\tDo we have enough charge?")
-        rospy.loginfo("\tAre we too close to anything?")
-        rospy.loginfo("\tAnything we should check?")
+        #rospy.loginfo("Performing safety checks: ...")
+        #rospy.loginfo("\tDo we have enough charge?")
+        #rospy.loginfo("\tAre we too close to anything?")
+        #rospy.loginfo("\tAnything we should check?")
+        pass
 
     def Start(self):
         rospy.loginfo("Arlobot Base Node has started")
