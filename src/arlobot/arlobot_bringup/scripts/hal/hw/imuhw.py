@@ -1,8 +1,6 @@
 from __future__ import print_function
 
 import time
-import rospy
-
 from bno055hw import BNO055Hw as Hardware
 from bno055hw import BNO055HwError as HardwareError
 
@@ -64,7 +62,7 @@ class ImuHw:
             euler_result = ImuHw.EULER_ZERO
 
         try:
-            temp_result = self._hardware.get_calibration_status()
+            temp_result = self._hardware.read_temperature()
         except AttributeError:
             temp_result = ImuHw.TEMPERATURE_ZERO
 
@@ -79,7 +77,7 @@ class ImuHw:
                 'magnetic_field': mag_result,
                 'euler': euler_result,
                 'temperature': temp_result,
-                'caliubration': cal_result}
+                'calibration': cal_result}
 
     def Calibrated(self):
         return self._is_calibrated

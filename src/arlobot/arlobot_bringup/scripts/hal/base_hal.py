@@ -24,8 +24,6 @@ class BaseHardwareAbstractionLayer(HALProtocol):
 
         self._simulated = simulated
 
-        rospy.loginfo("__init__")
-
         psoc_i2c_device = rospy.get_param("Psoc I2C Device", I2CBus.DEV_I2C_1)
         imu_i2c_device = rospy.get_param("Imu I2C Device", I2CBus.DEV_I2C_1)
 
@@ -66,27 +64,17 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             # cannot report that it is ready unless all of its components are ready, e.g., the IMU has reported it is
             # calibrated.
 
-            rospy.loginfo("Creating ImuHw")
 
             try:
                 self._imu = ImuHw()
             except ImuHwError as e:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate ImuHw: {}".format(e.args))
 
-            # Mostly for debugging purposes, check that calibration status of the IMU before continuing on
-            rospy.loginfo("checking calibration")
-            if not self._imu.CalibrationConfirmed():
-                rospy.logdebug("There is a problem with calibration")
-                raise BaseHardwareAbstractionLayerError("IMU reported as not calibrated")
-            rospy.loginfo("calibration is good")
-
-            rospy.loginfo("creating i2c bus for psoc")
             try:
                 self._i2c_bus_1 = I2CBus(psoc_i2c_device)
             except RuntimeError:
                 raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(psoc_i2c_device))
             
-            rospy.loginfo("creating psochw")
             try:
                 self._psoc = PsocHw(self._i2c_bus_1, psoc_addr)
             except PsocHwError:

@@ -316,9 +316,7 @@ class ArlobotDriveNode:
 
         # Get the latest odometry from the HAL
         odometry = self._hal_proxy.GetOdometry()
-        rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(*odometry))
         # Break out the odometry into its constituents
-        # Note: heading is constrained to -Pi to Pi
         left_speed, right_speed, left_dist, right_dist, heading = odometry
 
         # Calculate the delta time to be used to calculate distance
@@ -334,14 +332,22 @@ class ArlobotDriveNode:
             euler = imu['euler']
             orientation['euler'] = {'roll': math.radians(euler['roll']), 
                                     'pitch': math.radians(euler['pitch']), 
-                                    'yaw': match.radians(euler['yaw'])}
+                                    'yaw': math.radians(euler['yaw'])}
             # Note: Another option provided by the IMU is to get orientation as a quaternion
             #quat = imu['orientation']
             #orientation['quaternion'] = quat
         else:
+            # Note: heading is constrained to -Pi to Pi so it must be offset by 2*Pi
             if heading < 0:
-                heading + 2*math.pi
+                heading += 2*math.pi
             orientation['euler'] = {'roll': 0.0, 'pitch': 0.0, 'yaw': heading}
+
+        rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(
+                      left_speed,
+                      right_speed,
+                      left_dist,
+                      right_dist,
+                      heading))
 
         c_dist = (left_dist + right_dist) / 2.0
         x_dist = c_dist * math.cos(heading)

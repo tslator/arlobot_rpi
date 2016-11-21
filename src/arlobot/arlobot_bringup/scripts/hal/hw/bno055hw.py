@@ -1,8 +1,14 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 
 import time
 import sys
-import rospy
+try:
+    import rospy
+    loginfo = rospy.loginfo
+except ImportError:
+    loginfo = print
 from Adafruit_BNO055 import BNO055
 
 # This is calibration data obtained by following running a calibation routine composed of the following:
@@ -21,7 +27,9 @@ class BNO055HwError(Exception):
 
 class BNO055Hw:
 
-    def __init__(self, do_cal_check=True, cal_timeout=30):
+    __DEFAULT_CAL_TIMEOUT = 5
+
+    def __init__(self, do_cal_check=True, cal_timeout=__DEFAULT_CAL_TIMEOUT):
         """
         Instantiate and initialize the BNO055, load calibration data and confirm the device is calibrated
         :param do_cal_check:
@@ -66,9 +74,14 @@ class BNO055Hw:
         :return: True if calibration is confirmed; otherwise, False
         """
         # Confirm that the gyro, accel, mag and system are reported as calibrated
-        # Note: A timeout of 30 seconds ensures this does not block forever. I have
-        # witnessed it taking as must as 15 seconds to confirm calibration
-        rospy.loginfo("Confirming calibration ...")
+        # Note: We would like all the stati to be 3 but sometimes the magnetometer doesn't cooperate
+        # Per the datasheet, the heading returned will be relative to when the magnetomer power on.
+        # At some point in the future, should the magnetomer find magnetic north the heading will then
+        # adjust to be absolute.  I guess that could give confusing results, but I don't see a way
+        # around it.  There is no way to move the magnetomer in a figure 8 motion when it is attached 
+        # to the robot.  Therefore, I'm setting a timeout of 5 seconds and moving on.  We'll burn that
+        # bridge when we cross it :-)
+        loginfo("Confirming calibration ...")
         count = 0
         confirmed = False
         while not confirmed and count < timeout:
@@ -76,7 +89,7 @@ class BNO055Hw:
             if (cal_status['gyro'] == 3 and cal_status['mag'] == 3 and cal_status['accel'] == 3 and cal_status['sys'] == 3):
 
                 confirmed = True
-                rospy.loginfo("Valid status for all: {}".format(str(cal_status)))
+                loginfo("Valid status for all: {}".format(str(cal_status)))
                 break
 
             time.sleep(1)
@@ -84,14 +97,14 @@ class BNO055Hw:
             
             # Limit status output to every 5 seconds
             if count % 5 == 0:
-                rospy.loginfo("{}".format(str(cal_status)))
+                loginfo("{}".format(str(cal_status)))
         else:
             if count == timeout:
-                rospy.loginfo("Timeout confirming calibration.")
+                loginfo("Timeout confirming calibration.")
             elif confirmed:
-                rospy.loginfo("Calibration confirmed")
+                loginfo("Calibration confirmed")
             else:
-                rospy.loginfo("Failed to confirm calibration")
+                loginfo("Failed to confirm calibration")
 
         return confirmed
 
@@ -400,7 +413,7 @@ if __name__ == "__main__":
             do_cal_check = False
 
     try:
-        bnohw = BNO055Hw(do_cal_check)
+        bnohw = BNO055Hw(do_cal_check, cal_timeout=5)
     except BNO055HwError as e:
         print(e.args)
 
@@ -408,7 +421,6 @@ if __name__ == "__main__":
         print("The device is not calibrated.  Please write a little application that can be used to calibrate this device")
         perform_calibration(bnohw)
         sys.exit(0)
-
 
     for i in range(20):
         euler = bnohw.read_euler()

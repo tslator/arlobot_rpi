@@ -7,7 +7,7 @@ Shutting down a service container.  Multiple services can be exposed using this 
 """
 
 import rospy
-from arlobot_msgs.srv import Trigger, TriggerResponse
+from std_srvs.srv import Trigger, TriggerResponse
 
 class ServiceNodeError(Exception):
     pass
@@ -32,7 +32,7 @@ class ServiceNode:
         self._service_name = service_name
         self._services = {}
 
-    def _startup(self, timeout=__DEFAULT_TIMEOUT):
+    def _startup(self, timeout=5):
         """
         :description: Override this function to provide handling of the startup of the service.
         :return: True if startup is successful; otherwise, False
@@ -64,14 +64,14 @@ class ServiceNode:
 
     def Start(self):
         rospy.loginfo("{} Service Node starting ...".format(self._service_name))
-        if not self._startup():
+        if not self._startup(ServiceNode.__DEFAULT_TIMEOUT):
             raise ServiceNodeError("Failed to start {}".format(self._service_name))
         rospy.loginfo("{} Service node started".format(self._service_name))
 
     def Run(self):
         rospy.loginfo("{} Service Node running".format(self._service_name))
 
-        service_key = '{}ServiceStatus'.formmat(self._service_name)
+        service_key = '{}ServiceStatus'.format(self._service_name)
         self._services[service_key] = rospy.Service(service_key, Trigger, self._service_status)
 
         self._run()

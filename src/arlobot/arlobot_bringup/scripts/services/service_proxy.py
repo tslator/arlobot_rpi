@@ -31,5 +31,8 @@ class ServiceProxy:
         self._services[name] = rospy.ServiceProxy(service, msg_type)
 
     def _invoke_service(self, name, *args):
-        return self._services[name](list(*args))
+        if len(args) > 0:
+            return self._services[name](*args)
+        else:
+            return self._services[name]()
 
