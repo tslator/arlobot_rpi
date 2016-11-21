@@ -4,9 +4,8 @@ from __future__ import print_function
 
 import rospy
 from arlobot_msgs.srv import *
-from hal_service_node import HALServiceNode, HALServiceNodeError
-from pc_hal import PCHardwareAbstractionLayer, PCHardwareAbstractionLayerError
-
+from scripts.services.hal_service_node import HALServiceNode, HALServiceNodeError
+from scripts.hal.pc_hal import PCHardwareAbstractionLayer, PCHardwareAbstractionLayerError
 
 
 class PCHALServiceNodeError(HALServiceNodeError):

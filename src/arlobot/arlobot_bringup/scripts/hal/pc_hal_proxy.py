@@ -5,7 +5,7 @@
 
 import rospy
 from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu
-from service_proxy import ServiceProxy, ServiceProxyError
+from scripts.services.service_proxy import ServiceProxy, ServiceProxyError
 
 
 class PCHALProxyError(Exception):

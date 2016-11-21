@@ -4,8 +4,8 @@
 # The Base HAL is used to access all hardware drivers that run on the Base.
 
 import rospy
-from service_proxy import ServiceProxy, ServiceProxyError
 from arlobot_msgs.srv import HALSetFloatArray, HALGetFloatArray, HALGetLaserScan, HALGetImu, HALGetCalibration
+from scripts.services.service_proxy import ServiceProxy, ServiceProxyError
 
 
 class BaseHALProxyError(Exception):

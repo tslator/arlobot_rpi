@@ -7,7 +7,7 @@ move the robot and monitor odometry to verify the move
 
 import rospy
 from arlobot_msgs.srv import HALSetFloatArray
-from service_proxy import ServiceProxy, ServiceProxyError
+from services.service_proxy import ServiceProxy, ServiceProxyError
 
 
 class ArlobotNavProxyError(Exception):
