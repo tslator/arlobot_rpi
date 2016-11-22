@@ -52,10 +52,11 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   HALSetFloatArray.srv
-   HALGetFloatArray.srv
+   SetFloatArray.srv
+   GetFloatArray.srv
    HALGetImu.srv
    HALGetLaserScan.srv
+   HALGetCalibration.srv
 )
 
 ## Generate actions in the 'action' folder
