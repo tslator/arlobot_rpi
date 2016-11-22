@@ -16,7 +16,7 @@ import tf
 from geometry_msgs.msg import Quaternion, Point, Twist, Vector3
 from arlobot_msgs.srv import SetFloatArray, SetFloatArrayResponse
 from service_node import ServiceNode, ServiceNodeError
-from utils.logging import rospylog
+from scripts.utils.logging import rospylog
 
 
 class ArlobotNavServiceNodeError(Exception):
@@ -121,7 +121,7 @@ class ArlobotNavServiceNode(ServiceNode):
         self._angular_disp += abs(normal_angle)
         self._last_angle = rotation
 
-    def _at_angle_goal(self, rotation):
+    def _at_angular_goal(self, rotation):
         self._update_turn_angle(rotation)
         result = abs(self._angular_disp + self._angular_tolerance) >= abs(self._angular_goal)
         rospylog('debug', "At Angular Goal:  disp {:.3} goal {:.3}, ? {}".format(self._angular_disp,
@@ -132,10 +132,10 @@ class ArlobotNavServiceNode(ServiceNode):
     def _unpack_request(self, request, linear=True, angular=True):
         param_list = []
         
-        if linear:
+        if linear ^ angular:
             param_list += request.values[:3]
-        if angular:
-            param_list += request.values[3:-1]
+        elif linear and angular:              
+            param_list += request.values[:-1]
 
         param_list.append(request.values[-1])
 
@@ -151,7 +151,7 @@ class ArlobotNavServiceNode(ServiceNode):
         self._last_time = now
         self._timeout = self._timeout - delta_time
 
-        return self._timeout > rospy.Duration(0.0)
+        return self._timeout <= rospy.Duration(0.0)
 
     def _init_nav_params(self):
         self._start_position = 0.0
@@ -179,12 +179,12 @@ class ArlobotNavServiceNode(ServiceNode):
             self._angular_disp = 0.0
             self._last_angle = rotation
 
-    def _at_goal(self):
+    def _at_goal(self, linear=True, angular=True):
         position, rotation = self._get_odom()
-        at_linear_goal = self._at_linear_goal(position)
-        at_angular_goal = self._at_angular_goal(rotation)
+        at_linear_goal = True if not linear else self._at_linear_goal(position)
+        at_angular_goal = True if not angular else self._at_angular_goal(rotation)
         at_timeout = self._at_timeout()
-
+        rospylog('debug', "alg: {}, aag: {}, at: {}".format(str(at_linear_goal), str(at_angular_goal), str(at_timeout)))
         return at_linear_goal and at_angular_goal and not at_timeout
 
     def _make_twist(self, linear, angular):
@@ -193,9 +193,9 @@ class ArlobotNavServiceNode(ServiceNode):
     def _cmd_vel_stop(self):
         self._cmd_vel.publish(self.__STOP_TWIST)
 
-    def _do_move(self, move):
+    def _do_move(self, move, linear=True, angular=True):
         success = False
-        while not self._at_goal():
+        while not self._at_goal(linear, angular):
             self._cmd_vel.publish(move)
             self._rate.sleep()
         else:
@@ -208,40 +208,40 @@ class ArlobotNavServiceNode(ServiceNode):
     def _nav_position(self, request):
         goal_distance, linear_velocity, linear_tolerance, goal_angle, angular_velocity, angular_tolerance, timeout = self._unpack_request(request)
 
+        linear_success = self._do_linear_move(goal_distance, linear_velocity, linear_tolerance, timeout)
+        angular_success = self._do_angular_move(goal_angle, angular_velocity, angular_tolerance, timeout)
+
+        return SetFloatArrayResponse(success=linear_success and angular_success)
+
+    def _do_angular_move(self, angular_goal, angular_velocity, angular_tolerance, timeout):
         self._init_nav_params()
-        self._set_goal(linear_goal=goal_distance, linear_tolerance=linear_tolerance,
-                       angular_goal=goal_angle, angular_tolerance=angular_tolerance)
-        self._init_timeout(timeout)
-
-        move_cmd = self._make_twist(linear_velocity, angular_velocity)
-
-        success = self._do_move(move_cmd)
-
-        return SetFloatArrayResponse(success=success)
-
-    def _nav_rotate(self, request):
-        goal_angle, angular_velocity, angular_tolerance, timeout = self._unpack_request(request, linear=False)
-
-        self._init_nav_params()
-        self._set_goal(angular_goal=goal_angle, angular_tolerance=angular_tolerance)
+        self._set_goal(angular_goal=angular_goal, angular_tolerance=angular_tolerance)
         self._init_timeout(timeout)
 
         move_cmd = self._make_twist(0.0, angular_velocity)
 
-        success = self._do_move(move_cmd)
+        return self._do_move(move_cmd, linear=False)
+
+    def _do_linear_move(self, linear_goal, linear_velocity, linear_tolerance, timeout):
+        self._init_nav_params()
+        self._set_goal(linear_goal=linear_goal, linear_tolerance=linear_tolerance)
+        self._init_timeout(timeout)
+
+        move_cmd = self._make_twist(linear_velocity, 0.0)
+
+        return self._do_move(move_cmd, angular=False)
+
+    def _nav_rotate(self, request):
+        goal_angle, angular_velocity, angular_tolerance, timeout = self._unpack_request(request, linear=False)
+
+        success = self._do_angular_move(goal_angle, angular_velocity, angular_tolerance, timeout)
 
         return SetFloatArrayResponse(success=success)
 
     def _nav_straight(self, request):
         goal_distance, linear_velocity, linear_tolerance, timeout = self._unpack_request(request, angular=False)
 
-        self._init_nav_params()
-        self._set_goal(linear_goal=goal_distance, linear_tolerance=linear_tolerance)
-        self._init_timeout(timeout)
-
-        move_cmd = self._make_twist(linear_velocity, 0.0)
-
-        success = self._do_move(move_cmd)
+        success = self._do_linear_move(goal_distance, linear_velocity, linear_tolerance, timeout)
 
         return SetFloatArrayResponse(success=success)
 
