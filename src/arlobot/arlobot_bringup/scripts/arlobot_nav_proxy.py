@@ -44,3 +44,15 @@ class ArlobotNavProxy(ServiceProxy):
         response = self._invoke_service('straight', [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ArlobotNavProxy.__DEFAULT_TIMEOUT])
         return response.success
 
+
+if __name__ == "__main__":
+    try:
+        anp = ArlobotNavProxy()
+    except ArlobotNavProxyError as e:
+        rospy.loginfo("Failed to instantiate ArlobotNavProxy: {}".format(e.args))
+        import sys
+        sys.exit(1)
+
+    anp.Stop()
+
+    rospy.loginfo("Done")
