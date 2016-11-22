@@ -7,7 +7,7 @@ import serial
 import math
 import re
 sys.path.append("../")
-from utils import Worker
+from utils.threading import StoppableThread
 
 class Xv11HwError(Exception):
     pass
@@ -72,7 +72,7 @@ class Xv11Hw:
         self._ser.readline()
         self._ser.flushInput()
 
-        self._worker = Worker("xv11 serial", self._read_lidar)
+        self._worker = StoppableThread("xv11 serial", self._read_lidar)
 
     def _turn_on_motor(self):
         self._ser.write("MotorOn\n")

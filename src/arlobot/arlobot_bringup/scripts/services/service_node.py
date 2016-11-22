@@ -66,7 +66,7 @@ class ServiceNode:
         rospy.loginfo("{} Service Node starting ...".format(self._service_name))
         if not self._startup(ServiceNode.__DEFAULT_TIMEOUT):
             raise ServiceNodeError("Failed to start {}".format(self._service_name))
-        rospy.loginfo("{} Service node started".format(self._service_name))
+        rospy.loginfo("{} Service Node started".format(self._service_name))
 
     def Run(self):
         rospy.loginfo("{} Service Node running".format(self._service_name))

@@ -10,7 +10,7 @@ from hal_protocol import HALProtocol, HALProtocolError
 from hw.imuhw import ImuHw, ImuHwError
 from hw.psochw import PsocHw, PsocHwError
 from hw.i2c import I2CBus, I2CBusError
-from utils import Worker
+from utils.threading import StoppableThread
 from threading import RLock
 
 
@@ -56,8 +56,8 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             self._last_left_time = 0
             self._last_right_time = 0
 
-            self._left_worker = Worker("Left Wheel", self.__left_wheel_work)
-            self._right_worker = Worker("Right Wheel", self.__right_wheel_work)
+            self._left_worker = StoppableThread("Left Wheel", self.__left_wheel_work)
+            self._right_worker = StoppableThread("Right Wheel", self.__right_wheel_work)
         else:
             # Note: The IMU instantiation contains code to check if the calibration is valid.  This can take up to 5
             # seconds.  The base HAL service timeout should be set to accommodate this time.  The policy is that the HAL
