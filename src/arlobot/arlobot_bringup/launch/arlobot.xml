@@ -17,12 +17,12 @@
          connected to the Arlobot, e.g., camera, gps, etc
       -->
     <node name="pc_hal_service_node" pkg="arlobot_bringup" type="pc_hal_service_node.py" output="screen" respawn="true" machine="arlobot"/>
+    
 
     <!-- arlobot_nav_service_node is a service containing motion primitives, position, distance, rotate, that use odometry
          to track position and move the robot appropriately.
          Note: Distance sensors are not referenced as part of this service
       -->
-    <!--
-    <node name="arlobot_nav_service_node" pkg="arlobot_bringup" type="arlobot_nav_service_node.py" output="sreen" respawn="true" machine="arlobot"/>
-    -->
+    <node name="arlobot_nav_service_node" pkg="arlobot_bringup" type="arlobot_nav_service_node.py" output="screen" respawn="true" machine="arlobot"/>
+
 </launch>

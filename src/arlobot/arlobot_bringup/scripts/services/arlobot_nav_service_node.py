@@ -15,7 +15,7 @@ import rospy
 import tf
 from geometry_msgs.msg import Quaternion, Point, Twist, Vector3
 from arlobot_msgs.srv import SetFloatArray, SetFloatArrayResponse
-from services.service_node import ServiceNode, ServiceNodeError
+from service_node import ServiceNode, ServiceNodeError
 
 
 class ArlobotNavServiceNodeError(Exception):
