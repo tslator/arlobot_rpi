@@ -22,7 +22,7 @@ class ServiceNode:
         :param node_name:
         :param service_name:
         """
-        enable_debug = rospy.get_param('debug', False)
+        enable_debug = rospy.get_param('debug', True)
         if enable_debug:
             rospy.init_node(node_name, log_level=rospy.DEBUG)
         else:
