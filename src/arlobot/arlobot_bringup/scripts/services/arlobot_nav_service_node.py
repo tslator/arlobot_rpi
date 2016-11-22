@@ -10,10 +10,12 @@
 # a proxy.  There will be one instance of the service and possibly multiple instances of the proxy.
 
 import time
-from math import sqrt
+from math import sqrt, atan2, sin, cos
 import rospy
 import tf
-from service_node import ServiceNode, ServiceNodeError
+from geometry_msgs.msg import Quaternion, Point, Twist, Vector3
+from arlobot_msgs.srv import SetFloatArray, SetFloatArrayResponse
+from services.service_node import ServiceNode, ServiceNodeError
 
 
 class ArlobotNavServiceNodeError(Exception):
@@ -24,17 +26,6 @@ class ArlobotNavServiceNode(ServiceNode):
     def __init__(self):
         ServiceNode.__init__(self, 'arlobot_nav_service_node', 'NavService')
 
-        # NavRelative
-        # float32 distance
-        # float32 linear
-        # float32 linear_tolerance
-        # float32 angle
-        # float32 angular
-        # float32 angular_tolerance
-        # float32 timeout
-        # ---
-        # bool success
-
         # Setup for the Service
         self.cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
 
@@ -43,6 +34,12 @@ class ArlobotNavServiceNode(ServiceNode):
 
         # The odom frame is usually just /odom
         self.odom_frame = rospy.get_param('~odom_frame', '/odom')
+
+        rate = 20
+
+        # Set the equivalent ROS rate variable
+        self._rate = rospy.Rate(rate)
+
 
         # Initialize the tf listener
         self.tf_listener = tf.TransformListener()
@@ -72,9 +69,9 @@ class ArlobotNavServiceNode(ServiceNode):
         return True
 
     def _run(self):
-        self._services['NavPosition'] = rospy.Service('NavPosition', NavRelative, self._nav_position)
-        self._services['NavRotate'] = rospy.Service('NavRotate', NavRelative, self._nav_rotate)
-        self._services['NavStraight'] = rospy.Service('NavStraight', NavRelative, self._nav_straight)
+        self._services['NavPosition'] = rospy.Service('NavPosition', SetFloatArray, self._nav_position)
+        self._services['NavRotate'] = rospy.Service('NavRotate', SetFloatArray, self._nav_rotate)
+        self._services['NavStraight'] = rospy.Service('NavStraight', SetFloatArray, self._nav_straight)
 
     def _shutdown(self):
         rospy.loginfo("Shutting down {} ...".format(self._service_name))
@@ -90,7 +87,8 @@ class ArlobotNavServiceNode(ServiceNode):
             rospy.loginfo("TF Exception")
             return
 
-        return (Point(*trans), quat_to_angle(Quaternion(*rot)))
+        #return (Point(*trans), quat_to_angle(Quaternion(*rot)))
+        return Point(*trans), tf.transformations.euler_from_quaternion(Quaternion(*rot))[0]
 
     def _at_distance_goal(self, x_start, y_start, position, goal, tolerance):
         # Compute the Euclidean distance from the start
@@ -99,7 +97,9 @@ class ArlobotNavServiceNode(ServiceNode):
         return distance > goal
 
     def _at_angle_goal(self, start_angle, rotation, goal, tolerance):
-        angle = normalize_angle(rotation - start_angle)
+        #angle = normalize_angle(rotation - start_angle)
+        delta_angle = rotation - start_angle
+        angle = atan2(sin(delta_angle), cos(delta_angle))
 
         return abs(angle + tolerance) > abs(goal)
 
@@ -131,15 +131,17 @@ class ArlobotNavServiceNode(ServiceNode):
             self.cmd_vel.publish(move_cmd)
             (position, rotation) = self._get_odom()
             timeout -= time.time() - start_time
+
+            self._rate.sleep()
         else:
             success = True
 
-        return NavRelativeResponse(success=success)
+        return SetFloatArrayResponse(success=success)
 
     def _nav_rotate(self, request):
         goal_angle, angular_velocity, angular_tolerance, timeout = self._unpack_request(request, linear=False)
 
-        move_cmd = Twist(Vector3(linear, 0.0, 0.0), Vector3(0.0, 0.0, angular))
+        move_cmd = Twist(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, angular_velocity))
         (position, rotation) = self._get_odom()
         start_angle = rotation
 
@@ -148,10 +150,12 @@ class ArlobotNavServiceNode(ServiceNode):
             self.cmd_vel.publish(move_cmd)
             (position, rotation) = self._get_odom()
             timeout -= time.time() - start_time
+
+            self._rate.sleep()
         else:
             success = True
 
-        return NavRelativeResponse(success=success)
+        return SetFloatArrayResponse(success=success)
 
     def _nav_straight(self, request):
         success = False
@@ -167,10 +171,12 @@ class ArlobotNavServiceNode(ServiceNode):
             self.cmd_vel.publish(move_cmd)
             (position, rotation) = self._get_odom()
             timeout -= time.time() - start_time
+
+            self._rate.sleep()
         else:
             success = True
 
-        return NavRelativeResponse(success=success)
+        return SetFloatArrayResponse(success=success)
 
 
 if __name__ == '__main__':

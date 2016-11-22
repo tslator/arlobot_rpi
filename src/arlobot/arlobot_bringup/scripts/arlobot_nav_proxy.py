@@ -18,7 +18,7 @@ class ArlobotNavProxy(ServiceProxy):
 
     __DEFAULT_TIMEOUT = 10
 
-    def __init__(self):
+    def __init__(self, timeout=__DEFAULT_TIMEOUT):
         """
         Initializes the ArlobotNavProxy
         """
@@ -29,13 +29,18 @@ class ArlobotNavProxy(ServiceProxy):
         self._add_service('straight', 'NavStraight', HALSetFloatArray)
 
     def Position(self, distance, linear_velocity, linear_tolerance, angle, angular_velocity, angular_tolerance, timeout=__DEFAULT_TIMEOUT):
-        response = self._invoke_service('position', distance, linear_velocity, linear_tolerance, angle, angular_velocity, angular_tolerance, timeout)
+        response = self._invoke_service('position', [distance, linear_velocity, linear_tolerance, angle, angular_velocity, angular_tolerance, timeout])
         return response.success
 
     def Rotate(self, angle, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
-        response = self._invoke_service('rotate', 0.0, 0.0, 0.0, angle, velocity, tolerance, timeout)
+        response = self._invoke_service('rotate', [0.0, 0.0, 0.0, angle, velocity, tolerance, timeout])
         return response.success
 
     def Straight(self, distance, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
-        response = self._invoke_service('straight', distance, velocity, tolerance, 0.0, 0.0, 0.0, timeout)
+        response = self._invoke_service('straight', [distance, velocity, tolerance, 0.0, 0.0, 0.0, timeout])
+        return response.success
+
+    def Stop(self):
+        response = self._invoke_service('straight', [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ArlobotNavProxy.__DEFAULT_TIMEOUT])
+        return response.success
 
