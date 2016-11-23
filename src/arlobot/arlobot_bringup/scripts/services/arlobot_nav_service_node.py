@@ -154,7 +154,7 @@ class ArlobotNavServiceNode(ServiceNode):
         return self._timeout <= rospy.Duration(0.0)
 
     def _init_nav_params(self):
-        self._start_position = 0.0
+        self._start_position = Point(0.0, 0.0, 0.0)
         self._linear_goal = 0.0
         self._linear_tolerance = 0.0
         self._linear_disp = 0.0

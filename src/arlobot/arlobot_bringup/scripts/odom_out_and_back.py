@@ -49,6 +49,7 @@ class OutAndBack():
     def Loop(self):
         rospy.loginfo("Starting OutAndBack Navigation ...")
         # Loop once for each leg of the trip
+        '''
         for i in range(2):
             self._nav_proxy.Stop()
             rospy.loginfo("Moving forward ...")
@@ -58,7 +59,7 @@ class OutAndBack():
             rospy.loginfo("Rotating ...")
             self._nav_proxy.Rotate(math.radians(180), 1.0, 0.001, 20)
             rospy.loginfo("Rotation complete")
-
+        '''
         self._nav_proxy.Stop()
         rospy.loginfo("OutAndBack Navigation complete")
 

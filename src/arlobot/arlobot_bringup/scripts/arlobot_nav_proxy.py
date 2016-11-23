@@ -8,7 +8,9 @@ move the robot and monitor odometry to verify the move
 import rospy
 from arlobot_msgs.srv import HALSetFloatArray
 from services.service_proxy import ServiceProxy, ServiceProxyError
+from utils.logging import rospylog
 
+level = 'debug'
 
 class ArlobotNavProxyError(Exception):
     pass
@@ -24,34 +26,34 @@ class ArlobotNavProxy(ServiceProxy):
         """
         ServiceProxy.__init__(self, 'ArlobotNavService')
 
-        print("Adding service calls ...")
+        rospylog(level, "Adding service calls ...")
         self._add_service('position', 'ArlobotNavPosition', HALSetFloatArray)
         self._add_service('rotate', 'ArlobotNavRotate', HALSetFloatArray)
         self._add_service('straight', 'ArlobotNavStraight', HALSetFloatArray)
-        print("Done")
+        rospylog(level, "Done")
 
     def Position(self, distance, linear_velocity, linear_tolerance, angle, angular_velocity, angular_tolerance, timeout=__DEFAULT_TIMEOUT):
-        print("invoking position service ...")
+        rospylog(level, "invoking position service ...")
         response = self._invoke_service('position', [distance, linear_velocity, linear_tolerance, angle, angular_velocity, angular_tolerance, timeout])
-        print("done: {}".format(str(response.success)))
+        rospylog(level, "done: {}".format(str(response.success)))
         return response.success
 
     def Rotate(self, angle, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
-        print("invoking rotate service ...")
+        rospylog(level, "invoking rotate service ...")
         response = self._invoke_service('rotate', [angle, velocity, tolerance, timeout])
-        print("done: {}".format(str(response.success)))
+        rospylog(level, "done: {}".format(str(response.success)))
         return response.success
 
     def Straight(self, distance, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
-        print("invoking straight service ...")
+        rospylog(level, "invoking straight service ...")
         response = self._invoke_service('straight', [distance, velocity, tolerance, timeout])
-        print("done: {}".format(str(response.success)))
+        rospylog(level, "done: {}".format(str(response.success)))
         return response.success
 
     def Stop(self):
-        print("invoking stop service ...")
+        rospylog(level, "invoking stop service ...")
         response = self._invoke_service('straight', [0.0, 0.0, 0.0, ArlobotNavProxy.__DEFAULT_TIMEOUT])
-        print("done: {}".format(str(response.success)))
+        rospylog(level, "done: {}".format(str(response.success)))
         return response.success
 
 
