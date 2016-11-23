@@ -38,19 +38,19 @@ class ArlobotNavProxy(ServiceProxy):
 
     def Rotate(self, angle, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
         print("invoking rotate service ...")
-        response = self._invoke_service('rotate', [0.0, 0.0, 0.0, angle, velocity, tolerance, timeout])
+        response = self._invoke_service('rotate', [angle, velocity, tolerance, timeout])
         print("done: {}".format(str(response.success)))
         return response.success
 
     def Straight(self, distance, velocity, tolerance, timeout=__DEFAULT_TIMEOUT):
         print("invoking straight service ...")
-        response = self._invoke_service('straight', [distance, velocity, tolerance, 0.0, 0.0, 0.0, timeout])
+        response = self._invoke_service('straight', [distance, velocity, tolerance, timeout])
         print("done: {}".format(str(response.success)))
         return response.success
 
     def Stop(self):
         print("invoking stop service ...")
-        response = self._invoke_service('straight', [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ArlobotNavProxy.__DEFAULT_TIMEOUT])
+        response = self._invoke_service('straight', [0.0, 0.0, 0.0, ArlobotNavProxy.__DEFAULT_TIMEOUT])
         print("done: {}".format(str(response.success)))
         return response.success
 

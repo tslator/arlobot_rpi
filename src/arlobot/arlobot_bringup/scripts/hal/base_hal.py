@@ -19,7 +19,7 @@ class BaseHardwareAbstractionLayerError(HALProtocolError):
 
 
 class BaseHardwareAbstractionLayer(HALProtocol):
-    def __init__(self, simulated=True):
+    def __init__(self, simulated=False):
         HALProtocol.__init__(self, "Base HAL")
 
         self._simulated = simulated
@@ -59,12 +59,6 @@ class BaseHardwareAbstractionLayer(HALProtocol):
             self._left_worker = StoppableThread("Left Wheel", self.__left_wheel_work)
             self._right_worker = StoppableThread("Right Wheel", self.__right_wheel_work)
         else:
-            # Note: The IMU instantiation contains code to check if the calibration is valid.  This can take up to 5
-            # seconds.  The base HAL service timeout should be set to accommodate this time.  The policy is that the HAL
-            # cannot report that it is ready unless all of its components are ready, e.g., the IMU has reported it is
-            # calibrated.
-
-
             try:
                 self._imu = ImuHw()
             except ImuHwError as e:
@@ -72,13 +66,13 @@ class BaseHardwareAbstractionLayer(HALProtocol):
 
             try:
                 self._i2c_bus_1 = I2CBus(psoc_i2c_device)
-            except RuntimeError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {}".format(psoc_i2c_device))
+            except RuntimeError as e:
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate I2CBus {} - {}".format(psoc_i2c_device, e.args))
             
             try:
                 self._psoc = PsocHw(self._i2c_bus_1, psoc_addr)
-            except PsocHwError:
-                raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw")
+            except PsocHwError as e:
+                raise BaseHardwareAbstractionLayerError("Failed to instantiate PsocHw - {}".format(e.args))
 
     def __left_wheel_work(self):
         now = time()

@@ -5,12 +5,12 @@ Arlobot Sensor Node Debug: False
 
 # Robot drive and mechanical parameters
 Drive Type: "ArlobotDifferential"
-Track Width: 0.4030      # meter
-Tick Per Revolution: 144  # encoder tick or count
-Wheel Diameter: 0.1524   # meter
+Track Width: 0.392         # meter
+Tick Per Revolution: 2000  # encoder tick or count
+Wheel Diameter: 0.157      # meter
 
 # Speed constraints
-Max Motor RPM: 95 # rpm
+Max Motor RPM: 95      # rpm
 Max Linear Speed: 2.0  # meter/sec
 Max Angular Speed: 1.0 # rad/sec
 
@@ -31,9 +31,9 @@ Sensors Node Loop Rate: 5  # Hz
 IMU Enabled: True
 
 # Drive Node Velocity Profile parameters
-Drive Node Linear Accel Limit: 0.095
-Drive Node Angular Accel Limit: 0.075
-Drive Node Safety Timeout: 2.0
+Drive Node Linear Accel Limit: 0.095  # mm/s^2
+Drive Node Angular Accel Limit: 0.075 # rad/s^2
+Drive Node Safety Timeout: 2.0        # seconds
 
 # Ultrasonic range sensors
 Ultrasonic Field Of View:  0.523599
@@ -62,8 +62,7 @@ Infrared Scan Enable: True
 
 # HAL parameters
 Base HAL Service Timeout Rate: 1 # Hz
-# Note: The IMU can take up to 5 seconds to confirm calibration.  The Base HAL Service Timeout needs to account for this.
-Base HAL Service Timeout: 10 # seconds (5 seconds for IMU plus 5 seconds generally)
+Base HAL Service Timeout: 10     # seconds (5 seconds for IMU plus 5 seconds generally)
 Base HAL Simulate: False
 Psoc I2C Device: 1
 Imu I2C Device: 1

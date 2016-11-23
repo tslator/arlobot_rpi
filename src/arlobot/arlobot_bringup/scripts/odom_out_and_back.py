@@ -55,11 +55,11 @@ class OutAndBack():
         for i in range(2):
             self._nav_proxy.Stop()
             rospy.loginfo("Moving forward ...")
-            self._nav_proxy.Straight(1.0, 0.2, 0.001)
+            self._nav_proxy.Straight(1.0, 0.2, 0.001, 20)
             self._nav_proxy.Stop()
             rospy.loginfo("Move complete")
             rospy.loginfo("Rotating ...")
-            self._nav_proxy.Rotate(math.radians(180), 1.0, 2.5)
+            self._nav_proxy.Rotate(math.radians(180), 1.0, 0.001, 20)
             rospy.loginfo("Rotation complete")
 
         self._nav_proxy.Stop()
