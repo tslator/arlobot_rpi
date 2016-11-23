@@ -36,9 +36,6 @@ class OutAndBack():
             rospy.init_node('out_and_back', anonymous=False)
         rospy.on_shutdown(self.Shutdown)
 
-        # Set rospy to execute a shutdown function when exiting
-        rospy.on_shutdown(self.shutdown)
-
         try:
             self._nav_proxy = ArlobotNavProxy()
         except ArlobotNavProxyError as e:
@@ -68,7 +65,8 @@ class OutAndBack():
     def Shutdown(self):
         # Always stop the robot when shutting down the node.
         rospy.loginfo("OutAndBack Navigation Node shutting down ...")
-        self._nav_proxy.Stop()
+        if self._nav_proxy:
+            self._nav_proxy.Stop()
         rospy.loginfo("OutAndBack Navigation Node shutdown")
 
 if __name__ == '__main__':
