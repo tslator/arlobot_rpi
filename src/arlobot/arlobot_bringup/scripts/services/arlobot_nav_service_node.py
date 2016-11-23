@@ -25,7 +25,7 @@ class ArlobotNavServiceNodeError(Exception):
 
 class ArlobotNavServiceNode(ServiceNode):
     def __init__(self):
-        ServiceNode.__init__(self, 'arlobot_nav_service_node', 'ArlobotNavService')
+        ServiceNode.__init__(self, 'arlobot_nav_service_node', 'ArlobotNav')
 
         # Setup for the Service
         self._cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
