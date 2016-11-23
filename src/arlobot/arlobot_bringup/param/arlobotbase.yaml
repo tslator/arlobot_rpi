@@ -1,6 +1,6 @@
 # Debug Settings
 Arlobot Base Node Debug: False
-Arlobot Drive Node Debug: False
+Arlobot Drive Node Debug: True
 Arlobot Sensor Node Debug: False
 
 # Robot drive and mechanical parameters

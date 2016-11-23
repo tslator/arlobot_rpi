@@ -51,16 +51,14 @@ class OutAndBack():
         # Loop once for each leg of the trip
         
         for i in range(2):
-            #time.sleep(1)
-            #self._nav_proxy.Stop()
+            self._nav_proxy.Stop()
             rospy.loginfo("Moving forward ...")
-            self._nav_proxy.Straight(1.0, 0.250, 0.0001, 20)
+            self._nav_proxy.Straight(1.0, 0.250, 0.001, 20)
             self._nav_proxy.Stop()
             rospy.loginfo("Move complete")
-            time.sleep(1)
-            #rospy.loginfo("Rotating ...")
-            #self._nav_proxy.Rotate(math.radians(180), 2.0, 0.1, 20)
-            #rospy.loginfo("Rotation complete")
+            rospy.loginfo("Rotating ...")
+            self._nav_proxy.Rotate(math.radians(180), 2.0, 0.001, 20)
+            rospy.loginfo("Rotation complete")
         
         self._nav_proxy.Stop()
         rospy.loginfo("OutAndBack Navigation complete")

@@ -342,7 +342,7 @@ class ArlobotDriveNode:
                 heading += 2*math.pi
             orientation['euler'] = {'roll': 0.0, 'pitch': 0.0, 'yaw': heading}
 
-        rospy.loginfo("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(
+        rospy.logdebug("ls: {:6.3f}, rs: {:6.3f}, ld: {:6.3f}, rd: {:6.3f} hd: {:6.3f}".format(
                       left_speed,
                       right_speed,
                       left_dist,
@@ -353,7 +353,7 @@ class ArlobotDriveNode:
         x_dist = c_dist * math.cos(heading)
         y_dist = c_dist * math.sin(heading)
 
-        rospy.loginfo("x: {:.3} y: {:.3} c: {:.3} h: {:.3}".format(x_dist, y_dist, c_dist, heading))
+        rospy.logdebug("x: {:.3} y: {:.3} c: {:.3} h: {:.3}".format(x_dist, y_dist, c_dist, heading))
 
         v, w = diff2uni(left_speed, right_speed, self._track_width, self._wheel_radius)
 
