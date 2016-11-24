@@ -10,7 +10,7 @@ from hal_protocol import HALProtocol, HALProtocolError
 from hw.imuhw import ImuHw, ImuHwError
 from hw.psochw import PsocHw, PsocHwError
 from hw.i2c import I2CBus, I2CBusError
-from utils.threading import StoppableThread
+from scripts.utils.arlothreading import StoppableThread
 from threading import RLock
 
 
