@@ -6,7 +6,7 @@ import math
 
 class ArlobotOdometryPublisher:
     def __init__(self):
-        self._publisher = rospy.Publisher("odom", Odometry, queue_size=10)
+        self._publisher = rospy.Publisher("odom", Odometry, queue_size=1)
 
     def _msg(self, quaternion, x_dist, y_dist, linear_speed, angular_speed, now, use_pose_ekf=False):
         # next, we will publish the odometry message over ROS

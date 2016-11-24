@@ -28,7 +28,7 @@ class ArlobotNavServiceNode(ServiceNode):
         ServiceNode.__init__(self, 'arlobot_nav_service_node', 'ArlobotNav')
 
         # Setup for the Service
-        self._cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
+        self._cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
         # The base frame is base_footprint for the TurtleBot but base_link for Pi Robot
         self._base_frame = rospy.get_param('~base_frame', '/base_link')
@@ -38,10 +38,20 @@ class ArlobotNavServiceNode(ServiceNode):
 
         self.__STOP_TWIST = self._make_twist(0.0, 0.0)
 
-        rate = 100
+        # This is the rate at which we want to check for changes in odometry
+        odom_rate = 50.0
 
         # Set the equivalent ROS rate variable
-        self._rate = rospy.Rate(rate)
+        self._odom_rate = rospy.Rate(odom_rate)
+        self._odom_period = self._odom_rate.sleep_dur
+
+        # This is the rate at which we want to issue velocity commands.
+        # Note: Due to queuing effects, we don't want to issue a 'ton' of velocity messages as it
+        # makes the system unresponsive.  The safety timeout is 2 seconds, so we only need to issue
+        # commands less than 2 seconds or often enough to keep the robot moving -- presently set
+        # to 2 Hz
+        cmd_rate = 2.0
+        self._cmd_duration = rospy.Duration(1.0/cmd_rate)
 
         # Initialize the tf listener
         self._tf_listener = tf.TransformListener()
@@ -101,7 +111,11 @@ class ArlobotNavServiceNode(ServiceNode):
             rospy.logerr("TF Exception")
             return
 
-        return Point(*trans), tf.transformations.euler_from_quaternion(rot)[2]
+        position = Point(*trans)
+        rotation = tf.transformations.euler_from_quaternion(rot)[2]
+        rospylog('debug', "{}, {}".format(str(position), str(rotation)))
+
+        return position, rotation
 
     def _at_linear_goal(self, position):
         # Compute the Euclidean distance from the start
@@ -151,10 +165,12 @@ class ArlobotNavServiceNode(ServiceNode):
         self._last_time = now
         self._timeout = self._timeout - delta_time
 
+        rospylog('debug', "Current timeout: {}".format(str(self._timeout)))
+
         return self._timeout <= rospy.Duration(0.0)
 
     def _init_nav_params(self):
-        self._start_position = Point(0.0, 0.0, 0.0)
+        self._start_position = 0.0
         self._linear_goal = 0.0
         self._linear_tolerance = 0.0
         self._linear_disp = 0.0
@@ -166,21 +182,22 @@ class ArlobotNavServiceNode(ServiceNode):
 
     def _set_goal(self, linear_goal=0.0, linear_tolerance=0.001, angular_goal=0.0, angular_tolerance=0.001):
         position, rotation = self._get_odom()
-        if linear_goal > 0.0:
-            self._start_position = position
-            self._linear_goal = linear_goal
-            self._linear_tolerance = linear_tolerance
-            self._linear_disp = 0.0
+        rospylog('debug', "{}, {}".format(str(position), str(rotation)))
+        
+        self._start_position = position
+        self._linear_goal = linear_goal
+        self._linear_tolerance = linear_tolerance
+        self._linear_disp = 0.0
 
-        if angular_goal > 0.0:
-            self._start_angle = rotation
-            self._angular_goal = angular_goal
-            self._angular_tolerance = angular_tolerance
-            self._angular_disp = 0.0
-            self._last_angle = rotation
+        self._start_angle = rotation
+        self._angular_goal = angular_goal
+        self._angular_tolerance = angular_tolerance
+        self._angular_disp = 0.0
+        self._last_angle = rotation
 
     def _at_goal(self, linear=True, angular=True):
         position, rotation = self._get_odom()
+        rospylog('debug', "{}, {}".format(str(position), str(rotation)))
         at_linear_goal = True if not linear else self._at_linear_goal(position)
         at_angular_goal = True if not angular else self._at_angular_goal(rotation)
         at_timeout = self._at_timeout()
@@ -195,12 +212,25 @@ class ArlobotNavServiceNode(ServiceNode):
 
     def _do_move(self, move, linear=True, angular=True):
         success = False
+        cmd_timeout = self._cmd_duration
+        self._cmd_vel.publish(move)
         while not self._at_goal(linear, angular):
-            self._cmd_vel.publish(move)
-            self._rate.sleep()
+            self._odom_rate.sleep()
+
+            cmd_timeout -= self._odom_period
+            if cmd_timeout <= rospy.Duration(0.0):
+                self._cmd_vel.publish(move)
+                cmd_timeout = self._cmd_duration
+
+            if self._at_timeout():
+                success = True
+                break
         else:
             success = True
 
+        rospylog('debug', "Issuing stop twist command")
+        self._cmd_vel_stop()
+        self._cmd_vel_stop()
         self._cmd_vel_stop()
 
         return success
@@ -214,6 +244,11 @@ class ArlobotNavServiceNode(ServiceNode):
         return SetFloatArrayResponse(success=linear_success and angular_success)
 
     def _do_angular_move(self, angular_goal, angular_velocity, angular_tolerance, timeout):
+        if angular_goal == 0.0:
+            rospylog('debug', "No goal so we're just returning")
+            self._cmd_vel_stop()
+            return True
+
         self._init_nav_params()
         self._set_goal(angular_goal=angular_goal, angular_tolerance=angular_tolerance)
         self._init_timeout(timeout)
@@ -223,6 +258,11 @@ class ArlobotNavServiceNode(ServiceNode):
         return self._do_move(move_cmd, linear=False)
 
     def _do_linear_move(self, linear_goal, linear_velocity, linear_tolerance, timeout):
+        if linear_goal == 0.0:
+            rospylog('debug', "No goal so we're just returning")
+            self._cmd_vel_stop()
+            return True
+
         self._init_nav_params()
         self._set_goal(linear_goal=linear_goal, linear_tolerance=linear_tolerance)
         self._init_timeout(timeout)
