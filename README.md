@@ -28,3 +28,5 @@ next, and hopefully last iteration of Arlobot will use the TX2.  With the TX2, I
 Pi functionality.  The TX2 has a dual-core processor and 256 Cuda Cores, it runs Ubuntu 64-bit and ROS, supports I2C (hopefully with no
 slave bug, SPI, and CAN interfaces as well as digital camera inputs.  With the CAN interface available, I'm planning to create CAN-based
 sensor modules to support up to 16 ultrasonic and 16 infrared sensors.
+
+![alt text](http://github.com/tslator/arlobot_rpi/raw/master/src/images/arlobot.jpg)
