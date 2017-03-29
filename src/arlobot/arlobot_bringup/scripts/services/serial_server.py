@@ -98,6 +98,89 @@ class SerialServer(object):
             rospy.loginfo("SERIAL PORT Write Error")
             raise
 
+
+# Create a class that is a protocol handler where you register callbacks that trigger on specific serial data
+# For example, a callback for when the prompt occurs:
+#       r'Make an entry \[[a-z]-[a-z],x\/X\]:.*'
+# The callback can be triggered when a regular expression matches or a glob, etc.
+
+# The callbacks will be called from the thread that reads from the serial port?
+# We could make the serial server dumber so that all it can do is read and write data to the serial port, and
+# every time there is data read, it calls a callback in the protocol handler.  The protocol handler determines
+# if there has been a match rather than the serial server.  Remember the serial server, as is, was designed to
+# be a line protocol detector.  We need more and so we can move the 'line detector' to the protocol handler and
+# simplify the serial server
+
+# The serial server will lose the StringIO handling and just pass serial data as it is received from the serial port
+# to the protocol handler.from
+
+# The protocol handler will attach a callback to the serial server, to receive data.  In that the serial data receive
+# callback, it will take over the serial server task of adding the data to StringIO and then attempt to match the data
+# against registered 'events', e.g., "end menu display", "selection prompt", "data entry prompt", etc.
+
+# The protocol handler is the proper place to have context.  In fact, we should be able to subclass the protocol handler
+# into a class that customizes for handling display, calibration, validation, etc.
+class ProtocolHandler():
+    def __init__(self, server):
+        self._callbacks = {}
+        self._server = server
+        self._server.add_callback(self._recv_data)
+        self._events = {}
+
+    def _recv_data(self, data):
+        """
+        :description: Add the data received for the StringIO object then for each registered event apply the filter and
+        call the callback if it matches
+        :param data:
+        :return:
+        """
+        self._string_io.write(data)
+
+        recv_data = self._string_io.getvalue()
+        for name, event in self._events:
+            if re.match(event.regex, recv_data):
+                event.callback(name, recv_data)
+                self._string_io.close()
+                self._string_io = StringIO()
+
+    def start(self):
+        self._server.Start()
+
+    def stop(self):
+        self._server.Stop()
+
+    def add_callback(self, name, regex, callback):
+        # Note: Per Fluent Python, store a named tuple instead of a plain tuple
+        self._events[name] = (regex, callback)
+
+    def execute(self, menu, item):
+        pass
+
+
+class DisplayHandler(ProtocolHandler):
+    def __init__(self, serial):
+        ProtocolHandler.__init__(self, serial)
+
+        self.add_event('select_prompt', r'Make an entry \[[a-z]-[a-z],x\/X\]:.*', self._select_prompt)
+
+        self.start()
+
+    def _select_prompt(self, name, data):
+        pass
+
+    def get_motor_calibration(self, mode='raw'):
+        """
+        :description: Request and retrieve the display data for the motor calibration.  This is a blocking call.
+        :return:
+        """
+        self.execute('d', 'a')
+        return self._data
+
+dh = DisplayHandler(serial=serial(port='/dev/ttyACM0', baud=115200))
+raw_data = dh.get_motor_calibration()
+parsed_data = dh.get_motor_calibration(mode='parsed')
+
+
 if __name__ == '__main__':
     def wait():
         #global finished_count

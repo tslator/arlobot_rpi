@@ -1,0 +1,16 @@
+# Supported Calibration Commands
+uint8 CAL_MOTOR = 1
+uint8 CAL_LEFT_PID = 2
+uint8 CAL_RIGHT_PID = 3
+uint8 CAL_LINEAR = 4
+uint8 CAL_ANGULAR = 5
+# Supported Mode
+uint8 MODE_RAW
+uint8 MODE_PARSED
+
+# Service Message
+uint8 command
+uint8 mode
+float32[] parms
+---
+string response
