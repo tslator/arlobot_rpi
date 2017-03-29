@@ -29,4 +29,4 @@ Pi functionality.  The TX2 has a dual-core processor and 256 Cuda Cores, it runs
 slave bug, SPI, and CAN interfaces as well as digital camera inputs.  With the CAN interface available, I'm planning to create CAN-based
 sensor modules to support up to 16 ultrasonic and 16 infrared sensors.
 
-![alt text](http://github.com/tslator/arlobot_rpi/raw/master/src/images/arlobot.jpg)
+![alt text](images/arlobot.jpg)
